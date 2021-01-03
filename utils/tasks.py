@@ -29,20 +29,20 @@ async def checking_coin_task(mpets, user, user_task):
 
 
 async def checking_heart_task(mpets, user, user_task):
-    pet = await mpets.view_profile(user.pet_id)
-    if pet["status"] == "error":
-        # logging
-        return 0
-    if pet["club_heart"] is None:
-        # logging
-        return 0
-    progress = pet["club_heart"]
-    if "k" in progress:
-        progress = int(progress.split("k")[0]) * 1000
-    elif "m" in progress:
-        progress = int(progress.split("k")[0]) * 1000000
-    elif "M" in progress:
-        progress = int(progress.split("k")[0]) * 1000000000
+    page, progress, step, counter = 1, 0, True, 0
+    while step:
+        try:
+            pets = await mpets.club_budget_history_all(
+                user.club_id, 2, page)
+            for pet in pets["players"]:
+                if pet["pet_id"] == user.pet_id:
+                    progress = pet["count"]
+                    step = False
+                    break
+        except:
+            counter += 1
+            if counter >= 5:
+                return 0
     if user_task.end <= int(progress):
         crud.update_club_task(user_task.id, user_task.end,
                               "completed")
@@ -52,11 +52,7 @@ async def checking_heart_task(mpets, user, user_task):
 
 
 async def checking_exp_task(mpets, user, user_task):
-    pet = await mpets.view_profile(user.pet_id)
-    if pet["status"] == "error":
-        # logging
-        return 0
-    page, progress, step = 1, 0, True
+    page, progress, step, counter = 1, 0, True, 0
     while step:
         try:
             pets = await mpets.club_budget_history_all(
@@ -67,7 +63,9 @@ async def checking_exp_task(mpets, user, user_task):
                     step = False
                     break
         except:
-            return 0
+            counter += 1
+            if counter >= 5:
+                return 0
     if user_task.end <= progress:
         crud.update_club_task(user_task.id, user_task.end,
                               "completed")

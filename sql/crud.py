@@ -271,7 +271,7 @@ def create_user_task_for_user(user_id: int, task_name: str, progress: int,
     db.commit()
 
 
-def close_all_user_tasks(user_id: int):
+def close_all_user_tasks(user_id: int,l):
     user_tasks = db.query(models.UsersTasks).filter_by(
         user_id=user_id,
         status="waiting").all()

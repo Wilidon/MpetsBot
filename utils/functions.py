@@ -238,17 +238,20 @@ async def heart_task(user_id, pet_id, club_id):
     if resp["status"] == "error":
         # logging
         return 0
-    pet = await mpets.view_profile(pet_id)
-    if pet["status"] == "error":
-        # loggin
-        return 0
-    progress = pet["club_heart"]
-    if "k" in progress:
-        progress = int(progress.split("k")[0]) * 1000
-    elif "m" in progress:
-        progress = int(progress.split("k")[0]) * 1000000
-    elif "M" in progress:
-        progress = int(progress.split("k")[0]) * 1000000000
+    page, progress, step, counter = 1, 0, True, 0
+    while step:
+        try:
+            pets = await mpets.club_budget_history_all(
+                user.club_id, 2, page)
+            for pet in pets["players"]:
+                if pet["pet_id"] == user.pet_id:
+                    progress = pet["count"]
+                    step = False
+                    break
+        except:
+            counter += 1
+            if counter >= 5:
+                return 0
     level = await mpets.view_profile(pet_id)
     limits = await get_limits(level["level"])
     end = int(progress) + limits["heart"]
@@ -264,7 +267,7 @@ async def exp_task(user_id, pet_id, club_id):
     if resp["status"] == "error":
         # logging
         return 0
-    page, progress, step = 1, 0, True
+    page, progress, step, counter = 1, 0, True, 0
     while step:
         try:
             pets = await mpets.club_budget_history_all(club_id, 3, page)
@@ -274,7 +277,9 @@ async def exp_task(user_id, pet_id, club_id):
                     step = False
                     break
         except:
-            return 0
+            counter += 1
+            if counter >= 5:
+                return 0
     level = await mpets.view_profile(pet_id)
     limits = await get_limits(level["level"])
     end = int(progress) + limits["exp"]
