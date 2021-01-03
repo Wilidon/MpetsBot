@@ -126,3 +126,5 @@ dmypy.json
 .pyre/
 logs
 test.py
+text.txt
+.stats.db

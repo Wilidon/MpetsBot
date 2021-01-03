@@ -1,11 +1,33 @@
 from vkwave.bots import DefaultRouter, SimpleBotEvent, \
-    simple_bot_message_handler, PayloadFilter
+    simple_bot_message_handler, PayloadFilter, TextContainsFilter
 
 from mpetsapi import MpetsApi
 from sql import crud
 from utils.constants import MENU, CONFIRMATION
+from utils.functions import notice
 
 menu_router = DefaultRouter()
+
+
+@simple_bot_message_handler(menu_router,
+                            PayloadFilter({"command": "menu"}))
+async def points(event: SimpleBotEvent):
+    await event.answer(message="Меню", keyboard=MENU.get_keyboard())
+
+
+@simple_bot_message_handler(menu_router,
+                            TextContainsFilter(
+                                ["/report"]))
+async def points(event: SimpleBotEvent):
+    user = event["current_user"]
+    try:
+        msg = event.object.object.message.text.split(" ", maxsplit=1)[1]
+    except:
+        msg = "Null"
+    text = f"{user.first_name} {user.last_name} ({user.user_id}) нуждается в "\
+           f"психологической помощи.\n\n" \
+           f"Его сообщение: «{msg}»"
+    notice(message=text)
 
 
 @simple_bot_message_handler(menu_router)
@@ -56,8 +78,3 @@ async def main(event: SimpleBotEvent):
                                                          "начать", "початок"):
         await event.answer(message="Меню", keyboard=MENU.get_keyboard())
 
-
-@simple_bot_message_handler(menu_router,
-                            PayloadFilter({"command": "menu"}))
-async def points(event: SimpleBotEvent):
-    await event.answer(message="Меню", keyboard=MENU.get_keyboard())

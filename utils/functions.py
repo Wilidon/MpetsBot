@@ -1,6 +1,6 @@
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import copy
 
 import requests
@@ -10,6 +10,7 @@ from vkwave.bots import SimpleLongPollBot
 from config import get_settings
 from mpetsapi import MpetsApi
 from sql import crud
+from tzlocal import get_localzone
 
 user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"]]
 
@@ -32,18 +33,18 @@ user_completed_tasks_list = {"avatar": "Поставить аватар {} до 
                              "30online": "Не выходить из онлайна 30 минут.\n",
                              "in_online": "Войти в игру в {}.\n", }
 
-club_tasks = [["exp", "Опыт"], ["heart"], ["coin"],
-              ["get_gift"],
-              ["get_random_gift"],
-              ["send_specific_gift_any_player"],
-              ["send_gift_any_player"],
+club_tasks = ["exp", "heart", "coin",
+              "get_gift",
+              "get_random_gift",
+              "send_specific_gift_any_player",
+              "send_gift_any_player",
               # ["send_gift_player"],
               # ["send_specific_gift_player"],
               # ["chat"],
               # ["play"],
-              ["thread"],
-              ["upRank"],
-              ["acceptPlayer"]]
+              "thread",
+              "upRank",
+              "acceptPlayer"]
 
 club_tasks_list = {"coin": "Пополнить копилку монетами\n"
                            "📈 Прогресс: {} из {}. \n"
@@ -130,7 +131,7 @@ gifts_name = [[1, "🍓Клубничка"], [2, "🦋Бабочка"],
               [10, "🥤Лимонад с семечками"],
               [11, "💘Сердечко"], [12, "🐿Скрат"],
               [13, "⚽️Футбольный мяч"], [14, "☕️ Кофе"], [15, "🏍 Мотоцикл"],
-              [16, "🍨Мороженое"], [17, "два медведя"],
+              [16, "🍨Мороженое"], [17, "🧸Влюблённые мишки"],
               [18, "🐇Игрушечный зайчик"],
               [19, "🚢 Корабль"], [20, "🍕Пицца"], [21, "🎐Ёлочный шарик"],
               [22, "🎄Ёлочка"],
@@ -199,10 +200,13 @@ async def get_limits(level):
 
 
 def get_next_utc_unix_00_00():
-    current_date = time.strftime("%d %b %Y", time.gmtime(time.time() + 86400))
-    current_date += ' 00:00:00'
-    next_utc = int(
-        time.mktime(time.strptime(current_date, '%d %b %Y %H:%M:%S')))
+    DAY = timedelta(1)
+    local_tz = get_localzone()
+    now = datetime.now(local_tz)
+    t = now.replace(tzinfo=None) + DAY
+    t = str(t).split(" ")[0]
+    t += " 00:00:00"
+    next_utc = int(time.mktime(time.strptime(t, '%Y-%m-%d %H:%M:%S')))
     return next_utc
 
 
@@ -358,42 +362,58 @@ async def check_level_pet(pet_id):
     return await mpets.view_profile(pet_id)
 
 
+async def get_task_name(task_name):
+    if "send" in task_name:
+        return task_name.rsplit("_", maxsplit=1)[0]
+    elif "get" in task_name:
+        present_id = task_name.split("_")[-1]
+        return task_name.rsplit("_", maxsplit=1)[0]
+    else:
+        return task_name
+
+
 async def creation_club_tasks(club_id):
     today = int(datetime.today().strftime("%Y%m%d"))
     users = crud.get_users_with_club(club_id)
     for user in users:
         c = 0
         all_tasks = crud.get_club_tasks(user.user_id, today)
-        if all_tasks:
-            continue
         local_tasks = copy.deepcopy(club_tasks)
+        if all_tasks:
+            if len(all_tasks) < 3:
+                c = len(all_tasks)
+                for task in all_tasks:
+                    task_name = await get_task_name(task.task_name)
+                    local_tasks.pop(local_tasks.index(task_name))
+            else:
+                continue
         while c < 3:
             num = random.randint(0, len(local_tasks) - 1)
-            if local_tasks[num][0] == "coin":
+            if local_tasks[num] == "coin":
                 await coin_task(user.user_id, user.pet_id, club_id)
-            elif local_tasks[num][0] == "heart":
+            elif local_tasks[num] == "heart":
                 await heart_task(user.user_id, user.pet_id, club_id)
-            elif local_tasks[num][0] == "exp":
+            elif local_tasks[num] == "exp":
                 await exp_task(user.user_id, user.pet_id, club_id)
-            elif local_tasks[num][0] == "get_gift":
+            elif local_tasks[num] == "get_gift":
                 await get_gift_task(user.user_id)
-            elif local_tasks[num][0] == "get_random_gift":
+            elif local_tasks[num] == "get_random_gift":
                 await get_random_gift_task(user.user_id)
-            elif local_tasks[num][0] == "send_specific_gift_any_player":
+            elif local_tasks[num] == "send_specific_gift_any_player":
                 await send_specific_gift_any_player_task(user.user_id)
-            elif local_tasks[num][0] == "send_gift_any_player":
+            elif local_tasks[num] == "send_gift_any_player":
                 await send_gift_any_player_task(user.user_id)
-            elif local_tasks[num][0] == "send_gift_player":
+            elif local_tasks[num] == "send_gift_player":
                 await send_gift_player_task(user.user_id)
-            elif local_tasks[num][0] == "send_specific_gift_player":
+            elif local_tasks[num] == "send_specific_gift_player":
                 await send_specific_gift_player_task(user.user_id)
-            elif local_tasks[num][0] == "chat":
+            elif local_tasks[num] == "chat":
                 await chat_task(user.user_id)
-            elif local_tasks[num][0] == "play":
+            elif local_tasks[num] == "play":
                 await play_task(user.user_id)
-            elif local_tasks[num][0] == "thread":
+            elif local_tasks[num] == "thread":
                 await thread_task(user.user_id)
-            elif local_tasks[num][0] == "upRank":
+            elif local_tasks[num] == "upRank":
                 profile = await check_level_pet(user.pet_id)
                 if profile["status"] == "ok" and \
                         profile["rank"] in ['Активист', 'Куратор',
@@ -401,7 +421,7 @@ async def creation_club_tasks(club_id):
                     await upRank_task(user.user_id)
                 else:
                     continue
-            elif local_tasks[num][0] == "acceptPlayer":
+            elif local_tasks[num] == "acceptPlayer":
                 profile = await check_level_pet(user.pet_id)
                 if profile["status"] == "ok" and \
                         profile["rank"] in ['Куратор',
@@ -441,8 +461,11 @@ async def online_task(user_id):
 
 async def in_online_task(user_id):
     today = int(datetime.today().strftime("%Y%m%d"))
+    m = random.randint(0, 60)
+    if m < 10:
+        m = "0" + str(m)
     task_name = f"in_online_{random.randint(11, 19)}" \
-                f":{random.randint(0, 60)}"
+                f":{m}"
     crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
                                    progress=0, end=1, date=today)
 

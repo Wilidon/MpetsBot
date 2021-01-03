@@ -1,6 +1,7 @@
 import datetime
 from random import randint
 
+import pickledb
 from vkwave.bots import (
     DefaultRouter,
     SimpleBotEvent,
@@ -102,7 +103,7 @@ async def points_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
     current_user, counter = event["current_user"], 1
     msg = event.object.object.message.text.split()
-    if msg[0] == "+user":
+    if msg[0] == "/user":
         top_users_stats = crud.get_users_stats(limit=None)
         text = "🧑‍ Рейтинг игроков.\n"
         if not top_users_stats:
@@ -112,7 +113,7 @@ async def points_rating(event: SimpleBotEvent):
             text += f"{counter}. {top_user.name} — {user_stats.points} 🏮\n"
             counter += 1
         await event.answer(text)
-    elif msg[0] == "+club":
+    elif msg[0] == "/club":
         clubs = crud.get_clubs_stats(limit=None)
         text = "🏠 Рейтинг клубов.\n"
         if not clubs:
@@ -131,7 +132,7 @@ async def task_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
     current_user, counter = event["current_user"], 1
     msg = event.object.object.message.text.split()
-    if msg[0] == "+user":
+    if msg[0] == "/user":
         top_users_stats = crud.get_users_stats(limit=None)
         text = "🧑‍ Рейтинг игроков.\n"
         if not top_users_stats:
@@ -142,7 +143,7 @@ async def task_rating(event: SimpleBotEvent):
                     f"{user_stats.personal_tasks} ⭐\n"
             counter += 1
         await event.answer(text)
-    elif msg[0] == "+club":
+    elif msg[0] == "/club":
         clubs = crud.get_clubs_stats(limit=None)
         text = "🏠 Рейтинг клубов.\n"
         if not clubs:
@@ -214,6 +215,50 @@ async def items(event: SimpleBotEvent):
             text += f"{counter}. {item.item_name} -- {club.name}"
             counter += 1
         return text
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter("/stats"))
+async def stats(event: SimpleBotEvent):
+    current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
+    db = pickledb.load("./stats.db", True)
+    total_clicks = db.get("total_clicks")
+    amount_users = crud.get_amount_users()
+    amount_personal_tasks = crud.get_personal_tasks()
+    amount_completed_p_t = crud.get_personal_tasks_with_filter("completed")
+    amount_timeout_p_t = crud.get_personal_tasks_with_filter("timeout")
+    amount_clubs = crud.get_amount_clubs()
+    amount_clubs_tasks = crud.get_clubs_tasks()
+    amount_completed_c_t = crud.get_clubs_tasks_with_filter("completed")
+    amount_timeout_c_t = crud.get_clubs_tasks_with_filter("timeout")
+    users = crud.get_users_stats(limit=None)
+    amount_1 = 0
+    amount_2 = 0
+    amount_3 = 0
+    amount_4 = 0
+    for user in users:
+        amount_1 += user.personal_tasks
+        amount_2 += user.points
+        amount_3 += user.club_tasks
+        amount_4 += user.club_points
+    text = f"Статистика для Лерочки 🥰\n" \
+           f"👨🏼‍💼 Пользователей: {amount_users}\n" \
+           f"📈 Заданий: {amount_personal_tasks}\n" \
+           f"✅ Выполнено: {amount_completed_p_t}\n" \
+           f"❌ Просрочено: {amount_timeout_p_t}\n\n" \
+           f"🎈 Клубов: {amount_clubs}\n" \
+           f"📈 Заданий: {amount_clubs_tasks}\n" \
+           f"✅ Выполнено: {amount_completed_c_t}\n" \
+           f"❌ Просрочено: {amount_timeout_c_t}\n\n" \
+           f"⭐️ Всего: {amount_1}\n" \
+           f"🏮 Всего: {amount_2}\n" \
+           f"🎄 Всего: {amount_3}\n" \
+           f"🏵 Всего: {amount_4}\n\n" \
+           f"👆🏻 Всего кликов: {total_clicks}"
+
+    return text
 
 
 '''@simple_bot_message_handler(admin_router,

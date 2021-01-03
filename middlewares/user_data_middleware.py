@@ -1,4 +1,6 @@
 import typing
+
+import pickledb
 from vkwave.bots import BaseMiddleware, BotEvent, MiddlewareResult
 
 from sql import crud
@@ -6,6 +8,11 @@ from sql import crud
 
 class UserMiddleware(BaseMiddleware):
     async def pre_process_event(self, event: BotEvent) -> MiddlewareResult:
+
+        db = pickledb.load("./stats.db", True)
+        stats = db.get('total_clicks')
+        db.set('total_clicks', stats+1)
+
         user_id = event.object.object.message.from_id
 
         user = crud.get_user(user_id)

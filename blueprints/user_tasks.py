@@ -64,11 +64,11 @@ async def user_rating(event: SimpleBotEvent):
         if current_user.user_id == user_stats.user_id:
             hidden = True
         top_user = crud.get_user(user_stats.user_id)
-        text += f"{counter}. {top_user.name} — {user_stats.points} 🏵\n"
+        text += f"{counter}. {top_user.name} — {user_stats.points} 🏮\n"
         counter += 1
     if not hidden:
-        current_user_stats = crud.get_user(current_user.user_id)
-        text += f"\n{current_user.name} — {current_user_stats.points} 🏵\n"
+        current_user_stats = crud.get_user_stats(current_user.user_id)
+        text += f"\n{current_user.name} — {current_user_stats.points} 🏮\n"
     await event.answer(text)
 
 
@@ -86,20 +86,22 @@ async def profile(event: SimpleBotEvent):
                f"🧩 ID: {current_user.id} / {current_user.pet_id}\n" \
                f"👨🏼‍💼 Имя: {current_user.name}\n" \
                f"🏠 Клуб: {club_name}\n" \
-               f"🏮 Баллы: {current_user_stats.points}.\n" \
-               f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}.\n" \
+               f"🏮 Баллы: {current_user_stats.points}\n"\
+               f"⭐ Набрано звездочек: {current_user_stats.personal_tasks}\n" \
+               f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
-               f"{datetime.fromtimestamp(current_user.created_at)}.\n\n" \
+               f"{datetime.fromtimestamp(current_user.created_at)}\n\n" \
                f"🐾 Зимняя гонка:\n\n" \
                f"0🚩— 10⭐ — 25⭐ — 40⭐ — 70⭐ — 100⭐ — 125⭐ — 160⭐ — 177⭐🏁"
     else:
         text = f"🧸 Ваш профиль:\n" \
                f"🧩 ID: {current_user.id} / {current_user.pet_id}\n" \
                f"👨🏼‍💼 Имя: {current_user.name}\n" \
-               f"🏮 Баллы: {current_user_stats.points}.\n" \
-               f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}.\n" \
+               f"🏮 Баллы: {current_user_stats.points}\n" \
+               f"⭐ Набрано звездочек: {current_user_stats.personal_tasks}\n" \
+               f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
-               f"{datetime.fromtimestamp(current_user.created_at)}.\n\n" \
+               f"{datetime.fromtimestamp(current_user.created_at)}\n\n" \
                f"🐾 Зимняя гонка:\n\n" \
                f"0🚩— 10⭐ — 25⭐ — 40⭐ — 70⭐ — 100⭐ — 125⭐ — 160⭐ — 177⭐🏁"
 

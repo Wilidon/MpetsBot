@@ -133,6 +133,8 @@ async def profile(event: SimpleBotEvent):
 @simple_bot_message_handler(club_router, PayloadFilter({"command": "club"}))
 async def profile(event: SimpleBotEvent):
     # Информация о клубе/Профиль клуба
+    total_tasks = 0
+    points = 0
     current_user = event["current_user"]
     user_stats = crud.get_user_stats(current_user.user_id)
     user_club = crud.get_club(current_user.club_id)
@@ -146,10 +148,16 @@ async def profile(event: SimpleBotEvent):
         return f"Игрок {user_club.bot_name} был исключён из вашего клуба." \
                f"Нажмите на кнопку «Клубные задания», чтобы узнать подробнее."
     user_club_stats = crud.get_club_stats(current_user.club_id)
+    if user_club_stats is None:
+        total_tasks = 0
+        points = 0
+    else:
+        total_tasks = user_club_stats.total_tasks
+        points = user_club_stats.points
     total_members_in_club = len(crud.get_users_with_club(current_user.club_id))
     await event.answer(f"🏠 Профиль клуба {user_club.name}\n\n" 
-                       f"🎄 Набранные очки: {user_club_stats.total_tasks} \n" 
-                       f"🏵 Фишки: {user_club_stats.points} \n" 
+                       f"🎄 Набранные очки: {total_tasks} \n" 
+                       f"🏵 Фишки: {points} \n" 
                        f"🧸  Участников: {total_members_in_club}\n"
                        f"————\n"
                        f"Вы выполнили: {user_stats.club_tasks} 📋\n"

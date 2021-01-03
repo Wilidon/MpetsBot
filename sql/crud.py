@@ -371,3 +371,27 @@ def update_club_item(user_id: int, status: str):
     item = db.query(models.ClubItems).filter_by(user_id=user_id).first()
     item.status = status
     db.commit()
+
+
+def get_amount_users():
+    return db.query(models.Users).count()
+
+
+def get_personal_tasks():
+    return db.query(models.UsersTasks).count()
+
+
+def get_personal_tasks_with_filter(status: str = "waiting"):
+    return db.query(models.UsersTasks).filter_by(status=status).count()
+
+
+def get_amount_clubs():
+    return db.query(models.Clubs).count()
+
+
+def get_clubs_tasks():
+    return db.query(models.ClubsTasks).count()
+
+
+def get_clubs_tasks_with_filter(status: str = "waiting"):
+    return db.query(models.ClubsTasks).filter_by(status=status).count()
