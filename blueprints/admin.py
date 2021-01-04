@@ -201,7 +201,7 @@ async def items(event: SimpleBotEvent):
             return "Предметов нет"
         for item in items:
             user = crud.get_user(item.user_id)
-            text += f"{counter}. {item.item_name} -- {user.name}"
+            text += f"{counter}. {item.item_name} -- {user.name}\n"
             counter +=1
         return text
     if msg[1] == "club":
@@ -212,9 +212,47 @@ async def items(event: SimpleBotEvent):
             return "Предметов нет"
         for item in items:
             club = crud.get_club(item.club_id)
-            text += f"{counter}. {item.item_name} -- {club.name}"
+            text += f"{counter}. {item.item_name} -- {club.name}\n"
             counter += 1
         return text
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter("/club members"))
+async def club_members(event: SimpleBotEvent):
+    current_user = event["current_user"]
+    text, counter = "Участники клуба \n", 1
+    if current_user.access <= 1:
+        return None
+    msg = event.object.object.message.text.split(" ")
+    if msg[2].isdigit() is False:
+        return "Клуб не найден."
+    club_members = crud.get_users_with_club(msg[2])
+    if not club_members:
+        return "Клуб не найден."
+    for member in club_members:
+        user_stats = crud.get_user_stats(member.user_id)
+        text += f"{counter}. {member.name} ({member.user_id}) --{user_stats.personal_tasks}\n"
+        counter += 1
+    return text
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["+tasks club members"]))
+async def club_members(event: SimpleBotEvent):
+    current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
+    msg = event.object.object.message.text.split(" ")
+    if msg[3].isdigit() is False and msg[4].isdigit() is False:
+        return "Не смог определить клуб или награду"
+    club_members = crud.get_users_with_club(msg[3])
+    if not club_members:
+        return "Клуб не найден."
+    for member in club_members:
+        for i in range(int(msg[4])):
+            await add_user_points(user_id=member.user_id, point=False)
+    return "Награда зачислена"
 
 
 @simple_bot_message_handler(admin_router,
