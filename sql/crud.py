@@ -331,26 +331,35 @@ def update_bot(user_id: int, pet_id: int, name: str):
     db.commit()
 
 
-def add_user_item(user_id: int, item_name: str, score: int):
+def add_user_item(user_id: int, item_name: str, score: int,
+                  status: str = "В процессе"):
     item = models.UserItems(user_id=user_id,
                             item_name=item_name,
                             score=score,
-                            status="В процессе")
+                            status=status)
     db.add(item)
     db.commit()
     db.refresh(item)
     return item
 
 
-def add_club_item(club_id: int, item_name: str, score: int):
+def add_club_item(club_id: int, item_name: str, score: int,
+                  status: str = "В процессе"):
     item = models.ClubItems(club_id=club_id,
                             item_name=item_name,
                             score=score,
-                            status="В процессе")
+                            status=status)
     db.add(item)
     db.commit()
     db.refresh(item)
     return item
+
+
+def get_user_item(user_id: int, status="В процессе"):
+    return db.query(models.UserItems).filter(
+        models.UserItems.user_id == user_id,
+        models.UserItems.status.like(status)).order_by(
+        models.UserItems.id.asc()).all()
 
 
 def get_user_items():
@@ -363,6 +372,13 @@ def get_club_items():
 
 def update_user_item(user_id: int, status: str):
     item = db.query(models.UserItems).filter_by(user_id=user_id).first()
+    item.status = status
+    db.commit()
+
+
+def update_user_itemname(id: int, name: str, status: str):
+    item = db.query(models.UserItems).filter_by(id=id).first()
+    item.item_name = name
     item.status = status
     db.commit()
 
