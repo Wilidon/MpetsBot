@@ -215,11 +215,12 @@ async def club_rating(event: SimpleBotEvent):
         return "На данный момент нет заданий. Возможно, Ваш клуб не " \
                "зарегистрирован в системе."
     for user_task in current_user_tasks:
-        if "send_specific_gift_any_player" in user_task.task_name or \
+        if user_task.task_name == 'completed':
+            continue
+        elif "send_specific_gift_any_player" in user_task.task_name or \
                 "send_gift_any_player" in user_task.task_name:
             if await checking_sendGift_task(mpets, current_user,
                                             user_task, pet_id):
-                return "Задание выполнено."
+                await event.answer("Задание выполнено")
             else:
-                return "Подарок не найден."
-
+                await event.answer("Подарок не найден")
