@@ -10,6 +10,17 @@ from middlewares import UserMiddleware
 from sql import models
 from sql.database import engine
 from loguru import logger
+from utils.functions import notice
+import logging
+import time
+__version__ = "1.1.1"
+
+
+logging.basicConfig(filename="logs/vk.log",
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.DEBUG)
 
 
 if __name__ == "__main__":
@@ -38,4 +49,14 @@ if __name__ == "__main__":
     bot.dispatcher.add_router(menu_router)
     
     # Запускаем бота
-    bot.run_forever()
+    noticed = True
+    while True:
+        try:
+            bot.run_forever()
+        except Exception as e:
+            logger.error(f"Бот упал {e}")
+            text = f"@wilidon. упал вк бот {e}"
+            if noticed:
+                notice(text)
+                noticed = False
+            time.sleep(5)
