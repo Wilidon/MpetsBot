@@ -12,6 +12,8 @@ from mpetsapi import MpetsApi
 from sql import crud
 from tzlocal import get_localzone
 
+from utils.constants import MENU_S
+
 user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"]]
 
 user_tasks_list = {"avatar": "Поставить аватар {} до конца дня.\n "
@@ -23,7 +25,7 @@ user_tasks_list = {"avatar": "Поставить аватар {} до конца
                    "30online": "Не выходить из онлайна 30 минут.\n "
                                "📈 Прогресс: {} из {} \n"
                                "🎖 Награда: 1 ⭐ и 1-3 🏮\n",
-                   "in_online": "Войти в игру в {}.\n "
+                   "in_online": "Войти в игру в {} по МСК.\n "
                                 "📈 Прогресс: {} из {} \n"
                                 "🎖 Награда: 1 ⭐ и 1-3 🏮\n",
                    }
@@ -31,7 +33,7 @@ user_tasks_list = {"avatar": "Поставить аватар {} до конца
 user_completed_tasks_list = {"avatar": "Поставить аватар {} до конца дня.\n",
                              "anketa": "Сменить данные в «О себе» до конца дня \n",
                              "30online": "Не выходить из онлайна 30 минут.\n",
-                             "in_online": "Войти в игру в {}.\n", }
+                             "in_online": "Войти в игру в {} по МСК.\n", }
 
 club_tasks = ["exp", "heart", "coin",
               "get_gift",
@@ -161,10 +163,10 @@ prizes = {10: "Монетка удачи",
           25: "200 монет",
           40: "5m ❤️",
           70: "25 золотых перьев и 5 ⭐️",
-          100: "shop",
-          125: "shop",
+          100: "shop_1",
+          125: "shop_2",
           160: "500 монет",
-          177: "shop"}
+          177: "shop_3"}
 
 c_prizes = {30: "2 ⭐️ всем участвующим",
             70: "300 монет в копилку клуба",
@@ -178,6 +180,16 @@ c_prizes = {30: "2 ⭐️ всем участвующим",
             1111: "400k опыта в копилку, 15m сердец и подарки всем "
                   "участвующим",
             1239: "2 🔑 и 10 фишек"}
+
+shop1 = {"item1": "400 монет",
+         "item2": "2 волшебных шестерни",
+         "item3": "25 ангелов"}
+shop2 = {"item1": "аватарка",
+         "item2": "35 серебра",
+         "item3": "4 монетки удачи"}
+shop3 = {"item1": "600 монет",
+         "item2": "16m сердец",
+         "item3": "6 шестерней"}
 
 
 async def get_limits(level):
@@ -241,12 +253,11 @@ async def heart_task(user_id, pet_id, club_id):
     page, progress, step, counter = 1, 0, True, 0
     while step:
         try:
-            pets = await mpets.club_budget_history_all(
-                user.club_id, 2, page)
+            pets = await mpets.club_budget_history_all(club_id, 2, page)
             if not pets["players"]:
                 break
             for pet in pets["players"]:
-                if pet["pet_id"] == user.pet_id:
+                if pet["pet_id"] == pet_id:
                     progress = pet["count"]
                     step = False
                     break
@@ -554,14 +565,24 @@ async def send_user_notice(user_id, score):
     settings = get_settings()
     message = f"Поздравляем! Вы набрали {score} ⭐️\n" \
               f"Вам будет зачислен приз – {prizes[score]}"
-    crud.add_user_item(user_id, prizes[score], score)
-    if prizes[score] == "shop":
-        message = f"Поздравляем! Вы набрали {score} ⭐️" \
+    if "shop" in prizes[score]:
+        crud.add_user_item(user_id, prizes[score], score, status=prizes[score])
+        message = f"Поздравляем! Вы набрали {score} ⭐️\n" \
                   f"Доступные товары появились в 🏪Магазине."
+    else:
+        crud.add_user_item(user_id, prizes[score], score)
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
-    await bot.api_context.messages.send(user_id=int(user_id),
-                                        message=message,
-                                        random_id=random.randint(1, 9999999))
+    if int(score) in [100, 125, 177]:
+        await bot.api_context.messages.send(user_id=int(user_id),
+                                            message=message,
+                                            random_id=random.randint(1,
+                                                                     9999999),
+                                            keyboard=MENU_S.get_keyboard())
+    else:
+        await bot.api_context.messages.send(user_id=int(user_id),
+                                            message=message,
+                                            random_id=random.randint(1,
+                                                                     9999999))
     user = crud.get_user(user_id)
     text = f"Игрок {user.first_name} {user.last_name} | {user.name} " \
            f"({user.pet_id}) набрал {score} ⭐\n" \

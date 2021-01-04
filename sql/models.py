@@ -150,7 +150,7 @@ class UserItems(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(BigInteger)
     item_name = Column(String)
-    score = Column(String)
+    score = Column(Integer)
     status = Column(String, default="Ожидает")
 
 
@@ -161,7 +161,7 @@ class ClubItems(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     club_id = Column(BigInteger)
     item_name = Column(String)
-    score = Column(String)
+    score = Column(Integer)
     status = Column(String, default="Ожидает")
 
 

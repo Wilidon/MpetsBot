@@ -98,23 +98,36 @@ async def checking_getGift_task(mpets, user, user_task):
         gift_id = int(gifts_name[int(gift_id) - 1][0])
         for gift in gifts["players"]:
             if gift_id in [26, 27, 35]:
-                if "сегодня" in gift["date"] and \
-                        int(gift["present_id"]) == 36:
-                    pet_gift = True
-                elif "сегодня" in gift["date"] and \
-                        int(gift["present_id"]) == 37:
-                    pet_gift = True
-                elif "сегодня" in gift["date"] and \
-                        int(gift["present_id"]) == 38:
-                    pet_gift = True
+                if gift["pet_id"]:
+                    try:
+                        if "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == 36 and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                        elif "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == 37 and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                        elif "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == 38 and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                    except:
+                        pass
             else:
-                if "сегодня" in gift["date"] and \
-                        int(gift["present_id"]) == gift_id:
-                    pet_gift = True
+                if gift["pet_id"]:
+                    try:
+                        if "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == gift_id and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                    except:
+                        pass
         if pet_gift:
             crud.update_club_task(user_task.id, user_task.end,
-                                    "completed")
+                                  "completed")
             await functions.add_club_points(user.user_id, user.club_id)
+            return True
 
 
 async def checking_sendGift_task(mpets, user, user_task, pet_id):
@@ -164,7 +177,6 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                                 int(gift["present_id"]) == gift_id and \
                                 user.pet_id == int(gift["pet_id"]):
                             pet_gift = True
-                        pet_gift = True
                     except:
                         pass
         if pet_gift:

@@ -9,7 +9,6 @@ from vkwave.bots import (
     PayloadFilter, MessageArgsFilter, CommandsFilter, TextContainsFilter,
 )
 from sql import crud
-from utils.constants import SHOP_1, SHOP_2, SHOP_3
 from utils.functions import add_user_points, add_club_points
 
 admin_router = DefaultRouter()
@@ -297,27 +296,3 @@ async def stats(event: SimpleBotEvent):
            f"👆🏻 Всего кликов: {total_clicks}"
 
     return text
-
-
-'''@simple_bot_message_handler(admin_router,
-                            TextContainsFilter(
-                                ["shop1"]))
-async def points(event: SimpleBotEvent):
-    await event.answer(message="shop1",
-                       keyboard=SHOP_1.get_keyboard())
-
-
-@simple_bot_message_handler(admin_router,
-                            TextContainsFilter(
-                                ["shop2"]))
-async def points(event: SimpleBotEvent):
-    await event.answer(message="shop2",
-                       keyboard=SHOP_2.get_keyboard())
-
-
-@simple_bot_message_handler(admin_router,
-                            TextContainsFilter(
-                                ["shop3"]))
-async def points(event: SimpleBotEvent):
-    await event.answer(message="shop3",
-                       keyboard=SHOP_3.get_keyboard())'''

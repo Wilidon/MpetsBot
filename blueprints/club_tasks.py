@@ -215,7 +215,7 @@ async def club_rating(event: SimpleBotEvent):
         return "На данный момент нет заданий. Возможно, Ваш клуб не " \
                "зарегистрирован в системе."
     for user_task in current_user_tasks:
-        if user_task.task_name == 'completed':
+        if user_task.status == 'completed':
             continue
         elif "send_specific_gift_any_player" in user_task.task_name or \
                 "send_gift_any_player" in user_task.task_name:
