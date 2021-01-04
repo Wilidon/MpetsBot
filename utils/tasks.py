@@ -34,11 +34,14 @@ async def checking_heart_task(mpets, user, user_task):
         try:
             pets = await mpets.club_budget_history_all(
                 user.club_id, 2, page)
+            if not pets["players"]:
+                break
             for pet in pets["players"]:
                 if pet["pet_id"] == user.pet_id:
                     progress = pet["count"]
                     step = False
                     break
+            page +=1
         except:
             counter += 1
             if counter >= 5:
@@ -57,11 +60,14 @@ async def checking_exp_task(mpets, user, user_task):
         try:
             pets = await mpets.club_budget_history_all(
                 user.club_id, 3, page)
+            if not pets["players"]:
+                break
             for pet in pets["players"]:
                 if pet["pet_id"] == user.pet_id:
                     progress = pet["count"]
                     step = False
                     break
+            page +=1
         except:
             counter += 1
             if counter >= 5:
@@ -84,10 +90,10 @@ async def checking_getGift_task(mpets, user, user_task):
         for gift in gifts["players"]:
             if "сегодня" in gift["date"]:
                 pet_gift = True
-            if pet_gift:
-                crud.update_club_task(user_task.id, user_task.end,
-                                        "completed")
-                await functions.add_club_points(user.user_id, user.club_id)
+        if pet_gift:
+            crud.update_club_task(user_task.id, user_task.end,
+                                    "completed")
+            await functions.add_club_points(user.user_id, user.club_id)
     else:
         gift_id = int(gifts_name[int(gift_id) - 1][0])
         for gift in gifts["players"]:
@@ -105,10 +111,10 @@ async def checking_getGift_task(mpets, user, user_task):
                 if "сегодня" in gift["date"] and \
                         int(gift["present_id"]) == gift_id:
                     pet_gift = True
-            if pet_gift:
-                crud.update_club_task(user_task.id, user_task.end,
-                                        "completed")
-                await functions.add_club_points(user.user_id, user.club_id)
+        if pet_gift:
+            crud.update_club_task(user_task.id, user_task.end,
+                                    "completed")
+            await functions.add_club_points(user.user_id, user.club_id)
 
 
 async def checking_sendGift_task(mpets, user, user_task, pet_id):
@@ -119,41 +125,53 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
     gifts = await mpets.view_gifts(pet_id)
     if int(gift_id) == 0:
         for gift in gifts["players"]:
-            if user.pet_id == int(gift["pet_id"]) and \
-                    "сегодня" in gift["date"]:
-                pet_gift = True
-            if pet_gift:
-                crud.update_club_task(user_task.id, user_task.end,
-                                      "completed")
-                await functions.add_club_points(user.user_id, user.club_id)
-                return True
+            if gift["pet_id"]:
+                try:
+                    if user.pet_id == int(gift["pet_id"]) and \
+                            "сегодня" in gift["date"]:
+                        pet_gift = True
+                except:
+                    pass
+        if pet_gift:
+            crud.update_club_task(user_task.id, user_task.end,
+                                    "completed")
+            await functions.add_club_points(user.user_id, user.club_id)
+            return True
     else:
         gift_id = int(gifts_name[int(gift_id) - 1][0])
         for gift in gifts["players"]:
             if gift_id in [26, 27, 35]:
-                if "сегодня" in gift["date"] and \
-                        int(gift["present_id"]) == 36 and \
-                        user.pet_id == int(gift["pet_id"]):
-                    pet_gift = True
-                elif "сегодня" in gift["date"] and \
-                        int(gift["present_id"]) == 37 and \
-                        user.pet_id == int(gift["pet_id"]):
-                    pet_gift = True
-                elif "сегодня" in gift["date"] and \
-                        int(gift["present_id"]) == 38 and\
-                        user.pet_id == int(gift["pet_id"]):
-                    pet_gift = True
+                if gift["pet_id"]:
+                    try:
+                        if "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == 36 and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                        elif "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == 37 and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                        elif "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == 38 and\
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                    except:
+                        pass
             else:
-                if "сегодня" in gift["date"] and \
-                        int(gift["present_id"]) == gift_id and \
-                        user.pet_id == int(gift["pet_id"]):
-                    pet_gift = True
-                pet_gift = True
-            if pet_gift:
-                crud.update_club_task(user_task.id, user_task.end,
-                                      "completed")
-                await functions.add_club_points(user.user_id, user.club_id)
-                return True
+                if gift["pet_id"]:
+                    try:
+                        if "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == gift_id and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                        pet_gift = True
+                    except:
+                        pass
+        if pet_gift:
+            crud.update_club_task(user_task.id, user_task.end,
+                                    "completed")
+            await functions.add_club_points(user.user_id, user.club_id)
+            return True
 
 
 '''async def checking_gift_task(mpets, ):
@@ -499,6 +517,7 @@ async def start_verify_user(user):
                         f" {user.user_id}")
             return 0
     if not user_tasks:
+        logger.debug(user.user_id)
         crud.close_all_user_tasks(user.user_id)
         await functions.creation_user_tasks(user)
     mpets = MpetsApi(user_bot.name, user_bot.password)

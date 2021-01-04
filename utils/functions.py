@@ -243,11 +243,14 @@ async def heart_task(user_id, pet_id, club_id):
         try:
             pets = await mpets.club_budget_history_all(
                 user.club_id, 2, page)
+            if not pets["players"]:
+                break
             for pet in pets["players"]:
                 if pet["pet_id"] == user.pet_id:
                     progress = pet["count"]
                     step = False
                     break
+            page += 1
         except:
             counter += 1
             if counter >= 5:
@@ -271,11 +274,14 @@ async def exp_task(user_id, pet_id, club_id):
     while step:
         try:
             pets = await mpets.club_budget_history_all(club_id, 3, page)
+            if not pets["players"]:
+                break
             for pet in pets["players"]:
                 if pet["pet_id"] == pet_id:
                     progress = pet["count"]
                     step = False
                     break
+            page +=1
         except:
             counter += 1
             if counter >= 5:
