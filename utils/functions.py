@@ -16,10 +16,10 @@ from utils.constants import MENU_S
 
 user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"]]
 
-user_tasks_list = {"avatar": "Поставить аватар {} до конца дня.\n "
+user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\n "
                              "📈 Прогресс: {} из {} \n"
                              "🎖 Награда: 1 ⭐ и 1-3 🏮\n",
-                   "anketa": "Сменить данные в «О себе» до конца дня\n "
+                   "anketa": "Сменить данные в «О себе» на 30 минут.\n "
                              "📈 Прогресс: {} из {} \n"
                              "🎖 Награда: 1 ⭐ и 1-3 🏮\n",
                    "30online": "Не выходить из онлайна 30 минут.\n "
@@ -30,10 +30,10 @@ user_tasks_list = {"avatar": "Поставить аватар {} до конца
                                 "🎖 Награда: 1 ⭐ и 1-3 🏮\n",
                    }
 
-user_completed_tasks_list = {"avatar": "Поставить аватар {} до конца дня.\n",
-                             "anketa": "Сменить данные в «О себе» до конца дня \n",
-                             "30online": "Не выходить из онлайна 30 минут.\n",
-                             "in_online": "Войти в игру в {} по МСК.\n", }
+user_completed_tasks_list = {"avatar": "Поставить аватар {}\n",
+                             "anketa": "Сменить данные в «О себе»\n",
+                             "30online": "Не выходить из онлайна 30 минут\n",
+                             "in_online": "Войти в игру в {} по МСК\n", }
 
 club_tasks = ["exp", "heart", "coin",
               "get_gift",
@@ -458,9 +458,9 @@ async def creation_club_tasks(club_id):
 async def avatar_task(user_id):
     today = int(datetime.today().strftime("%Y%m%d"))
     avatar = avatar_name.index(random.choice(avatar_name))
-    task_name = "avatar_" + str(avatar)
+    task_name = f"avatar_{avatar}:0"
     crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
-                                   progress=0, end=1, date=today)
+                                   progress=0, end=60, date=today)
 
 
 async def anketa_task(user_id, pet_id):
@@ -470,9 +470,9 @@ async def anketa_task(user_id, pet_id):
     profile = await mpets.view_anketa(pet_id)
     if profile["status"] != "ok":
         return 0
-    task_name = "anketa_" + str(profile["about"])
+    task_name = f"anketa_{profile['about']}:0"
     crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
-                                   progress=0, end=1, date=today)
+                                   progress=0, end=30, date=today)
 
 
 async def online_task(user_id):

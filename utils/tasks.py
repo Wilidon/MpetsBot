@@ -101,16 +101,16 @@ async def checking_getGift_task(mpets, user, user_task):
                 if gift["pet_id"]:
                     try:
                         if "сегодня" in gift["date"] and \
-                                int(gift["present_id"]) == 36 and \
-                                user.pet_id == int(gift["pet_id"]):
+                                (int(gift["present_id"]) == 36 or
+                                int(gift["present_id"]) == 26):
                             pet_gift = True
                         elif "сегодня" in gift["date"] and \
-                                int(gift["present_id"]) == 37 and \
-                                user.pet_id == int(gift["pet_id"]):
+                                (int(gift["present_id"]) == 37 or
+                                int(gift["present_id"]) == 27):
                             pet_gift = True
                         elif "сегодня" in gift["date"] and \
-                                int(gift["present_id"]) == 38 and \
-                                user.pet_id == int(gift["pet_id"]):
+                                (int(gift["present_id"]) == 35 or
+                                int(gift["present_id"]) == 38):
                             pet_gift = True
                     except:
                         pass
@@ -118,8 +118,7 @@ async def checking_getGift_task(mpets, user, user_task):
                 if gift["pet_id"]:
                     try:
                         if "сегодня" in gift["date"] and \
-                                int(gift["present_id"]) == gift_id and \
-                                user.pet_id == int(gift["pet_id"]):
+                                int(gift["present_id"]) == int(gift_id):
                             pet_gift = True
                     except:
                         pass
@@ -157,15 +156,18 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                 if gift["pet_id"]:
                     try:
                         if "сегодня" in gift["date"] and \
-                                int(gift["present_id"]) == 36 and \
+                                (int(gift["present_id"]) == 36 or
+                                int(gift["present_id"]) == 26) and \
                                 user.pet_id == int(gift["pet_id"]):
                             pet_gift = True
                         elif "сегодня" in gift["date"] and \
-                                int(gift["present_id"]) == 37 and \
+                                (int(gift["present_id"]) == 37 or
+                                int(gift["present_id"]) == 27) and \
                                 user.pet_id == int(gift["pet_id"]):
                             pet_gift = True
                         elif "сегодня" in gift["date"] and \
-                                int(gift["present_id"]) == 38 and\
+                                (int(gift["present_id"]) == 35 or
+                                int(gift["present_id"]) == 38) and\
                                 user.pet_id == int(gift["pet_id"]):
                             pet_gift = True
                     except:
@@ -173,12 +175,15 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
             else:
                 if gift["pet_id"]:
                     try:
+                        if int(gift_id) == 10:
+                            logger.debug(pet_gift)
                         if "сегодня" in gift["date"] and \
                                 int(gift["present_id"]) == gift_id and \
                                 user.pet_id == int(gift["pet_id"]):
                             pet_gift = True
                     except:
                         pass
+        logger.debug(pet_gift)
         if pet_gift:
             crud.update_club_task(user_task.id, user_task.end,
                                     "completed")
@@ -401,6 +406,7 @@ async def start_verify_account(club):
 async def checking_bots():
     while True:
         try:
+            logger.info("Пошел проверять клубы")
             clubs_with_status_ok = crud.get_clubs(status="ok")
             clubs_with_status_waiting = crud.get_clubs(status="waiting")
             tasks = []
@@ -412,6 +418,7 @@ async def checking_bots():
                 tasks.append(task)
             await asyncio.gather(*tasks)
             await asyncio.sleep(1)
+            logger.info("Закончил проверять клубы")
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
@@ -432,6 +439,8 @@ async def update_user_data():
         try:
             users = crud.get_users()
             for user in users:
+                if user.pet_id == 0:
+                    continue
                 profile = await mpets.view_profile(user.pet_id)
                 if profile['status'] != 'ok':
                     log = logger.bind(context=profile)
@@ -440,7 +449,7 @@ async def update_user_data():
                     continue
                 crud.update_user_data(user.user_id, profile["pet_id"],
                                       profile["name"], profile["club_id"])
-            await asyncio.sleep(120)
+            await asyncio.sleep(10)
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(3)
@@ -450,24 +459,55 @@ async def checking_avatar_task(mpets, user, user_task):
     profile = await mpets.view_profile(user.pet_id)
     if profile["status"] != "ok":
         return 0
-    left_time = get_next_utc_unix_00_00()
+    task_name = user_task.task_name
     avatar_id = user_task.task_name.split("_")[-1]
-    if int(functions.avatar_name[int(avatar_id)][0]) == int(profile["ava_id"]) \
-            and left_time - int(time.time()) < 1800:
-        crud.update_user_task(user_task.id, user_task.end, "completed")
-        await functions.add_user_points(user.user_id)
+    avatar_id = avatar_id.rsplit(":", maxsplit=1)[0]
+    if int(functions.avatar_name[int(avatar_id)][0]) == int(profile["ava_id"]):
+        ava = task_name.split("_", maxsplit=1)[-1]
+        start_time = ava.rsplit(":", maxsplit=1)[1]
+        if int(start_time) == 0:
+            task_name = f"anketa_{avatar_id}:{int(time.time())}"
+            crud.update_user_task_name(user_task.id, task_name)
+        else:
+            left_time = time.time() - int(start_time)
+            if left_time >= 3600:
+                crud.update_user_task(user_task.id, user_task.end, "completed")
+                await functions.add_user_points(user.user_id)
+            else:
+                left_time = int(left_time // 60)
+                crud.update_user_task(user_task.id, left_time, "waiting")
+    else:
+        task_name = f"avatar_{avatar_id}:0"
+        crud.update_user_task(user_task.id, 0, "waiting")
+        crud.update_user_task_name(user_task.id, task_name)
 
 
 async def checking_anketa_task(mpets, user, user_task):
     profile = await mpets.view_anketa(user.pet_id)
     if profile["status"] != "ok":
         return 0
-    left_time = get_next_utc_unix_00_00()
-    anketa_about = user_task.task_name.split("_")[-1]
-    if anketa_about != profile["about"] \
-            and left_time - int(time.time()) < 1800:
-        crud.update_user_task(user_task.id, user_task.end, "completed")
-        await functions.add_user_points(user.user_id)
+    # anketa_Привет!:30
+    task_name = user_task.task_name
+    anketa_about = task_name.split("_", maxsplit=1)[-1]
+    anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
+    if anketa_about != profile["about"]:
+        ank = task_name.split("_", maxsplit=1)[-1]
+        start_time = ank.rsplit(":", maxsplit=1)[1]
+        if int(start_time) == 0:
+            task_name = f"anketa_{anketa_about}:{int(time.time())}"
+            crud.update_user_task_name(user_task.id, task_name)
+        else:
+            left_time = time.time() - int(start_time)
+            if left_time >= 1800:
+                crud.update_user_task(user_task.id, user_task.end, "completed")
+                await functions.add_user_points(user.user_id)
+            else:
+                left_time = int(left_time // 60)
+                crud.update_user_task(user_task.id, left_time, "waiting")
+    else:
+        task_name = f"anketa_{anketa_about}:0"
+        crud.update_user_task(user_task.id, 0, "waiting")
+        crud.update_user_task_name(user_task.id, task_name)
 
 
 async def checking_online_task(mpets, user, user_task):
@@ -529,7 +569,6 @@ async def start_verify_user(user):
                         f" {user.user_id}")
             return 0
     if not user_tasks:
-        logger.debug(user.user_id)
         crud.close_all_user_tasks(user.user_id)
         await functions.creation_user_tasks(user)
     mpets = MpetsApi(user_bot.name, user_bot.password)
@@ -544,6 +583,8 @@ async def start_verify_user(user):
             return 0
     for user_task in user_tasks:
         if user_task.status == "completed":
+            continue
+        elif user_task.status == "timeout":
             continue
         elif "avatar" in user_task.task_name:
             await checking_avatar_task(mpets, user, user_task)

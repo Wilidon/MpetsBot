@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from loguru import logger
 from vkwave.bots import (
     DefaultRouter,
     SimpleBotEvent,
@@ -29,7 +30,8 @@ async def user_tasks(event: SimpleBotEvent):
         task_name, progress, end = task.task_name, task.progress, task.end
         if "avatar" in task_name or "in_online" in task_name:
             if "avatar" in task_name:
-                arg = task_name.split("_")[-1]
+                arg = task_name.split("_", maxsplit=1)[-1]
+                arg = arg.rsplit(":", maxsplit=1)[0]
                 arg = avatar_name[int(arg)][1]
             else:
                 arg = task_name.split("_")[-1]
@@ -86,7 +88,7 @@ async def profile(event: SimpleBotEvent):
                f"🧩 ID: {current_user.id} / {current_user.pet_id}\n" \
                f"👨🏼‍💼 Имя: {current_user.name}\n" \
                f"🏠 Клуб: {club_name}\n" \
-               f"🏮 Баллы: {current_user_stats.points}\n"\
+               f"🏮 Баллы: {current_user_stats.points}\n" \
                f"⭐ Набрано звездочек: {current_user_stats.personal_tasks}\n" \
                f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
