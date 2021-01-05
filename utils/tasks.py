@@ -466,7 +466,7 @@ async def checking_avatar_task(mpets, user, user_task):
         ava = task_name.split("_", maxsplit=1)[-1]
         start_time = ava.rsplit(":", maxsplit=1)[1]
         if int(start_time) == 0:
-            task_name = f"anketa_{avatar_id}:{int(time.time())}"
+            task_name = f"avatar_{avatar_id}:{int(time.time())}"
             crud.update_user_task_name(user_task.id, task_name)
         else:
             left_time = time.time() - int(start_time)
