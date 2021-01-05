@@ -128,3 +128,5 @@ logs
 test.py
 text.txt
 .stats.db
+notice.db
+noticed.py
