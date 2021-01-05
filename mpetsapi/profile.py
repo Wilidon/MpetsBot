@@ -182,7 +182,7 @@ async def view_anketa(pet_id, cookies, timeout, connector):
                 return await view_anketa(pet_id, cookies, timeout, connector)
             anketa = prof.find_all("span", {"class": "anketa_head ib mb3"})
             for i in range(len(anketa)):
-                if "О себе" in anketa[i].text:
+                if "себе" in str(anketa[i].text):
                     about = prof.find_all("div", {"class": "mb10"})[i].text
                 elif "Реальное имя" in anketa[i].text:
                     real_name = prof.find_all("div", {"class": "mb10"})[i].text
