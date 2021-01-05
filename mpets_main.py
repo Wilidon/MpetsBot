@@ -13,7 +13,7 @@ from config import get_settings, logger_config
 from middlewares import UserMiddleware
 from utils.functions import notice
 
-__version__ = "1.1.2"
+__version__ = "1.1.5"
 
 logging.basicConfig(filename="logs/vk.log",
                     filemode='a',
