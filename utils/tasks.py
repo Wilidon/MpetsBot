@@ -175,15 +175,12 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
             else:
                 if gift["pet_id"]:
                     try:
-                        if int(gift_id) == 10:
-                            logger.debug(pet_gift)
                         if "сегодня" in gift["date"] and \
                                 int(gift["present_id"]) == gift_id and \
                                 user.pet_id == int(gift["pet_id"]):
                             pet_gift = True
                     except:
                         pass
-        logger.debug(pet_gift)
         if pet_gift:
             crud.update_club_task(user_task.id, user_task.end,
                                     "completed")
@@ -265,6 +262,7 @@ async def checking_thread_task(mpets, user, user_task):
                 page = crud.get_last_page_thread(thread).page
                 page = int(page)
                 while True:
+                    time0= time.time()
                     thread_info = await mpets.thread(thread, page)
                     if thread_info["status"] == "error":
                         break
@@ -360,6 +358,7 @@ async def start_verify_club(club):
             elif len(user_tasks) < 3:
                 await functions.creation_club_tasks(club.club_id)
             for user_task in user_tasks:
+                time0 = time.time()
                 if user_task.status == "completed":
                     continue
                 elif user_task.task_name == "coin":
@@ -379,11 +378,19 @@ async def start_verify_club(club):
                 elif user_task.task_name == "play":
                     await checking_play_task(mpets, user, user_task)
                 elif user_task.task_name == "thread":
-                    await checking_thread_task(mpets, user, user_task)
+                    pass
+                    #await checking_thread_task(mpets, user, user_task)
                 elif user_task.task_name == "upRank":
                     await checking_upRank_task(mpets, user, user_task)
                 elif user_task.task_name == "acceptPlayer":
                     await checking_acceptPlayer_task(mpets, user, user_task)
+                t = time.time() - time0
+                if t > 30:
+                    logger.info(f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
+                elif t > 60:
+                    logger.error(f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
+                elif t > 120:
+                    logger.critical(f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
     except Exception as e:
         log = logger.bind(context=e)
         log.error(f"Не удалось проверить клуб({club.club_id})")
@@ -406,7 +413,7 @@ async def start_verify_account(club):
 async def checking_bots():
     while True:
         try:
-            logger.info("Пошел проверять клубы")
+            time0 = time.time()
             clubs_with_status_ok = crud.get_clubs(status="ok")
             clubs_with_status_waiting = crud.get_clubs(status="waiting")
             tasks = []
@@ -418,7 +425,7 @@ async def checking_bots():
                 tasks.append(task)
             await asyncio.gather(*tasks)
             await asyncio.sleep(1)
-            logger.info("Закончил проверять клубы")
+            logger.info(f"Закончил проверять клубы за {time.time() - time0}")
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
@@ -447,6 +454,14 @@ async def update_user_data():
                     log.warning(f"Не удалось обновить информацию "
                                 f"пользователя {user.user_id}")
                     continue
+                user = crud.get_user(user.user_id)
+                if int(user.club_id) != int(profile["club_id"]):
+                    crud.reset_task(user.user_id)
+                    stats = crud.get_user_stats(user.user_id)
+                    logger.warning(f"Сбросил статистику пользователя "
+                                   f"{user.user_id}. У него было "
+                                   f"{stats.club_tasks} ёлок и "
+                                   f"{stats.club_points} фишек.")
                 crud.update_user_data(user.user_id, profile["pet_id"],
                                       profile["name"], profile["club_id"])
             await asyncio.sleep(10)
@@ -600,12 +615,16 @@ async def checking_users_tasks():
     while True:
         try:
             users = crud.get_users_with_status("ok")
-            tasks = []
+            tasks, counter = [], 0
+            time0 = time.time()
             for user in users:
                 task = asyncio.create_task(start_verify_user(user))
                 tasks.append(task)
-            await asyncio.gather(*tasks)
-            await asyncio.sleep(1)
+                if len(tasks) >= 10:
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(1)
+                    tasks = []
+            #logger.info(f"Закончил проверять задания за {time.time() - time0}")
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
