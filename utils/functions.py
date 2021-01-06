@@ -44,7 +44,7 @@ club_tasks = ["exp", "heart", "coin",
               # ["send_specific_gift_player"],
               # ["chat"],
               # ["play"],
-              "thread",
+              #"thread",
               "upRank",
               "acceptPlayer"]
 
@@ -483,7 +483,7 @@ async def online_task(user_id):
 
 async def in_online_task(user_id):
     today = int(datetime.today().strftime("%Y%m%d"))
-    m = random.randint(0, 60)
+    m = random.randint(0, 59)
     if m < 10:
         m = "0" + str(m)
     task_name = f"in_online_{random.randint(11, 19)}" \
