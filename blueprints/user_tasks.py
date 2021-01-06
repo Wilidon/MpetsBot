@@ -39,12 +39,18 @@ async def user_tasks(event: SimpleBotEvent):
         else:
             args = [progress, end]
         if progress >= end:
-            task_name = task_name.rsplit("_", maxsplit=1)[0]
+            if "in_online" in task_name:
+                task_name = task_name.rsplit("_", maxsplit=1)[0]
+            else:
+                task_name = task_name.split("_", maxsplit=1)[0]
             text += f"{counter}. " + user_completed_tasks_list[
                 task_name].format(*args) + "Выполнено ✅\n\n "
             counter += 1
         else:
-            task_name = task_name.rsplit("_", maxsplit=1)[0]
+            if "in_online" in task_name:
+                task_name = task_name.rsplit("_", maxsplit=1)[0]
+            else:
+                task_name = task_name.split("_", maxsplit=1)[0]
             text += f"{counter}. " + user_tasks_list[task_name].format(*args) \
                     + "\n"
             counter += 1
