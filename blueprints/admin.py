@@ -271,6 +271,7 @@ async def stats(event: SimpleBotEvent):
     amount_completed_c_t = crud.get_clubs_tasks_with_filter("completed")
     amount_timeout_c_t = crud.get_clubs_tasks_with_filter("timeout")
     users = crud.get_users_stats(limit=None)
+    clubs = crud.get_clubs_stats(limit=None)
     amount_1 = 0
     amount_2 = 0
     amount_3 = 0
@@ -278,8 +279,9 @@ async def stats(event: SimpleBotEvent):
     for user in users:
         amount_1 += user.personal_tasks
         amount_2 += user.points
-        amount_3 += user.club_tasks
-        amount_4 += user.club_points
+    for club in clubs:
+        amount_3 += club.total_tasks
+        amount_4 += club.points
     text = f"Статистика для Лерочки 🥰\n" \
            f"👨🏼‍💼 Пользователей: {amount_users}\n" \
            f"📈 Заданий: {amount_personal_tasks}\n" \
@@ -294,5 +296,4 @@ async def stats(event: SimpleBotEvent):
            f"🎄 Всего: {amount_3}\n" \
            f"🏵 Всего: {amount_4}\n\n" \
            f"👆🏻 Всего кликов: {total_clicks}"
-
     return text
