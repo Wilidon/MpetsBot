@@ -411,3 +411,10 @@ def get_clubs_tasks():
 
 def get_clubs_tasks_with_filter(status: str = "waiting"):
     return db.query(models.ClubsTasks).filter_by(status=status).count()
+
+
+def reset_user_stats(user_id: int):
+    stats = db.query(models.UserStats).filter_by(user_id=user_id).first()
+    stats.club_tasks = 0
+    stats.club_points = 0
+    db.commit()
