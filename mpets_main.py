@@ -51,10 +51,10 @@ if __name__ == "__main__":
     # Запускаем бота
     noticed = False
     try:
-        bot.run_forever(ignore_errors=False)
+        bot.run_forever()
     except Exception as e:
         logger.error(f"Бот упал {e}")
         text = f"@wilidon. упал вк бот {e}"
-        if noticed:
+        if not noticed:
             notice(text)
             noticed = False
