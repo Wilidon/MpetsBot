@@ -9,6 +9,7 @@ from vkwave.bots import (
 from loguru import logger
 from mpetsapi import MpetsApi
 from sql import crud
+from utils.constants import menu
 from utils.functions import get_limits, club_tasks_list, club_completed_tasks_list, \
     gifts_name
 from utils.tasks import checking_sendGift_task
@@ -127,7 +128,7 @@ async def profile(event: SimpleBotEvent):
                 text += f"{counter}. " + club_tasks_list[task_name].format(*args) \
                         + "\n"
                 counter += 1
-        return text
+        await menu(user=current_user, event=event, message=text)
 
 
 @simple_bot_message_handler(club_router, PayloadFilter({"command": "club"}))
@@ -155,16 +156,17 @@ async def profile(event: SimpleBotEvent):
         total_tasks = user_club_stats.total_tasks
         points = user_club_stats.points
     total_members_in_club = len(crud.get_users_with_club(current_user.club_id))
-    await event.answer(f"🏠 Профиль клуба {user_club.name}\n\n" 
-                       f"🎄 Набранные очки: {total_tasks} \n" 
-                       f"🏵 Фишки: {points} \n" 
-                       f"🧸  Участников: {total_members_in_club}\n"
-                       f"————\n"
-                       f"Вы выполнили: {user_stats.club_tasks} 📋\n"
-                       f"Вы набрали: {user_stats.club_points} 🏵\n\n"
-                       f"🐾 Зимняя гонка:\n\n"
-                       f"0🚩 — 30🎄 — 70🎄 — 160🎄 — 230🎄 — 350🎄 — 510🎄"
-                       f" — 620🎄 — 800🎄 — 980🎄 — 1111🎄 — 1239🏁")
+    text = f"🏠 Профиль клуба {user_club.name}\n\n" \
+           f"🎄 Набранные очки: {total_tasks} \n" \
+           f"🏵 Фишки: {points} \n" \
+           f"🧸  Участников: {total_members_in_club}\n"\
+           f"————\n"\
+           f"Вы выполнили: {user_stats.club_tasks} 📋\n"\
+           f"Вы набрали: {user_stats.club_points} 🏵\n\n"\
+           f"🐾 Зимняя гонка:\n\n"\
+           f"0🚩 — 30🎄 — 70🎄 — 160🎄 — 230🎄 — 350🎄 — 510🎄"\
+           f" — 620🎄 — 800🎄 — 980🎄 — 1111🎄 — 1239🏁"
+    await menu(user=current_user, event=event, message=text)
 
 
 @simple_bot_message_handler(club_router,
@@ -189,7 +191,7 @@ async def club_rating(event: SimpleBotEvent):
         current_user_club_stats = crud.get_club_stats(current_user.club_id)
         if current_user_club_stats:
             text += f"\n{current_user_club.name} — {current_user_club_stats.points} 🏵\n"
-    await event.answer(text)
+    await menu(user=current_user, event=event, message=text)
 
 
 @simple_bot_message_handler(club_router, TextContainsFilter("+check"))

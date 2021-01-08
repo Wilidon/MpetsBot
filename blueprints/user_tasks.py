@@ -9,6 +9,7 @@ from vkwave.bots import (
 )
 
 from sql import crud
+from utils.constants import menu
 from utils.functions import user_tasks_list, avatar_name, \
     user_completed_tasks_list
 
@@ -54,7 +55,7 @@ async def user_tasks(event: SimpleBotEvent):
             text += f"{counter}. " + user_tasks_list[task_name].format(*args) \
                     + "\n"
             counter += 1
-    return text
+    await menu(user=current_user, event=event, message=text)
 
 
 @simple_bot_message_handler(user_router,
@@ -77,7 +78,7 @@ async def user_rating(event: SimpleBotEvent):
     if not hidden:
         current_user_stats = crud.get_user_stats(current_user.user_id)
         text += f"\n{current_user.name} — {current_user_stats.points} 🏮\n"
-    await event.answer(text)
+    await menu(user=current_user, event=event, message=text)
 
 
 @simple_bot_message_handler(user_router,
@@ -113,6 +114,4 @@ async def profile(event: SimpleBotEvent):
                f"🐾 Зимняя гонка:\n\n" \
                f"0🚩— 10⭐ — 25⭐ — 40⭐ — 70⭐ — 100⭐ — 125⭐ — 160⭐ — 177⭐🏁"
 
-    await event.answer(
-        message=text
-    )
+    await menu(user=current_user, event=event, message=text)

@@ -623,7 +623,12 @@ async def checking_users_tasks():
             for user in users:
                 task = asyncio.create_task(start_verify_user(user))
                 tasks.append(task)
-                if len(tasks) >= 10:
+                if len(users) >= 10:
+                    if len(tasks) >= 10:
+                        await asyncio.gather(*tasks)
+                        await asyncio.sleep(1)
+                        tasks = []
+                else:
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []

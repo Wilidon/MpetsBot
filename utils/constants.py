@@ -146,4 +146,7 @@ async def menu(user, event, message="Меню"):
     if items:
         await event.answer(message=message, keyboard=MENU_S.get_keyboard())
     else:
-        await event.answer(message=message, keyboard=MENU.get_keyboard())
+        if user.access >= 1:
+            await event.answer(message=message, keyboard=ADMIN_MENU.get_keyboard())
+        else:
+            await event.answer(message=message, keyboard=MENU.get_keyboard())

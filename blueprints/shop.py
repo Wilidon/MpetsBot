@@ -15,8 +15,8 @@ shop_router = DefaultRouter()
 
 
 @simple_bot_message_handler(shop_router,
-                            PayloadFilter({"command": "item1"})|
-                            PayloadFilter({"command": "item2"})|
+                            PayloadFilter({"command": "item1"}) |
+                            PayloadFilter({"command": "item2"}) |
                             PayloadFilter({"command": "item3"}))
 async def chooise_item(event: SimpleBotEvent):
     user = event["current_user"]
@@ -29,7 +29,8 @@ async def chooise_item(event: SimpleBotEvent):
         if int(item.score) == 100:
             crud.update_user_itemname(item.id, shop1[item_id],
                                       "В процессе")
-            await menu(user, event, "Награда будет начислена в течение недели.")
+            await menu(user, event,
+                       "Награда будет начислена в течение недели.")
             text = f"Игрок {user.first_name} {user.last_name} | {user.name} " \
                    f"({user.pet_id}) выбрал в магазине: \n" \
                    f"{shop1[item_id]}"
