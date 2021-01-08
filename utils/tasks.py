@@ -384,7 +384,7 @@ async def start_verify_club(club):
                     await checking_upRank_task(mpets, user, user_task)
                 elif user_task.task_name == "acceptPlayer":
                     await checking_acceptPlayer_task(mpets, user, user_task)
-                t = time.time() - time0
+                '''t = time.time() - time0
                 if t > 30:
                     logger.info(
                         f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
@@ -393,7 +393,7 @@ async def start_verify_club(club):
                         f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
                 elif t > 120:
                     logger.critical(
-                        f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
+                        f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")'''
     except Exception as e:
         log = logger.bind(context=e)
         log.error(f"Не удалось проверить клуб({club.club_id})")
@@ -428,7 +428,7 @@ async def checking_bots():
                 tasks.append(task)
             await asyncio.gather(*tasks)
             await asyncio.sleep(1)
-            logger.info(f"Закончил проверять клубы за {time.time() - time0}")
+            #logger.info(f"Закончил проверять клубы за {time.time() - time0}")
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
@@ -505,7 +505,6 @@ async def checking_anketa_task(mpets, user, user_task):
     profile = await mpets.view_anketa(user.pet_id)
     if profile["status"] != "ok":
         return 0
-    # anketa_Привет!:30
     task_name = user_task.task_name
     anketa_about = task_name.split("_", maxsplit=1)[-1]
     anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
