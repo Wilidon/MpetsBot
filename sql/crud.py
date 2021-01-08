@@ -60,9 +60,14 @@ def get_clubs_stats(limit: int = 10):
         models.ClubStats.points.desc()).limit(limit).all()
 
 
-def get_users_stats(limit: int = 10):
+def get_users_stats_order_by_points(limit: int = 10):
     return db.query(models.UserStats).order_by(
         models.UserStats.points.desc()).limit(limit).all()
+
+
+def get_users_stats_order_by_tasks(limit: int = 10):
+    return db.query(models.UserStats).order_by(
+        models.UserStats.personal_tasks.desc()).limit(limit).all()
 
 
 def create_club(club_id: int, name: str, bot_id: int, bot_name: str,
