@@ -118,7 +118,7 @@ async def points_rating(event: SimpleBotEvent):
         else:
             await event.answer(text)
     elif msg[0] == "/club":
-        clubs = crud.get_clubs_stats(limit=None)
+        clubs = crud.get_clubs_stats_order_by_points(limit=None)
         text = "🏠 Рейтинг клубов.\n\n"
         if not clubs:
             return "❗ Рейтинг пуст."
@@ -158,7 +158,7 @@ async def task_rating(event: SimpleBotEvent):
                             PayloadFilter({"command": "rating_club_tasks"}))
 async def task_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
-    clubs = crud.get_clubs_stats(limit=None)
+    clubs = crud.get_clubs_stats_order_by_tasks(limit=None)
     text = "🏠 Рейтинг клубов.\n\n"
     if not clubs:
         return "❗ Рейтинг пуст."
@@ -196,7 +196,7 @@ async def task_rating(event: SimpleBotEvent):
         else:
             await event.answer(text)
     elif msg[0] == "/club":
-        clubs = crud.get_clubs_stats(limit=None)
+        clubs = crud.get_clubs_stats_order_by_tasks(limit=None)
         text = "🏠 Рейтинг клубов.\n\n"
         if not clubs:
             return "❗ Рейтинг пуст."
@@ -374,7 +374,7 @@ async def stats(event: SimpleBotEvent):
     amount_completed_c_t = crud.get_clubs_tasks_with_filter("completed")
     amount_timeout_c_t = crud.get_clubs_tasks_with_filter("timeout")
     users = crud.get_users_stats_order_by_points(limit=None)
-    clubs = crud.get_clubs_stats(limit=None)
+    clubs = crud.get_clubs_stats_order_by_points(limit=None)
     amount_1 = 0
     amount_2 = 0
     amount_3 = 0

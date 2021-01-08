@@ -55,9 +55,14 @@ def get_club(club_id: int):
     return db.query(models.Clubs).filter_by(club_id=club_id).first()
 
 
-def get_clubs_stats(limit: int = 10):
+def get_clubs_stats_order_by_points(limit: int = 10):
     return db.query(models.ClubStats).order_by(
         models.ClubStats.points.desc()).limit(limit).all()
+
+
+def get_clubs_stats_order_by_tasks(limit: int = 10):
+    return db.query(models.ClubStats).order_by(
+        models.ClubStats.total_tasks.desc()).limit(limit).all()
 
 
 def get_users_stats_order_by_points(limit: int = 10):

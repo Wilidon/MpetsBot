@@ -176,7 +176,7 @@ async def profile(event: SimpleBotEvent):
 async def club_rating(event: SimpleBotEvent):
     # Рейтинг клубов
     current_user, counter, hidden = event["current_user"], 1, False
-    clubs = crud.get_clubs_stats()
+    clubs = crud.get_clubs_stats_order_by_points()
     text = "🏠 Рейтинг клубов\n\n"
     if not clubs:
         return "Рейтинг пуст"
