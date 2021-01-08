@@ -423,3 +423,23 @@ def reset_user_stats(user_id: int):
     stats.club_tasks = 0
     stats.club_points = 0
     db.commit()
+
+
+def confirm_user_item(item_id: int):
+    if db.query(models.UserItems).filter_by(id=item_id).first():
+        item = db.query(models.UserItems).filter_by(id=item_id).first()
+        item.status = "completed"
+        db.commit()
+        return True
+    else:
+        return False
+
+
+def confirm_club_item(item_id: int):
+    if db.query(models.ClubItems).filter_by(id=item_id).first():
+        item = db.query(models.ClubItems).filter_by(id=item_id).first()
+        item.status = "completed"
+        db.commit()
+        return True
+    else:
+        return False

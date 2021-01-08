@@ -29,28 +29,28 @@ async def points(event: SimpleBotEvent):
         if msg[0] == "+points":
             if crud.get_user(int(msg[2])):
                 crud.update_user_stats(int(msg[2]), points=int(msg[3]))
-                return "Баллы начислены."
+                return "✅ Баллы начислены."
             else:
-                return "Игрок не найден."
+                return "❗ Игрок не найден."
         elif msg[0] == "-points":
             if crud.get_user(int(msg[2])):
                 crud.update_user_stats(int(msg[2]), points=-int(msg[3]))
-                return "Баллы списаны."
+                return "✅ Баллы списаны."
             else:
-                return "Игрок не найден."
+                return "❗ Игрок не найден."
     if msg[1] == "club":
         if msg[0] == "+points":
             if crud.get_club(int(msg[2])):
                 crud.update_club_stats(int(msg[2]), points=int(msg[3]))
-                return "Баллы начислены."
+                return "✅ Баллы начислены."
             else:
-                return "Игрок не найден."
+                return "❗ Игрок не найден."
         elif msg[0] == "-points":
             if crud.get_club(int(msg[2])):
                 crud.update_club_stats(int(msg[2]), points=-int(msg[3]))
-                return "Баллы списаны."
+                return "✅ Баллы списаны."
             else:
-                return "Игрок не найден."
+                return "❗ Игрок не найден."
 
 
 @simple_bot_message_handler(admin_router,
@@ -69,30 +69,30 @@ async def points(event: SimpleBotEvent):
             if crud.get_user(int(msg[2])):
                 for i in range(int(msg[3])):
                     await add_user_points(user_id=int(msg[2]), point=False)
-                return "Звездочки начислены."
+                return "✅ Звездочки начислены."
             else:
-                return "Игрок не найден."
+                return "❗ Игрок не найден."
         elif msg[0] == "-tasks":
             if crud.get_user(int(msg[2])):
                 crud.update_user_stats(int(msg[2]), personal_tasks=-int(msg[
                                                                             3]))
-                return "Звездочки списаны."
+                return "✅ Звездочки списаны."
             else:
-                return "Игрок не найден."
+                return "❗ Игрок не найден."
     if msg[1] == "club":
         if msg[0] == "+tasks":
             if crud.get_club(int(msg[2])):
                 for i in range(int(msg[3])):
                     await add_club_points(club_id=int(msg[2]), point=False)
-                return "Ёлки начислены."
+                return "✅ Ёлки начислены."
             else:
-                return "Клуб не найден."
+                return "❗ Клуб не найден."
         elif msg[0] == "-tasks":
             if crud.get_club(int(msg[2])):
                 crud.update_club_stats(int(msg[2]), total_tasks=-int(msg[3]))
-                return "Ёлки списаны."
+                return "✅ Ёлки списаны."
             else:
-                return "Клуб не найден."
+                return "❗ Клуб не найден."
 
 
 @simple_bot_message_handler(admin_router,
@@ -104,9 +104,9 @@ async def points_rating(event: SimpleBotEvent):
     msg = event.object.object.message.text.split()
     if msg[0] == "/user":
         top_users_stats = crud.get_users_stats_order_by_points(limit=None)
-        text = "🧑‍ Рейтинг игроков.\n"
+        text = "🧑‍ Рейтинг игроков.\n\n"
         if not top_users_stats:
-            return "Рейтинг пуст."
+            return "❗ Рейтинг пуст."
         for user_stats in top_users_stats:
             top_user = crud.get_user(user_stats.user_id)
             text += f"{counter}. [id{top_user.user_id}|{top_user.name}] " \
@@ -119,9 +119,9 @@ async def points_rating(event: SimpleBotEvent):
             await event.answer(text)
     elif msg[0] == "/club":
         clubs = crud.get_clubs_stats(limit=None)
-        text = "🏠 Рейтинг клубов.\n"
+        text = "🏠 Рейтинг клубов.\n\n"
         if not clubs:
-            return "Рейтинг пуст."
+            return "❗ Рейтинг пуст."
         for club_stats in clubs:
             club = crud.get_club(club_stats.club_id)
             text += f"{counter}. {club.name} ({club.club_id}) —" \
@@ -139,9 +139,9 @@ async def points_rating(event: SimpleBotEvent):
 async def task_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
     top_users_stats = crud.get_users_stats_order_by_tasks(limit=None)
-    text = "🧑‍ Рейтинг игроков.\n"
+    text = "🧑‍ Рейтинг игроков.\n\n"
     if not top_users_stats:
-        return "Рейтинг пуст."
+        return "❗ Рейтинг пуст."
     for user_stats in top_users_stats:
         top_user = crud.get_user(user_stats.user_id)
         text += f"{counter}. {top_user.name} — " \
@@ -159,9 +159,9 @@ async def task_rating(event: SimpleBotEvent):
 async def task_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
     clubs = crud.get_clubs_stats(limit=None)
-    text = "🏠 Рейтинг клубов.\n"
+    text = "🏠 Рейтинг клубов.\n\n"
     if not clubs:
-        return "Рейтинг пуст."
+        return "❗ Рейтинг пуст."
     for club_stats in clubs:
         club = crud.get_club(club_stats.club_id)
         text += f"{counter}. {club.name} — {club_stats.total_tasks} 🎄\n"
@@ -182,9 +182,9 @@ async def task_rating(event: SimpleBotEvent):
     msg = event.object.object.message.text.split()
     if msg[0] == "/user":
         top_users_stats = crud.get_users_stats_order_by_tasks(limit=None)
-        text = "🧑‍ Рейтинг игроков.\n"
+        text = "🧑‍ Рейтинг игроков.\n\n"
         if not top_users_stats:
-            return "Рейтинг пуст."
+            return "❗ Рейтинг пуст."
         for user_stats in top_users_stats:
             top_user = crud.get_user(user_stats.user_id)
             text += f"{counter}. {top_user.name} — " \
@@ -197,9 +197,9 @@ async def task_rating(event: SimpleBotEvent):
             await event.answer(text)
     elif msg[0] == "/club":
         clubs = crud.get_clubs_stats(limit=None)
-        text = "🏠 Рейтинг клубов.\n"
+        text = "🏠 Рейтинг клубов.\n\n"
         if not clubs:
-            return "Рейтинг пуст."
+            return "❗ Рейтинг пуст."
         for club_stats in clubs:
             club = crud.get_club(club_stats.club_id)
             text += f"{counter}. {club.name} — {club_stats.total_tasks} 🎄\n"
@@ -225,9 +225,9 @@ async def notice_user(event: SimpleBotEvent):
             await event.api_ctx.messages.send(user_id=int(msg[2]),
                                               message=msg[3],
                                               random_id=randint(1, 9999999))
-            return "Сообщение отправлено."
+            return "✅ Сообщение отправлено."
         else:
-            return "Игрок не найден."
+            return "❗ Игрок не найден."
     if msg[1] == "club":
         if crud.get_club(int(msg[2])):
             users = crud.get_users_with_club(int(msg[2]))
@@ -236,23 +236,22 @@ async def notice_user(event: SimpleBotEvent):
                                                   message=msg[3],
                                                   random_id=randint(1,
                                                                     9999999))
-            return "Сообщения отправлены."
+            return "✅ Сообщения отправлены."
         else:
-            return "Клуб не найден."
+            return "❗ Клуб не найден."
 
 
 @simple_bot_message_handler(admin_router,
                             PayloadFilter({"command": "user_items"}))
 async def task_rating(event: SimpleBotEvent):
-    current_user, counter = event["current_user"], 1
     items = crud.get_user_items()
-    text = "🧸 Предметы игроков.\n"
+    text = "🧸 Предметы игроков.\n\n"
     if not items:
-        return "Предметов нет"
+        return "❗ Предметов нет"
     for item in items:
         user = crud.get_user(item.user_id)
-        text += f"{counter}. {item.item_name} -- {user.name}\n"
-        counter += 1
+        text += f"{item.id}. {item.item_name} -- {user.name}\n"
+    text += "\n +confirm user {id} — подтвердить предмет"
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
                            "проблемы напишите разработчику.")
@@ -263,15 +262,14 @@ async def task_rating(event: SimpleBotEvent):
 @simple_bot_message_handler(admin_router,
                             PayloadFilter({"command": "club_items"}))
 async def task_rating(event: SimpleBotEvent):
-    current_user, counter = event["current_user"], 1
     items = crud.get_club_items()
-    text = "🎈 Предметы клубов.\n"
+    text = "🎈 Предметы клубов.\n\n"
     if not items:
-        return "Предметов нет"
+        return "❗ Предметов нет"
     for item in items:
         club = crud.get_club(item.club_id)
-        text += f"{counter}. {item.item_name} -- {club.name}\n"
-        counter += 1
+        text += f"{item.id}. {item.item_name} -- {club.name}\n"
+    text += "\n +confirm club {id} — подтвердить предмет"
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
                            "проблемы напишите разработчику.")
@@ -283,19 +281,19 @@ async def task_rating(event: SimpleBotEvent):
                             TextContainsFilter(
                                 ["/items user", "/items club"]))
 async def items(event: SimpleBotEvent):
-    current_user, counter = event["current_user"], 1
+    current_user = event["current_user"]
     if current_user.access <= 1:
         return None
     msg = event.object.object.message.text.split(" ")
     if msg[1] == "user":
         items = crud.get_user_items()
-        text = "🧸 Предметы игроков.\n"
+        text = "🧸 Предметы игроков.\n\n"
         if not items:
-            return "Предметов нет"
+            return "❗ Предметов нет"
         for item in items:
             user = crud.get_user(item.user_id)
-            text += f"{counter}. {item.item_name} -- {user.name}\n"
-            counter +=1
+            text += f"{item.id}. {item.item_name} -- {user.name}\n"
+        text += "\n +confirm user {id} — подтвердить предмет"
         if len(text) > 4050:
             await event.answer("Сообщение слишком длинное. Для решение "
                                "проблемы напишите разработчику.")
@@ -303,13 +301,13 @@ async def items(event: SimpleBotEvent):
             await event.answer(text)
     if msg[1] == "club":
         items = crud.get_club_items()
-        text = "🎈 Предметы клубов.\n"
+        text = "🎈 Предметы клубов.\n\n"
         if not items:
-            return "Предметов нет"
+            return "❗ Предметов нет"
         for item in items:
             club = crud.get_club(item.club_id)
-            text += f"{counter}. {item.item_name} -- {club.name}\n"
-            counter += 1
+            text += f"{item.id}. {item.item_name} -- {club.name}\n"
+        text += "\n +confirm club {id} — подтвердить предмет"
         if len(text) > 4050:
             await event.answer("Сообщение слишком длинное. Для решение "
                                "проблемы напишите разработчику.")
@@ -326,10 +324,10 @@ async def club_members(event: SimpleBotEvent):
         return None
     msg = event.object.object.message.text.split(" ")
     if msg[2].isdigit() is False:
-        return "Клуб не найден."
+        return "❗ Клуб не найден."
     club_members = crud.get_users_with_club(msg[2])
     if not club_members:
-        return "Клуб не найден."
+        return "❗ Клуб не найден."
     for member in club_members:
         user_stats = crud.get_user_stats(member.user_id)
         text += f"{counter}. {member.name} ({member.user_id}) --{user_stats.personal_tasks}\n"
@@ -349,10 +347,10 @@ async def club_members(event: SimpleBotEvent):
         return None
     msg = event.object.object.message.text.split(" ")
     if msg[3].isdigit() is False and msg[4].isdigit() is False:
-        return "Не смог определить клуб или награду"
+        return "❗ Не смог определить клуб или награду"
     club_members = crud.get_users_with_club(msg[3])
     if not club_members:
-        return "Клуб не найден."
+        return "❗ Клуб не найден."
     for member in club_members:
         for i in range(int(msg[4])):
             await add_user_points(user_id=member.user_id, point=False)
@@ -402,3 +400,33 @@ async def stats(event: SimpleBotEvent):
            f"🏵 Всего: {amount_4}\n\n" \
            f"👆🏻 Всего кликов: {total_clicks}"
     return text
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["+confirm user"]))
+async def club_members(event: SimpleBotEvent):
+    current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
+    msg = event.object.object.message.text.split(" ")
+    if msg[2].isdigit() is False:
+        return "❗ Не смог определить id награды"
+    if crud.confirm_user_item(int(msg[2])):
+        return "✅ Предмет подтвержден"
+    else:
+        return "❗ Предмет с таким id не найден"
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["+confirm club"]))
+async def club_members(event: SimpleBotEvent):
+    current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
+    msg = event.object.object.message.text.split(" ")
+    if msg[2].isdigit() is False:
+        return "❗ Не смог определить id награды"
+    if crud.confirm_club_item(int(msg[2])):
+        return "✅ Предмет подтвержден"
+    else:
+        return "❗ Предмет с таким id не найден"
