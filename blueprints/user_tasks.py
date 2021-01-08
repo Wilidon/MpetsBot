@@ -62,7 +62,7 @@ async def user_tasks(event: SimpleBotEvent):
 async def user_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
     current_user, counter, hidden = event["current_user"], 1, False
-    top_users_stats = crud.get_users_stats(limit=10)
+    top_users_stats = crud.get_users_stats_order_by_points(limit=10)
     text = "🧑‍ Рейтинг игроков \n\n"
     if not top_users_stats:
         return "Рейтинг пуст"

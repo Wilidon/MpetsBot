@@ -103,15 +103,20 @@ async def points_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
     msg = event.object.object.message.text.split()
     if msg[0] == "/user":
-        top_users_stats = crud.get_users_stats(limit=None)
+        top_users_stats = crud.get_users_stats_order_by_points(limit=None)
         text = "🧑‍ Рейтинг игроков.\n"
         if not top_users_stats:
             return "Рейтинг пуст."
         for user_stats in top_users_stats:
             top_user = crud.get_user(user_stats.user_id)
-            text += f"{counter}. {top_user.name} — {user_stats.points} 🏮\n"
+            text += f"{counter}. [id{top_user.user_id}|{top_user.name}] " \
+                    f"({top_user.pet_id}) — {user_stats.points} 🏮\n"
             counter += 1
-        await event.answer(text)
+        if len(text) > 4050:
+            await event.answer("Сообщение слишком длинное. Для решение "
+                               "проблемы напишите разработчику.")
+        else:
+            await event.answer(text)
     elif msg[0] == "/club":
         clubs = crud.get_clubs_stats(limit=None)
         text = "🏠 Рейтинг клубов.\n"
@@ -119,8 +124,52 @@ async def points_rating(event: SimpleBotEvent):
             return "Рейтинг пуст."
         for club_stats in clubs:
             club = crud.get_club(club_stats.club_id)
-            text += f"{counter}. {club.name} — {club_stats.points} 🏵\n"
+            text += f"{counter}. {club.name} ({club.club_id}) —" \
+                    f" {club_stats.points} 🏵\n"
             counter += 1
+        if len(text) > 4050:
+            await event.answer("Сообщение слишком длинное. Для решение "
+                               "проблемы напишите разработчику.")
+        else:
+            await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
+                            PayloadFilter({"command": "rating_user_tasks"}))
+async def task_rating(event: SimpleBotEvent):
+    current_user, counter = event["current_user"], 1
+    top_users_stats = crud.get_users_stats_order_by_tasks(limit=None)
+    text = "🧑‍ Рейтинг игроков.\n"
+    if not top_users_stats:
+        return "Рейтинг пуст."
+    for user_stats in top_users_stats:
+        top_user = crud.get_user(user_stats.user_id)
+        text += f"{counter}. {top_user.name} — " \
+                f"{user_stats.personal_tasks} ⭐\n"
+        counter += 1
+    if len(text) > 4050:
+        await event.answer("Сообщение слишком длинное. Для решение "
+                           "проблемы напишите разработчику.")
+    else:
+        await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
+                            PayloadFilter({"command": "rating_club_tasks"}))
+async def task_rating(event: SimpleBotEvent):
+    current_user, counter = event["current_user"], 1
+    clubs = crud.get_clubs_stats(limit=None)
+    text = "🏠 Рейтинг клубов.\n"
+    if not clubs:
+        return "Рейтинг пуст."
+    for club_stats in clubs:
+        club = crud.get_club(club_stats.club_id)
+        text += f"{counter}. {club.name} — {club_stats.total_tasks} 🎄\n"
+        counter += 1
+    if len(text) > 4050:
+        await event.answer("Сообщение слишком длинное. Для решение "
+                           "проблемы напишите разработчику.")
+    else:
         await event.answer(text)
 
 
@@ -132,7 +181,7 @@ async def task_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
     msg = event.object.object.message.text.split()
     if msg[0] == "/user":
-        top_users_stats = crud.get_users_stats(limit=None)
+        top_users_stats = crud.get_users_stats_order_by_tasks(limit=None)
         text = "🧑‍ Рейтинг игроков.\n"
         if not top_users_stats:
             return "Рейтинг пуст."
@@ -141,7 +190,11 @@ async def task_rating(event: SimpleBotEvent):
             text += f"{counter}. {top_user.name} — " \
                     f"{user_stats.personal_tasks} ⭐\n"
             counter += 1
-        await event.answer(text)
+        if len(text) > 4050:
+            await event.answer("Сообщение слишком длинное. Для решение "
+                               "проблемы напишите разработчику.")
+        else:
+            await event.answer(text)
     elif msg[0] == "/club":
         clubs = crud.get_clubs_stats(limit=None)
         text = "🏠 Рейтинг клубов.\n"
@@ -151,7 +204,11 @@ async def task_rating(event: SimpleBotEvent):
             club = crud.get_club(club_stats.club_id)
             text += f"{counter}. {club.name} — {club_stats.total_tasks} 🎄\n"
             counter += 1
-        await event.answer(text)
+        if len(text) > 4050:
+            await event.answer("Сообщение слишком длинное. Для решение "
+                               "проблемы напишите разработчику.")
+        else:
+            await event.answer(text)
 
 
 @simple_bot_message_handler(admin_router,
@@ -185,15 +242,52 @@ async def notice_user(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            PayloadFilter({"command": "user_items"}))
+async def task_rating(event: SimpleBotEvent):
+    current_user, counter = event["current_user"], 1
+    items = crud.get_user_items()
+    text = "🧸 Предметы игроков.\n"
+    if not items:
+        return "Предметов нет"
+    for item in items:
+        user = crud.get_user(item.user_id)
+        text += f"{counter}. {item.item_name} -- {user.name}\n"
+        counter += 1
+    if len(text) > 4050:
+        await event.answer("Сообщение слишком длинное. Для решение "
+                           "проблемы напишите разработчику.")
+    else:
+        await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
+                            PayloadFilter({"command": "club_items"}))
+async def task_rating(event: SimpleBotEvent):
+    current_user, counter = event["current_user"], 1
+    items = crud.get_club_items()
+    text = "🎈 Предметы клубов.\n"
+    if not items:
+        return "Предметов нет"
+    for item in items:
+        club = crud.get_club(item.club_id)
+        text += f"{counter}. {item.item_name} -- {club.name}\n"
+        counter += 1
+    if len(text) > 4050:
+        await event.answer("Сообщение слишком длинное. Для решение "
+                           "проблемы напишите разработчику.")
+    else:
+        await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
                             TextContainsFilter(
                                 ["/items user", "/items club"]))
 async def items(event: SimpleBotEvent):
-    current_user = event["current_user"]
+    current_user, counter = event["current_user"], 1
     if current_user.access <= 1:
         return None
     msg = event.object.object.message.text.split(" ")
     if msg[1] == "user":
-        counter = 1
         items = crud.get_user_items()
         text = "🧸 Предметы игроков.\n"
         if not items:
@@ -202,9 +296,12 @@ async def items(event: SimpleBotEvent):
             user = crud.get_user(item.user_id)
             text += f"{counter}. {item.item_name} -- {user.name}\n"
             counter +=1
-        return text
+        if len(text) > 4050:
+            await event.answer("Сообщение слишком длинное. Для решение "
+                               "проблемы напишите разработчику.")
+        else:
+            await event.answer(text)
     if msg[1] == "club":
-        counter = 1
         items = crud.get_club_items()
         text = "🎈 Предметы клубов.\n"
         if not items:
@@ -213,7 +310,11 @@ async def items(event: SimpleBotEvent):
             club = crud.get_club(item.club_id)
             text += f"{counter}. {item.item_name} -- {club.name}\n"
             counter += 1
-        return text
+        if len(text) > 4050:
+            await event.answer("Сообщение слишком длинное. Для решение "
+                               "проблемы напишите разработчику.")
+        else:
+            await event.answer(text)
 
 
 @simple_bot_message_handler(admin_router,
@@ -233,7 +334,11 @@ async def club_members(event: SimpleBotEvent):
         user_stats = crud.get_user_stats(member.user_id)
         text += f"{counter}. {member.name} ({member.user_id}) --{user_stats.personal_tasks}\n"
         counter += 1
-    return text
+    if len(text) > 4050:
+        await event.answer("Сообщение слишком длинное. Для решение "
+                           "проблемы напишите разработчику.")
+    else:
+        await event.answer(text)
 
 
 @simple_bot_message_handler(admin_router,
@@ -270,7 +375,7 @@ async def stats(event: SimpleBotEvent):
     amount_clubs_tasks = crud.get_clubs_tasks()
     amount_completed_c_t = crud.get_clubs_tasks_with_filter("completed")
     amount_timeout_c_t = crud.get_clubs_tasks_with_filter("timeout")
-    users = crud.get_users_stats(limit=None)
+    users = crud.get_users_stats_order_by_points(limit=None)
     clubs = crud.get_clubs_stats(limit=None)
     amount_1 = 0
     amount_2 = 0

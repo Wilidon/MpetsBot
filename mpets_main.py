@@ -13,7 +13,7 @@ from config import get_settings, logger_config
 from middlewares import UserMiddleware
 from utils.functions import notice
 
-__version__ = "1.1.6"
+__version__ = "1.1.7"
 
 logging.basicConfig(filename="logs/vk.log",
                     filemode='a',
@@ -31,10 +31,6 @@ if __name__ == "__main__":
     settings = get_settings()
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
 
-    # Создаем все таблицы в базе данных
-    # Подключен alembic, поэтому строчку не нужна
-    # models.Base.metadata.create_all(bind=engine)
-
     # Подключаем промежуточное ПО
     bot.middleware_manager.add_middleware(UserMiddleware())
 
@@ -43,7 +39,6 @@ if __name__ == "__main__":
     bot.dispatcher.add_router(reg_router)
     bot.dispatcher.add_router(user_router)
     bot.dispatcher.add_router(club_router)
-
     bot.dispatcher.add_router(admin_router)
 
     bot.dispatcher.add_router(menu_router)

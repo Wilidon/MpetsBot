@@ -3,7 +3,7 @@ from vkwave.bots import DefaultRouter, SimpleBotEvent, \
 
 from mpetsapi import MpetsApi
 from sql import crud
-from utils.constants import MENU, CONFIRMATION, MENU_S, menu
+from utils.constants import MENU, CONFIRMATION, MENU_S, menu, ADMIN_MENU
 from utils.functions import notice
 
 menu_router = DefaultRouter()
@@ -78,4 +78,7 @@ async def main(event: SimpleBotEvent):
             event.object.object.message.text.lower() in ("меню", "старт",
                                                          "начать", "початок"):
         await menu(current_user, event)
-
+    elif current_user.status == 'ok' and \
+            event.object.object.message.text.lower() in "админка" and \
+            current_user.access >= 1:
+        await event.answer(message="Меню", keyboard=ADMIN_MENU.get_keyboard())
