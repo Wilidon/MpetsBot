@@ -3,32 +3,38 @@ from vkwave.bots import Keyboard, ButtonColor
 from sql import crud
 
 MENU = Keyboard()
-MENU.add_text_button(text="Личные задания", payload={"command": "user_tasks"},
+MENU.add_text_button(text="🗒 Личные задания",
+                     payload={"command": "user_tasks"},
                      color=ButtonColor.SECONDARY)
-MENU.add_text_button(text="Клубные задания", payload={"command": "club_tasks"},
-                     color=ButtonColor.SECONDARY)
-MENU.add_row()
-MENU.add_text_button(text="Рейтинг", payload={"command": "user_rating"},
-                     color=ButtonColor.SECONDARY)
-MENU.add_text_button(text="Рейтинг", payload={"command": "club_rating"},
+MENU.add_text_button(text="🧾 Клубные задания",
+                     payload={"command": "club_tasks"},
                      color=ButtonColor.SECONDARY)
 MENU.add_row()
-MENU.add_text_button(text="🧸 Профиль", payload={"command": "profile"},
+MENU.add_text_button(text="🏮 Рейтинг",
+                     payload={"command": "user_rating"},
+                     color=ButtonColor.SECONDARY)
+MENU.add_text_button(text="🏵 Рейтинг",
+                     payload={"command": "club_rating"},
+                     color=ButtonColor.SECONDARY)
+MENU.add_row()
+MENU.add_text_button(text="🧸 Профиль",
+                     payload={"command": "profile"},
                      color=ButtonColor.POSITIVE)
-MENU.add_text_button(text="🎈 Клуб", payload={"command": "club"},
+MENU.add_text_button(text="🎈 Клуб",
+                     payload={"command": "club"},
                      color=ButtonColor.POSITIVE)
 
 MENU_S = Keyboard()
-MENU_S.add_text_button(text="Личные задания",
+MENU_S.add_text_button(text="🗒 Личные задания",
                        payload={"command": "user_tasks"},
                        color=ButtonColor.SECONDARY)
-MENU_S.add_text_button(text="Клубные задания",
+MENU_S.add_text_button(text="🧾 Клубные задания",
                        payload={"command": "club_tasks"},
                        color=ButtonColor.SECONDARY)
 MENU_S.add_row()
-MENU_S.add_text_button(text="Рейтинг", payload={"command": "user_rating"},
+MENU_S.add_text_button(text="🏮 Рейтинг", payload={"command": "user_rating"},
                        color=ButtonColor.SECONDARY)
-MENU_S.add_text_button(text="Рейтинг", payload={"command": "club_rating"},
+MENU_S.add_text_button(text="🏵 Рейтинг", payload={"command": "club_rating"},
                        color=ButtonColor.SECONDARY)
 MENU_S.add_row()
 MENU_S.add_text_button(text="🧸 Профиль", payload={"command": "profile"},
@@ -38,6 +44,38 @@ MENU_S.add_text_button(text="🎈 Клуб", payload={"command": "club"},
 MENU_S.add_row()
 MENU_S.add_text_button(text="🏪 Магазин", payload={"command": "shop"},
                        color=ButtonColor.POSITIVE)
+
+ADMIN_MENU = Keyboard()
+ADMIN_MENU.add_text_button(text="🗒 Личные задания",
+                           payload={"command": "user_tasks"},
+                           color=ButtonColor.SECONDARY)
+ADMIN_MENU.add_text_button(text="🧾 Клубные задания",
+                           payload={"command": "club_tasks"},
+                           color=ButtonColor.SECONDARY)
+ADMIN_MENU.add_row()
+ADMIN_MENU.add_text_button(text="🏮 Рейтинг", payload={"command": "user_rating"},
+                           color=ButtonColor.SECONDARY)
+ADMIN_MENU.add_text_button(text="🏵 Рейтинг", payload={"command": "club_rating"},
+                           color=ButtonColor.SECONDARY)
+ADMIN_MENU.add_row()
+ADMIN_MENU.add_text_button(text="🧸 Профиль", payload={"command": "profile"},
+                           color=ButtonColor.SECONDARY)
+ADMIN_MENU.add_text_button(text="🎈 Клуб", payload={"command": "club"},
+                           color=ButtonColor.SECONDARY)
+ADMIN_MENU.add_row()
+ADMIN_MENU.add_text_button(text="🌐 Рейтинг игроков",
+                           payload={"command": "rating_user_tasks"},
+                           color=ButtonColor.POSITIVE)
+ADMIN_MENU.add_text_button(text="🌐 Рейтинг клубов",
+                           payload={"command": "rating_club_tasks"},
+                           color=ButtonColor.POSITIVE)
+ADMIN_MENU.add_row()
+ADMIN_MENU.add_text_button(text="🌐 Призы игроков",
+                           payload={"command": "user_items"},
+                           color=ButtonColor.POSITIVE)
+ADMIN_MENU.add_text_button(text="🌐 Призы клубов",
+                           payload={"command": "club_items"},
+                           color=ButtonColor.POSITIVE)
 
 CONFIRMATION = Keyboard()
 CONFIRMATION.add_text_button(text="Да!", payload={"command": "yes"},
@@ -63,7 +101,7 @@ SHOP_1.add_text_button(text="Назад",
 
 def get_shop_2(item_ids: list):
     SHOP_2 = Keyboard()
-    if not(1 in item_ids):
+    if not (1 in item_ids):
         SHOP_2.add_text_button(text="аватарка",
                                payload={"command": "item1"},
                                color=ButtonColor.POSITIVE)
@@ -84,7 +122,7 @@ def get_shop_2(item_ids: list):
 
 def get_shop_3(item_ids: list):
     SHOP_3 = Keyboard()
-    if not(1 in item_ids):
+    if not (1 in item_ids):
         SHOP_3.add_text_button(text="600 монет",
                                payload={"command": "item1"},
                                color=ButtonColor.POSITIVE)
@@ -109,4 +147,3 @@ async def menu(user, event, message="Меню"):
         await event.answer(message=message, keyboard=MENU_S.get_keyboard())
     else:
         await event.answer(message=message, keyboard=MENU.get_keyboard())
-
