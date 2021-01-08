@@ -121,7 +121,9 @@ async def profile(event: SimpleBotEvent):
                         "Выполнено ✅\n\n "
                 counter += 1
             else:
-                if present_id and int(present_id) != 0:
+                if present_id and (
+                        "send_specific_gift_any_player" in task_name or \
+                        "get_gift" in task_name):
                     args = [gifts_name[int(present_id)-1][1], progress, end]
                 else:
                     args = [progress, end]
