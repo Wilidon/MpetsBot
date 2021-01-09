@@ -55,6 +55,7 @@ def get_club(club_id: int):
     return db.query(models.Clubs).filter_by(club_id=club_id).first()
 
 
+
 def get_clubs_stats_order_by_points(limit: int = 10):
     return db.query(models.ClubStats).order_by(
         models.ClubStats.points.desc()).limit(limit).all()
@@ -376,8 +377,18 @@ def get_user_items():
     return db.query(models.UserItems).filter_by(status="В процессе").all()
 
 
+def get_user_items_with_score(score: int):
+    return db.query(models.UserItems).filter_by(score=score,
+                                                status="В процессе").all()
+
+
 def get_club_items():
     return db.query(models.ClubItems).filter_by(status="В процессе").all()
+
+
+def get_club_items_with_score(score: int):
+    return db.query(models.ClubItems).filter_by(score=score,
+                                                status="В процессе").all()
 
 
 def update_user_item(user_id: int, status: str):

@@ -430,3 +430,44 @@ async def club_members(event: SimpleBotEvent):
         return "✅ Предмет подтвержден"
     else:
         return "❗ Предмет с таким id не найден"
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/get user items",
+                                                "/get club items"]))
+async def club_members(event: SimpleBotEvent):
+    current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
+    msg = event.object.object.message.text.split(" ")
+    if msg[3].isdigit() is False:
+        return "Укажите количество очков"
+    if msg[1] == "user":
+        items = crud.get_user_items_with_score(msg[3])
+        text = "🧸 Предметы игроков.\n\n"
+        if not items:
+            return "❗ Предметов нет"
+        for item in items:
+            user = crud.get_user(item.user_id)
+            text += f"{item.id}. {user.name} ({user.pet_id}) -- {item.item_name} \n"
+        text += "\n +confirm user {id} — подтвердить предмет"
+        if len(text) > 4050:
+            await event.answer("Сообщение слишком длинное. Для решение "
+                               "проблемы напишите разработчику.")
+        else:
+            await event.answer(text)
+    if msg[1] == "club":
+        items = crud.get_club_items_with_score(msg[3])
+        text = "🎈 Предметы клубов.\n\n"
+        if not items:
+            return "❗ Предметов нет"
+        for item in items:
+            club = crud.get_club(item.club_id)
+            text += f"{item.id}. {club.name} ({club.club_id}) -- {item.item_name}\n"
+        text += "\n +confirm club {id} — подтвердить предмет"
+        if len(text) > 4050:
+            await event.answer("Сообщение слишком длинное. Для решение "
+                               "проблемы напишите разработчику.")
+        else:
+            await event.answer(text)
+
