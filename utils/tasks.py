@@ -350,6 +350,8 @@ async def start_verify_club(club):
         for user in users:
             user_tasks = crud.get_club_tasks(user.user_id, today)
             profile = await mpets.view_profile(user.pet_id)
+            if profile["club_id"] is None:
+                continue
             if int(profile["club_id"]) != club.club_id:
                 return 0
             if not user_tasks:
