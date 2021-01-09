@@ -250,7 +250,7 @@ async def task_rating(event: SimpleBotEvent):
         return "❗ Предметов нет"
     for item in items:
         user = crud.get_user(item.user_id)
-        text += f"{item.id}. {item.item_name} -- {user.name}\n"
+        text += f"{item.id}. {user.name} ({user.pet_id}) -- {item.item_name} \n"
     text += "\n +confirm user {id} — подтвердить предмет"
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
@@ -268,7 +268,7 @@ async def task_rating(event: SimpleBotEvent):
         return "❗ Предметов нет"
     for item in items:
         club = crud.get_club(item.club_id)
-        text += f"{item.id}. {item.item_name} -- {club.name}\n"
+        text += f"{item.id}. {club.name} ({club.club_id}) -- {item.item_name}\n"
     text += "\n +confirm club {id} — подтвердить предмет"
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
@@ -292,7 +292,7 @@ async def items(event: SimpleBotEvent):
             return "❗ Предметов нет"
         for item in items:
             user = crud.get_user(item.user_id)
-            text += f"{item.id}. {item.item_name} -- {user.name}\n"
+            text += f"{item.id}. {user.name} ({user.pet_id}) -- {item.item_name} \n"
         text += "\n +confirm user {id} — подтвердить предмет"
         if len(text) > 4050:
             await event.answer("Сообщение слишком длинное. Для решение "
@@ -306,7 +306,7 @@ async def items(event: SimpleBotEvent):
             return "❗ Предметов нет"
         for item in items:
             club = crud.get_club(item.club_id)
-            text += f"{item.id}. {item.item_name} -- {club.name}\n"
+            text += f"{item.id}. {club.name} ({club.club_id}) -- {item.item_name}\n"
         text += "\n +confirm club {id} — подтвердить предмет"
         if len(text) > 4050:
             await event.answer("Сообщение слишком длинное. Для решение "

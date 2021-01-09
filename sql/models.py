@@ -40,8 +40,8 @@ class UsersTasks(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(BigInteger)
     task_name = Column(String)
-    progress = Column(Integer)
-    end = Column(Integer)
+    progress = Column(BigInteger)
+    end = Column(BigInteger)
     status = Column(String, default="waiting")
     date = Column(Integer)
 
@@ -79,8 +79,8 @@ class ClubsTasks(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(BigInteger)
     task_name = Column(String)
-    progress = Column(Integer)
-    end = Column(Integer)
+    progress = Column(BigInteger)
+    end = Column(BigInteger)
     status = Column(String, default="waiting")
     date = Column(Integer)
 
