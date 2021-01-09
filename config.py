@@ -37,7 +37,8 @@ logger_config = {
     "handlers": [
         {"sink": sys.stdout},
         {"sink": "logs/main.log",
-         "format": "{time}: {message} - {extra[context]}",
+         "format": "{time} | {level} | {module}:{line}-- {message} - "
+                   "{extra[""context]}",
          "rotation": "1 MB",
          "compression": "zip"},
 
@@ -49,7 +50,8 @@ logger_config_for_core = {
     "handlers": [
         {"sink": sys.stdout},
         {"sink": "logs/core.log",
-         "format": "{time}: {message} - {extra[context]}",
+         "format": "{time} | {level} | {module}:{line}-- {message} - "
+                   "{extra[""context]}",
          "rotation": "1 MB",
          "compression": "zip"},
 

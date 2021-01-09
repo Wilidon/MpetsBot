@@ -8,3 +8,5 @@ aiohttp~=3.7.3
 loguru~=0.5.3
 beautifulsoup4~=4.9.3
 pickledb
+requests
+tzlocal

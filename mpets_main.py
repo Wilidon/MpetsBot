@@ -11,9 +11,11 @@ from blueprints.shop import shop_router
 from blueprints.user_tasks import user_router
 from config import get_settings, logger_config
 from middlewares import UserMiddleware
+from sql import models
+from sql.database import engine
 from utils.functions import notice
 
-__version__ = "1.1.9"
+__version__ = "1.1.10"
 
 logging.basicConfig(filename="logs/vk.log",
                     filemode='a',
@@ -30,6 +32,10 @@ if __name__ == "__main__":
     # Получаем настройки проекта
     settings = get_settings()
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
+
+    # Создаем все таблицы в базе данных
+    # Подключен alembic, поэтому строчку не нужна
+    # models.Base.metadata.create_all(bind=engine)
 
     # Подключаем промежуточное ПО
     bot.middleware_manager.add_middleware(UserMiddleware())

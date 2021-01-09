@@ -358,42 +358,49 @@ async def start_verify_club(club):
             elif len(user_tasks) < 3:
                 await functions.creation_club_tasks(club.club_id)
             for user_task in user_tasks:
-                time0 = time.time()
-                if user_task.status == "completed":
-                    continue
-                elif user_task.task_name == "coin":
-                    await checking_coin_task(mpets, user, user_task)
-                elif user_task.task_name == "heart":
-                    await checking_heart_task(mpets, user, user_task)
-                elif user_task.task_name == "exp":
-                    await checking_exp_task(mpets, user, user_task)
-                elif "get_gift" in user_task.task_name or \
-                        "get_random_gift" in user_task.task_name:
-                    await checking_getGift_task(mpets, user, user_task)
-                elif "send_gift_player" in user_task.task_name or \
-                        "send_specific_gift_player" in user_task.task_name:
-                    await checking_sendGift_task(mpets, user, user_task)
-                elif user_task.task_name == "chat":
-                    await checking_chat_task(mpets, user, user_task)
-                elif user_task.task_name == "play":
-                    await checking_play_task(mpets, user, user_task)
-                elif user_task.task_name == "thread":
-                    pass
-                    # await checking_thread_task(mpets, user, user_task)
-                elif user_task.task_name == "upRank":
-                    await checking_upRank_task(mpets, user, user_task)
-                elif user_task.task_name == "acceptPlayer":
-                    await checking_acceptPlayer_task(mpets, user, user_task)
-                '''t = time.time() - time0
-                if t > 30:
-                    logger.info(
-                        f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
-                elif t > 60:
-                    logger.error(
-                        f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
-                elif t > 120:
-                    logger.critical(
-                        f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")'''
+                try:
+                    time0 = time.time()
+                    if user_task.status == "completed":
+                        continue
+                    elif user_task.task_name == "coin":
+                        await checking_coin_task(mpets, user, user_task)
+                    elif user_task.task_name == "heart":
+                        await checking_heart_task(mpets, user, user_task)
+                    elif user_task.task_name == "exp":
+                        await checking_exp_task(mpets, user, user_task)
+                    elif "get_gift" in user_task.task_name or \
+                            "get_random_gift" in user_task.task_name:
+                        await checking_getGift_task(mpets, user, user_task)
+                    elif "send_gift_player" in user_task.task_name or \
+                            "send_specific_gift_player" in user_task.task_name:
+                        await checking_sendGift_task(mpets, user, user_task)
+                    elif user_task.task_name == "chat":
+                        await checking_chat_task(mpets, user, user_task)
+                    elif user_task.task_name == "play":
+                        await checking_play_task(mpets, user, user_task)
+                    elif user_task.task_name == "thread":
+                        pass
+                        # await checking_thread_task(mpets, user, user_task)
+                    elif user_task.task_name == "upRank":
+                        await checking_upRank_task(mpets, user, user_task)
+                    elif user_task.task_name == "acceptPlayer":
+                        await checking_acceptPlayer_task(mpets, user, user_task)
+                    '''t = time.time() - time0
+                    if t > 30:
+                        logger.info(
+                            f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
+                    elif t > 60:
+                        logger.error(
+                            f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
+                    elif t > 120:
+                        logger.critical(
+                            f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")'''
+                except Exception as e:
+                    log = logger.bind(context=e)
+                    log.error(f"Не удалось задание у клуба({club.club_id})"
+                              f"пользователь {user.user_id}"
+                              f"задание {user_task.task_name}"
+                              f"ошибка {e}")
     except Exception as e:
         log = logger.bind(context=e)
         log.error(f"Не удалось проверить клуб({club.club_id})")
@@ -600,18 +607,23 @@ async def start_verify_user(user):
         if resp["status"] != "ok":
             return 0
     for user_task in user_tasks:
-        if user_task.status == "completed":
-            continue
-        elif user_task.status == "timeout":
-            continue
-        elif "avatar" in user_task.task_name:
-            await checking_avatar_task(mpets, user, user_task)
-        elif "anketa" in user_task.task_name:
-            await checking_anketa_task(mpets, user, user_task)
-        elif "30online" in user_task.task_name:
-            await checking_online_task(mpets, user, user_task)
-        elif "in_online" in user_task.task_name:
-            await checking_inOnline_task(mpets, user, user_task)
+        try:
+            if user_task.status == "completed":
+                continue
+            elif user_task.status == "timeout":
+                continue
+            elif "avatar" in user_task.task_name:
+                await checking_avatar_task(mpets, user, user_task)
+            elif "anketa" in user_task.task_name:
+                await checking_anketa_task(mpets, user, user_task)
+            elif "30online" in user_task.task_name:
+                await checking_online_task(mpets, user, user_task)
+            elif "in_online" in user_task.task_name:
+                await checking_inOnline_task(mpets, user, user_task)
+        except Exception as e:
+            logger.error(f"start_verify_user {user.user_id}"
+                         f"task {user_task.task_name}"
+                         f"error {e}")
 
 
 async def checking_users_tasks():
