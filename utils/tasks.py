@@ -469,14 +469,14 @@ async def update_user_data():
                 user = crud.get_user(user.user_id)
                 if user.club_id is not None:
                     if profile["club_id"] is None:
-                        crud.reset_task(user.user_id)
+                        crud.reset_user_stats(user.user_id)
                         stats = crud.get_user_stats(user.user_id)
                         logger.warning(f"Сбросил статистику пользователя "
                                        f"{user.user_id}. У него было "
                                        f"{stats.club_tasks} ёлок и "
                                        f"{stats.club_points} фишек.")
                     elif int(user.club_id) != int(profile["club_id"]):
-                        crud.reset_task(user.user_id)
+                        crud.reset_user_stats(user.user_id)
                         stats = crud.get_user_stats(user.user_id)
                         logger.warning(f"Сбросил статистику пользователя "
                                        f"{user.user_id}. У него было "
