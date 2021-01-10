@@ -573,16 +573,26 @@ async def send_user_notice(user_id, score):
         crud.add_user_item(user_id, prizes[score], score)
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
     if int(score) in [100, 125, 177]:
-        await bot.api_context.messages.send(user_id=int(user_id),
-                                            message=message,
-                                            random_id=random.randint(1,
-                                                                     9999999),
-                                            keyboard=MENU_S.get_keyboard())
+        try:
+            await bot.api_context.messages.send(user_id=user_id,
+                                                message=message,
+                                                random_id=random.randint(1,
+                                                                         9999999),
+                                                keyboard=MENU_S.get_keyboard())
+        except Exception as e:
+            text = f"Не смог отправить сообщение пользователю {user_id}\n" \
+                   f"Ошибка: {e}"
+            notice(text)
     else:
-        await bot.api_context.messages.send(user_id=int(user_id),
-                                            message=message,
-                                            random_id=random.randint(1,
-                                                                     9999999))
+        try:
+            await bot.api_context.messages.send(user_id=user_id,
+                                                message=message,
+                                                random_id=random.randint(1,
+                                                                         9999999))
+        except Exception as e:
+            text = f"Не смог отправить сообщение пользователю {user_id}\n" \
+                   f"Ошибка: {e}"
+            notice(text)
     user = crud.get_user(user_id)
     text = f"Игрок {user.first_name} {user.last_name} | {user.name} " \
            f"({user.pet_id}) набрал {score} ⭐\n" \
@@ -599,14 +609,19 @@ async def send_club_notice(club_id, score):
     for user in users:
         bot = SimpleLongPollBot(tokens=settings.token,
                                 group_id=settings.group_id)
-        await bot.api_context.messages.send(user_id=int(user.user_id),
-                                            message=message,
-                                            random_id=random.randint(1,
-                                                                     9999999))
-        club = crud.get_club(club_id)
-        text = f"Клуб {club.name} ({club_id}) набрал {score} 🎄\n" \
-               f"Приз – {c_prizes[score]}"
-        notice(text)
+        try:
+            await bot.api_context.messages.send(user_id=user.user_id,
+                                                message=message,
+                                                random_id=random.randint(1,
+                                                                         9999999))
+        except Exception as e:
+            text = f"Не смог отправить сообщение пользователю {user.user_id}\n" \
+                   f"Ошибка: {e}"
+            notice(text)
+    club = crud.get_club(club_id)
+    text = f"Клуб {club.name} ({club_id}) набрал {score} 🎄\n" \
+           f"Приз – {c_prizes[score]}"
+    notice(text)
 
 
 async def add_user_points(user_id, point=True):
