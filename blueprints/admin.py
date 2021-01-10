@@ -9,7 +9,7 @@ from vkwave.bots import (
     PayloadFilter, MessageArgsFilter, CommandsFilter, TextContainsFilter,
 )
 from sql import crud
-from utils.functions import add_user_points, add_club_points
+from utils.functions import add_user_points, add_club_points, notice
 
 admin_router = DefaultRouter()
 
@@ -222,9 +222,14 @@ async def notice_user(event: SimpleBotEvent):
     msg = event.object.object.message.text.split(" ", maxsplit=3)
     if msg[1] == "user":
         if crud.get_user(int(msg[2])):
-            await event.api_ctx.messages.send(user_id=int(msg[2]),
-                                              message=msg[3],
-                                              random_id=randint(1, 9999999))
+            try:
+                await event.api_ctx.messages.send(user_id=int(msg[2]),
+                                                  message=msg[3],
+                                                  random_id=randint(1, 9999999))
+            except Exception as e:
+                text = f"Не смог отправить сообщение пользователю {msg[2]}\n" \
+                       f"Ошибка: {e}"
+                notice(text)
             return "✅ Сообщение отправлено."
         else:
             return "❗ Игрок не найден."
@@ -232,10 +237,15 @@ async def notice_user(event: SimpleBotEvent):
         if crud.get_club(int(msg[2])):
             users = crud.get_users_with_club(int(msg[2]))
             for user in users:
-                await event.api_ctx.messages.send(user_id=int(user.user_id),
-                                                  message=msg[3],
-                                                  random_id=randint(1,
-                                                                    9999999))
+                try:
+                    await event.api_ctx.messages.send(user_id=user.user_id,
+                                                      message=msg[3],
+                                                      random_id=randint(1,
+                                                                        9999999))
+                except Exception as e:
+                    text = f"Не смог отправить сообщение пользователю {msg[2]}\n" \
+                           f"Ошибка: {e}"
+                    notice(text)
             return "✅ Сообщения отправлены."
         else:
             return "❗ Клуб не найден."
