@@ -416,15 +416,17 @@ async def stats(event: SimpleBotEvent):
                             TextContainsFilter(["+confirm user"]))
 async def club_members(event: SimpleBotEvent):
     current_user = event["current_user"]
-    if current_user.access <= 1:
+    if current_user.access <= 0:
         return None
     msg = event.object.object.message.text.split(" ")
     if msg[2].isdigit() is False:
         if "-" in msg[2]:
             try:
                 start, end = msg[2].split("-")
-            except:
-                return "❗ Не смог определить id награды"
+                start = int(start)
+                end = int(end)
+            except Exception as e:
+                return "❗ Не смог определить id наград"
             for item_id in range(start, end+1):
                 crud.confirm_user_item(item_id)
             return "✅ Предметы подтверждены"
@@ -447,8 +449,10 @@ async def club_members(event: SimpleBotEvent):
         if "-" in msg[2]:
             try:
                 start, end = msg[2].split("-")
+                start = int(start)
+                end = int(end)
             except:
-                return "❗ Не смог определить id награды"
+                return "❗ Не смог определить id наград"
             for item_id in range(start, end + 1):
                 crud.confirm_user_item(item_id)
             return "✅ Предметы подтверждены"
