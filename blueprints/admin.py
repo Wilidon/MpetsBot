@@ -420,7 +420,16 @@ async def club_members(event: SimpleBotEvent):
         return None
     msg = event.object.object.message.text.split(" ")
     if msg[2].isdigit() is False:
-        return "❗ Не смог определить id награды"
+        if "-" in msg[2]:
+            try:
+                start, end = msg[2].split("-")
+            except:
+                return "❗ Не смог определить id награды"
+            for item_id in range(start, end+1):
+                crud.confirm_user_item(item_id)
+            return "✅ Предметы подтверждены"
+        else:
+            return "❗ Не смог определить id награды"
     if crud.confirm_user_item(int(msg[2])):
         return "✅ Предмет подтвержден"
     else:
@@ -435,7 +444,16 @@ async def club_members(event: SimpleBotEvent):
         return None
     msg = event.object.object.message.text.split(" ")
     if msg[2].isdigit() is False:
-        return "❗ Не смог определить id награды"
+        if "-" in msg[2]:
+            try:
+                start, end = msg[2].split("-")
+            except:
+                return "❗ Не смог определить id награды"
+            for item_id in range(start, end + 1):
+                crud.confirm_user_item(item_id)
+            return "✅ Предметы подтверждены"
+        else:
+            return "❗ Не смог определить id награды"
     if crud.confirm_club_item(int(msg[2])):
         return "✅ Предмет подтвержден"
     else:
