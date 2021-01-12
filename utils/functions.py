@@ -517,16 +517,18 @@ async def online_task(user_id):
 
 async def in_online_task(user_id):
     today = int(datetime.today().strftime("%Y%m%d"))
-    h = datetime.today().strftime("%H")
+    h = int(datetime.today().strftime("%H"))
     end = 24
-    if int(h) >= 23:
+    if h <= 11:
+        h = random.randint(12, 17)
+    if h >= 23:
         return False
     m = random.randint(0, 59)
     if m < 10:
         m = "0" + str(m)
-    if int(h) + 2 <= 24:
-        end = int(h) + 2
-    task_name = f"in_online_{random.randint(int(h) + 1, end)}" \
+    if h + 2 <= 24:
+        end = h + 2
+    task_name = f"in_online_{random.randint(h + 1, end)}" \
                 f":{m}"
     crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
                                    progress=0, end=1, date=today)
