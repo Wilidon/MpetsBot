@@ -354,11 +354,6 @@ async def start_verify_club(club):
                 continue
             if int(profile["club_id"]) != club.club_id:
                 return 0
-            if not user_tasks:
-                crud.close_all_club_tasks(club.club_id)
-                await functions.creation_club_tasks(club.club_id)
-            elif len(user_tasks) < 3:
-                await functions.creation_club_tasks(club.club_id)
             for user_task in user_tasks:
                 try:
                     time0 = time.time()
@@ -418,7 +413,6 @@ async def start_verify_account(club):
         return False
     if profile["club"] is not None:
         logger.success(f"Клуб ({club.club_id}) подтвержден.")
-        await functions.creation_club_tasks(club.club_id)
         crud.update_club_status(club.club_id, "ok")
 
 
@@ -603,8 +597,7 @@ async def start_verify_user(user):
                         f" {user.user_id}")
             return 0
     if not user_tasks:
-        crud.close_all_user_tasks(user.user_id)
-        await functions.creation_user_tasks(user)
+        return 0
     mpets = MpetsApi(user_bot.name, user_bot.password)
     resp = await mpets.login()
     if resp["status"] != "ok":
@@ -656,4 +649,38 @@ async def checking_users_tasks():
             # logger.info(f"Закончил проверять задания за {time.time() - time0}")
         except Exception as e:
             logger.error(e)
+            await asyncio.sleep(10)
+
+
+async def creating_club_tasks():
+    while True:
+        try:
+            today = int(datetime.today().strftime("%Y%m%d"))
+            user_tasks = crud.get_club_tasks_all(today, "generation")
+            tasks = []
+            for user_task in user_tasks:
+                task = asyncio.create_task(
+                    functions.creation_club_tasks(user_task))
+                tasks.append(task)
+            await asyncio.gather(*tasks)
+            await asyncio.sleep(1)
+        except Exception as e:
+            logger.error(f"Ошибка при создании задания {e}")
+            await asyncio.sleep(10)
+
+
+async def creating_user_tasks():
+    while True:
+        try:
+            today = int(datetime.today().strftime("%Y%m%d"))
+            user_tasks = crud.get_club_tasks_all(today, "generation")
+            tasks = []
+            for user_task in user_tasks:
+                task = asyncio.create_task(
+                    functions.creation_club_tasks(user_task))
+                tasks.append(task)
+            await asyncio.gather(*tasks)
+            await asyncio.sleep(1)
+        except Exception as e:
+            logger.error(f"Ошибка при создании задания {e}")
             await asyncio.sleep(10)

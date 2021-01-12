@@ -44,7 +44,7 @@ club_tasks = ["exp", "heart", "coin",
               # ["send_specific_gift_player"],
               # ["chat"],
               # ["play"],
-              #"thread",
+              # "thread",
               "upRank",
               "acceptPlayer"]
 
@@ -222,116 +222,132 @@ def get_next_utc_unix_00_00():
     return next_utc
 
 
-async def coin_task(user_id, pet_id, club_id):
-    today = int(datetime.today().strftime("%Y%m%d"))
-    club = crud.get_club(club_id)
-    mpets = MpetsApi(club.bot_name, club.bot_password)
-    resp = await mpets.login()
-    if resp["status"] == "error":
-        # logging
-        return 0
-    pet = await mpets.view_profile(pet_id)
-    if pet["status"] == "error":
-        # loggin
-        return 0
-    progress = pet["club_coin"]
-    level = await mpets.view_profile(pet_id)
-    limits = await get_limits(level["level"])
-    end = progress + limits["coin"]
-    crud.create_club_task_for_user(user_id=user_id, task_name="coin",
-                                   progress=progress, end=end, date=today)
+async def coin_task(task, pet_id, club_id):
+    try:
+        today = int(datetime.today().strftime("%Y%m%d"))
+        club = crud.get_club(club_id)
+        mpets = MpetsApi(club.bot_name, club.bot_password)
+        resp = await mpets.login()
+        if resp["status"] == "error":
+            # logging
+            return False
+        pet = await mpets.view_profile(pet_id)
+        if pet["status"] == "error":
+            # loggin
+            return False
+        progress = pet["club_coin"]
+        level = await mpets.view_profile(pet_id)
+        limits = await get_limits(level["level"])
+        end = progress + limits["coin"]
+        crud.update_club_task_v2(id=task.id, task_name="coin",
+                                 progress=progress, end=end, date=today)
+        return True
+    except:
+        return False
 
 
-async def heart_task(user_id, pet_id, club_id):
-    today = int(datetime.today().strftime("%Y%m%d"))
-    club = crud.get_club(club_id)
-    mpets = MpetsApi(club.bot_name, club.bot_password)
-    resp = await mpets.login()
-    if resp["status"] == "error":
-        # logging
-        return 0
-    page, progress, step, counter = 1, 0, True, 0
-    while step:
-        try:
-            pets = await mpets.club_budget_history_all(club_id, 2, page)
-            if not pets["players"]:
-                break
-            for pet in pets["players"]:
-                if pet["pet_id"] == pet_id:
-                    progress = pet["count"]
-                    step = False
+async def heart_task(task, pet_id, club_id):
+    try:
+        today = int(datetime.today().strftime("%Y%m%d"))
+        club = crud.get_club(club_id)
+        mpets = MpetsApi(club.bot_name, club.bot_password)
+        resp = await mpets.login()
+        if resp["status"] == "error":
+            # logging
+            return False
+        page, progress, step, counter = 1, 0, True, 0
+        while step:
+            try:
+                pets = await mpets.club_budget_history_all(club_id, 2, page)
+                if not pets["players"]:
                     break
-            page += 1
-        except:
-            counter += 1
-            if counter >= 5:
-                return 0
-    level = await mpets.view_profile(pet_id)
-    limits = await get_limits(level["level"])
-    end = int(progress) + limits["heart"]
-    crud.create_club_task_for_user(user_id=user_id, task_name="heart",
-                                   progress=progress, end=end, date=today)
+                for pet in pets["players"]:
+                    if pet["pet_id"] == pet_id:
+                        progress = pet["count"]
+                        step = False
+                        break
+                page += 1
+            except:
+                counter += 1
+                if counter >= 5:
+                    return False
+        level = await mpets.view_profile(pet_id)
+        limits = await get_limits(level["level"])
+        end = int(progress) + limits["heart"]
+        crud.update_club_task_v2(id=task.id, task_name="heart",
+                                 progress=progress, end=end, date=today)
+        return True
+    except:
+        return False
 
 
-async def exp_task(user_id, pet_id, club_id):
-    today = int(datetime.today().strftime("%Y%m%d"))
-    club = crud.get_club(club_id)
-    mpets = MpetsApi(club.bot_name, club.bot_password)
-    resp = await mpets.login()
-    if resp["status"] == "error":
-        # logging
-        return 0
-    page, progress, step, counter = 1, 0, True, 0
-    while step:
-        try:
-            pets = await mpets.club_budget_history_all(club_id, 3, page)
-            if not pets["players"]:
-                break
-            for pet in pets["players"]:
-                if pet["pet_id"] == pet_id:
-                    progress = pet["count"]
-                    step = False
+async def exp_task(task, pet_id, club_id):
+    try:
+        today = int(datetime.today().strftime("%Y%m%d"))
+        club = crud.get_club(club_id)
+        mpets = MpetsApi(club.bot_name, club.bot_password)
+        resp = await mpets.login()
+        if resp["status"] == "error":
+            # logging
+            return False
+        page, progress, step, counter = 1, 0, True, 0
+        while step:
+            try:
+                pets = await mpets.club_budget_history_all(club_id, 3, page)
+                if not pets["players"]:
                     break
-            page +=1
-        except:
-            counter += 1
-            if counter >= 5:
-                return 0
-    level = await mpets.view_profile(pet_id)
-    limits = await get_limits(level["level"])
-    end = int(progress) + limits["exp"]
-    crud.create_club_task_for_user(user_id=user_id, task_name="exp",
-                                   progress=progress, end=end, date=today)
+                for pet in pets["players"]:
+                    if pet["pet_id"] == pet_id:
+                        progress = pet["count"]
+                        step = False
+                        break
+                page += 1
+            except:
+                counter += 1
+                if counter >= 5:
+                    return False
+        level = await mpets.view_profile(pet_id)
+        limits = await get_limits(level["level"])
+        end = int(progress) + limits["exp"]
+        crud.update_club_task_v2(task=task.id, task_name="exp",
+                                 progress=progress, end=end, date=today)
+        return True
+    except:
+        return False
 
 
-async def get_gift_task(user_id):
+async def get_gift_task(task):
     today = int(datetime.today().strftime("%Y%m%d"))
     present_id = gifts_name.index(random.choice(gifts_name))
     task_name = "get_gift_" + str(present_id)
-    crud.create_club_task_for_user(user_id=user_id, task_name=task_name,
-                                   progress=0, end=1, date=today)
+    crud.update_club_task_v2(id=task.id, task_name=task_name,
+                             progress=0, end=1, date=today)
+    return True
 
 
-async def get_random_gift_task(user_id):
+async def get_random_gift_task(task):
     today = int(datetime.today().strftime("%Y%m%d"))
     task_name = "get_random_gift_0"
-    crud.create_club_task_for_user(user_id=user_id, task_name=task_name,
-                                   progress=0, end=1, date=today)
+    crud.update_club_task_v2(id=task.id, task_name=task_name,
+                             progress=0, end=1, date=today)
+    return True
 
 
-async def send_specific_gift_any_player_task(user_id):
+async def send_specific_gift_any_player_task(task):
     today = int(datetime.today().strftime("%Y%m%d"))
     present_id = gifts_name.index(random.choice(gifts_name))
     task_name = "send_specific_gift_any_player_" + str(present_id)
-    crud.create_club_task_for_user(user_id=user_id, task_name=task_name,
-                                   progress=0, end=1, date=today)
+    crud.update_club_task_v2(id=task.id, task_name=task_name,
+                             progress=0, end=1, date=today)
+    return True
 
 
-async def send_gift_any_player_task(user_id):
+async def send_gift_any_player_task(task):
     today = int(datetime.today().strftime("%Y%m%d"))
     task_name = "send_gift_any_player_0"
-    crud.create_club_task_for_user(user_id=user_id, task_name=task_name,
-                                   progress=0, end=1, date=today)
+    crud.update_club_task_v2(id=task.id, task_name=task_name,
+                             progress=0, end=1, date=today)
+    return True
 
 
 async def send_gift_player_task(user_id):
@@ -349,33 +365,38 @@ async def send_specific_gift_player_task(user_id):
 
 
 async def chat_task(user_id):
+    # todo
     today = int(datetime.today().strftime("%Y%m%d"))
     crud.create_club_task_for_user(user_id=user_id, task_name="chat",
                                    progress=0, end=1, date=today)
 
 
 async def play_task(user_id):
+    # todo
     today = int(datetime.today().strftime("%Y%m%d"))
     crud.create_club_task_for_user(user_id=user_id, task_name="play",
                                    progress=0, end=5, date=today)
 
 
 async def thread_task(user_id):
+    # todo
     today = int(datetime.today().strftime("%Y%m%d"))
     crud.create_club_task_for_user(user_id=user_id, task_name="thread",
                                    progress=0, end=1, date=today)
 
 
-async def upRank_task(user_id):
+async def upRank_task(task):
     today = int(datetime.today().strftime("%Y%m%d"))
-    crud.create_club_task_for_user(user_id=user_id, task_name="upRank",
-                                   progress=0, end=1, date=today)
+    crud.update_club_task_v2(id=task.id, task_name="upRank",
+                             progress=0, end=1, date=today)
+    return True
 
 
-async def acceptPlayer_task(user_id):
+async def acceptPlayer_task(task):
     today = int(datetime.today().strftime("%Y%m%d"))
-    crud.create_club_task_for_user(user_id=user_id, task_name="acceptPlayer",
-                                   progress=0, end=1, date=today)
+    crud.update_club_task_v2(id=task.id, task_name="acceptPlayer",
+                             progress=0, end=1, date=today)
+    return True
 
 
 async def check_level_pet(pet_id):
@@ -394,65 +415,77 @@ async def get_task_name(task_name):
         return task_name
 
 
-async def creation_club_tasks(club_id):
+async def creation_club_tasks(user_task):
+    c = 0
+    local_tasks = copy.deepcopy(club_tasks)
     today = int(datetime.today().strftime("%Y%m%d"))
-    users = crud.get_users_with_club(club_id)
-    for user in users:
-        c = 0
-        all_tasks = crud.get_club_tasks(user.user_id, today)
-        local_tasks = copy.deepcopy(club_tasks)
-        if all_tasks:
-            if len(all_tasks) < 3:
-                c = len(all_tasks)
-                for task in all_tasks:
-                    task_name = await get_task_name(task.task_name)
-                    local_tasks.pop(local_tasks.index(task_name))
+    all_tasks = crud.get_club_tasks(user_task.user_id, today)
+    user = crud.get_user(user_task.user_id)
+    if all_tasks:
+        if len(all_tasks) < 3:
+            for task in all_tasks:
+                task_name = await get_task_name(task.task_name)
+                local_tasks.pop(local_tasks.index(task_name))
+    while c < 1:
+        num = random.randint(0, len(local_tasks) - 1)
+        if local_tasks[num] == "coin":
+            if await coin_task(user.user_id,
+                               user.pet_id, user.club_id) is False:
+                continue
+        elif local_tasks[num] == "heart":
+            if await heart_task(user_task,
+                                user.pet_id, user.club_id) is False:
+                continue
+        elif local_tasks[num] == "exp":
+            if await exp_task(user_task,
+                              user.pet_id, user.club_id) is False:
+                continue
+        elif local_tasks[num] == "get_gift":
+            if await get_gift_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "get_random_gift":
+            if await get_random_gift_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "send_specific_gift_any_player":
+            if await send_specific_gift_any_player_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "send_gift_any_player":
+            if await send_gift_any_player_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "send_gift_player":
+            if await send_gift_player_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "send_specific_gift_player":
+            if await send_specific_gift_player_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "chat":
+            if await chat_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "play":
+            if await play_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "thread":
+            if await thread_task(user_task) is False:
+                continue
+        elif local_tasks[num] == "upRank":
+            profile = await check_level_pet(user.pet_id)
+            if profile["status"] == "ok" and \
+                    profile["rank"] in ['Активист', 'Куратор',
+                                        'Зам. Директора', 'Директор']:
+                if await upRank_task(user_task) is False:
+                    continue
             else:
                 continue
-        while c < 3:
-            num = random.randint(0, len(local_tasks) - 1)
-            if local_tasks[num] == "coin":
-                await coin_task(user.user_id, user.pet_id, club_id)
-            elif local_tasks[num] == "heart":
-                await heart_task(user.user_id, user.pet_id, club_id)
-            elif local_tasks[num] == "exp":
-                await exp_task(user.user_id, user.pet_id, club_id)
-            elif local_tasks[num] == "get_gift":
-                await get_gift_task(user.user_id)
-            elif local_tasks[num] == "get_random_gift":
-                await get_random_gift_task(user.user_id)
-            elif local_tasks[num] == "send_specific_gift_any_player":
-                await send_specific_gift_any_player_task(user.user_id)
-            elif local_tasks[num] == "send_gift_any_player":
-                await send_gift_any_player_task(user.user_id)
-            elif local_tasks[num] == "send_gift_player":
-                await send_gift_player_task(user.user_id)
-            elif local_tasks[num] == "send_specific_gift_player":
-                await send_specific_gift_player_task(user.user_id)
-            elif local_tasks[num] == "chat":
-                await chat_task(user.user_id)
-            elif local_tasks[num] == "play":
-                await play_task(user.user_id)
-            elif local_tasks[num] == "thread":
-                await thread_task(user.user_id)
-            elif local_tasks[num] == "upRank":
-                profile = await check_level_pet(user.pet_id)
-                if profile["status"] == "ok" and \
-                        profile["rank"] in ['Активист', 'Куратор',
-                                            'Зам. Директора', 'Директор']:
-                    await upRank_task(user.user_id)
-                else:
+        elif local_tasks[num] == "acceptPlayer":
+            profile = await check_level_pet(user.pet_id)
+            if profile["status"] == "ok" and \
+                    profile["rank"] in ['Куратор',
+                                        'Зам. Директора', 'Директор']:
+                if await acceptPlayer_task(user_task) is False:
                     continue
-            elif local_tasks[num] == "acceptPlayer":
-                profile = await check_level_pet(user.pet_id)
-                if profile["status"] == "ok" and \
-                        profile["rank"] in ['Куратор',
-                                            'Зам. Директора', 'Директор']:
-                    await acceptPlayer_task(user.user_id)
-                else:
-                    continue
-            c += 1
-            local_tasks.pop(num)
+            else:
+                continue
+        c += 1
 
 
 async def avatar_task(user_id):
@@ -469,10 +502,11 @@ async def anketa_task(user_id, pet_id):
     await mpets.start()
     profile = await mpets.view_anketa(pet_id)
     if profile["status"] != "ok":
-        return 0
+        return False
     task_name = f"anketa_{profile['about']}:0"
     crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
                                    progress=0, end=30, date=today)
+    return True
 
 
 async def online_task(user_id):
@@ -483,13 +517,20 @@ async def online_task(user_id):
 
 async def in_online_task(user_id):
     today = int(datetime.today().strftime("%Y%m%d"))
+    h = datetime.today().strftime("%H")
+    end = 24
+    if int(h) >= 23:
+        return False
     m = random.randint(0, 59)
     if m < 10:
         m = "0" + str(m)
-    task_name = f"in_online_{random.randint(11, 19)}" \
+    if int(h) + 2 <= 24:
+        end = int(h) + 2
+    task_name = f"in_online_{random.randint(int(h) + 1, end)}" \
                 f":{m}"
     crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
                                    progress=0, end=1, date=today)
+    return True
 
 
 async def creation_user_tasks(user):
@@ -504,11 +545,14 @@ async def creation_user_tasks(user):
         if local_tasks[num][0] == "avatar":
             await avatar_task(user.user_id)
         elif local_tasks[num][0] == "anketa":
-            await anketa_task(user.user_id, user.pet_id)
+            if await anketa_task(user.user_id, user.pet_id) is False:
+                continue
         elif local_tasks[num][0] == "30online":
             await online_task(user.user_id)
         elif local_tasks[num][0] == "in_online":
-            await in_online_task(user.user_id)
+            if await in_online_task(user.user_id) is False:
+                local_tasks.pop(num)
+                continue
         c += 1
         local_tasks.pop(num)
 
@@ -631,7 +675,7 @@ async def add_user_points(user_id, point=True):
     crud.update_user_stats(user_id, points=points, personal_tasks=1)
     user = crud.get_user(user_id)
     if point:
-        text = f"Пользователь {user.name} ({user_id}) заработал "\
+        text = f"Пользователь {user.name} ({user_id}) заработал " \
                f"{points} 🏮 и 1 ⭐."
         logger.info(text)
         notice(text)
@@ -650,7 +694,7 @@ async def add_club_points(user_id=None, club_id=None, point=True):
         user_name = user.name
     club = crud.get_club(club_id)
     if point:
-        text = f"Пользователь {user_name} ({user_id}) заработал в клуб"\
+        text = f"Пользователь {user_name} ({user_id}) заработал в клуб" \
                f" {club.name} ({club_id}) {points} 🏵 и 1 🎄."
         logger.info(text)
         notice(text)

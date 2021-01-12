@@ -9,6 +9,7 @@ from vkwave.bots import (
 )
 
 from sql import crud
+from utils import functions
 from utils.constants import menu
 from utils.functions import user_tasks_list, avatar_name, \
     user_completed_tasks_list
@@ -24,7 +25,9 @@ async def user_tasks(event: SimpleBotEvent):
     today = int(datetime.today().strftime("%Y%m%d"))
     current_user_tasks = crud.get_user_tasks(current_user.user_id, today)
     if not current_user_tasks:
-        return "На данный момент нет заданий."
+        crud.close_all_user_tasks(current_user.user_id)
+        await functions.creation_user_tasks(current_user)
+    current_user_tasks = crud.get_user_tasks(current_user.user_id, today)
     text = f"🎈 Список заданий для {current_user.name}.\n\n"
     counter = 1
     for task in current_user_tasks:
@@ -62,12 +65,15 @@ async def user_tasks(event: SimpleBotEvent):
                             PayloadFilter({"command": "user_rating"}))
 async def user_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
+    logger.debug(1)
     current_user, counter, hidden = event["current_user"], 1, False
     top_users_stats = crud.get_users_stats_order_by_points(limit=10)
     text = "🧑‍ Рейтинг игроков \n\n"
     if not top_users_stats:
         return "Рейтинг пуст"
+    logger.debug(2)
     for user_stats in top_users_stats:
+        logger.debug(user_stats.user_id)
         # Если пользователь уже есть в списке, 
         # то его статистика отдельно снизу не пишется
         if current_user.user_id == user_stats.user_id:

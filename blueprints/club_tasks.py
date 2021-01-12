@@ -86,10 +86,20 @@ async def profile(event: SimpleBotEvent):
                    f"зарегистрировать клуб в системе. "
     else:
         today = int(datetime.today().strftime("%Y%m%d"))
-        tasks = crud.get_club_tasks(current_user.user_id, today)
+        tasks = crud.get_club_tasks_with_status(current_user.user_id, today)
         if not tasks:
-            return "На данный момент нет заданий. Возможно, Ваш клуб не " \
-                   "зарегистрирован в системе."
+            if not crud.get_club_tasks(current_user.user_id,
+                                       today, "generation"):
+                for i in range(3):
+                    crud.create_club_task_for_user(user_id=current_user.user_id,
+                                                   task_name="generation",
+                                                   progress=0,
+                                                   end=0,
+                                                   date=today,
+                                                   status="generation")
+                crud.close_all_club_tasks(current_user.user_id)
+            return "Задания генерируются. " \
+                   "Повторите попытку через несколько минут."
         text = f"🎈 Список заданий для клуба {current_user_club.name}.\n\n"
         counter = 1
         for task in tasks:

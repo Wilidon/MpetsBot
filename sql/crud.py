@@ -1,5 +1,6 @@
 from sql.database import Session
 from . import models
+from sqlalchemy import or_
 
 db = Session()
 
@@ -55,7 +56,6 @@ def get_club(club_id: int):
     return db.query(models.Clubs).filter_by(club_id=club_id).first()
 
 
-
 def get_clubs_stats_order_by_points(limit: int = 10):
     return db.query(models.ClubStats).order_by(
         models.ClubStats.points.desc()).limit(limit).all()
@@ -106,19 +106,52 @@ def get_user_tasks(user_id: int, today: int):
                                                  date=today).all()
 
 
-def get_club_tasks(user_id: int, today: int):
+def get_user_tasks_with_status(user_id: int, today: int, status: str):
+    return db.query(models.UsersTasks).filter_by(user_id=user_id,
+                                                 status=status,
+                                                 date=today).all()
+
+
+def get_club_tasks_with_status(user_id: int, today: int):
+    return db.query(
+        models.ClubsTasks).filter(or_(models.ClubsTasks.status ==
+                                      "completed",
+                           models.ClubsTasks.status == "waiting"),
+                           models.ClubsTasks.user_id == user_id,
+                           models.ClubsTasks.date == today).all()
+
+
+def get_club_tasks(user_id: int, today: int, status: str = "waiting"):
     return db.query(models.ClubsTasks).filter_by(user_id=user_id,
+                                                 status=status,
+                                                 date=today).all()
+
+
+def get_club_tasks_all(today: int, status: str = "waiting"):
+    return db.query(models.ClubsTasks).filter_by(status=status,
                                                  date=today).all()
 
 
 def create_club_task_for_user(user_id: int, task_name: str, progress: int,
-                              end: int, date: int):
+                              end: int, date: int, status: str = "waiting"):
     club_task = models.ClubsTasks(user_id=user_id,
                                   task_name=task_name,
                                   progress=progress,
                                   end=end,
+                                  status=status,
                                   date=date)
     db.add(club_task)
+    db.commit()
+
+
+def update_club_task_v2(id: int, task_name: str, progress: int,
+                        end: int, date: int):
+    club = db.query(models.ClubsTasks).filter_by(id=id).first()
+    club.task_name = task_name
+    club.progress = progress
+    club.end = end
+    club.status = "waiting"
+    club.date = date
     db.commit()
 
 
@@ -186,15 +219,13 @@ def update_club_stats(club_id, points=0, total_tasks=0):
     db.commit()
 
 
-def close_all_club_tasks(club_id: int):
-    users = get_users_with_club(club_id)
-    for user in users:
-        club_tasks = db.query(models.ClubsTasks).filter_by(
-            user_id=user.user_id,
-            status="waiting").all()
-        for task in club_tasks:
-            task.status = "timeout"
-            db.commit()
+def close_all_club_tasks(user_id: int):
+    club_tasks = db.query(models.ClubsTasks).filter_by(
+        user_id=user_id,
+        status="waiting").all()
+    for task in club_tasks:
+        task.status = "timeout"
+        db.commit()
 
 
 def get_thread_message(thread_id: int):
