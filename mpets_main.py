@@ -50,12 +50,7 @@ if __name__ == "__main__":
     bot.dispatcher.add_router(menu_router)
 
     # Запускаем бота
-    noticed = False
     try:
         bot.run_forever()
     except Exception as e:
         logger.error(f"Бот упал {e}")
-        text = f"@wilidon. упал вк бот {e}"
-        if not noticed:
-            notice(text)
-            noticed = False
