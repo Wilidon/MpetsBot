@@ -424,7 +424,10 @@ async def creation_club_tasks(user_task):
     if len(all_tasks) < 3:
         for task in all_tasks:
             task_name = await get_task_name(task.task_name)
-            local_tasks.pop(local_tasks.index(task_name))
+            try:
+                local_tasks.pop(local_tasks.index(task_name))
+            except:
+                pass
     while c < 1:
         num = random.randint(0, len(local_tasks) - 1)
         if local_tasks[num] == "coin":
