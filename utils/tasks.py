@@ -657,29 +657,8 @@ async def creating_club_tasks():
         try:
             today = int(datetime.today().strftime("%Y%m%d"))
             user_tasks = crud.get_club_tasks_all(today, "generation")
-            tasks = []
             for user_task in user_tasks:
-                task = asyncio.create_task(
-                    functions.creation_club_tasks(user_task))
-                tasks.append(task)
-            await asyncio.gather(*tasks)
-            await asyncio.sleep(1)
-        except Exception as e:
-            logger.error(f"Ошибка при создании задания {e}")
-            await asyncio.sleep(10)
-
-
-async def creating_user_tasks():
-    while True:
-        try:
-            today = int(datetime.today().strftime("%Y%m%d"))
-            user_tasks = crud.get_club_tasks_all(today, "generation")
-            tasks = []
-            for user_task in user_tasks:
-                task = asyncio.create_task(
-                    functions.creation_club_tasks(user_task))
-                tasks.append(task)
-            await asyncio.gather(*tasks)
+                await functions.creation_club_tasks(user_task)
             await asyncio.sleep(1)
         except Exception as e:
             logger.error(f"Ошибка при создании задания {e}")

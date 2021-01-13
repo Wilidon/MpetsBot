@@ -421,15 +421,14 @@ async def creation_club_tasks(user_task):
     today = int(datetime.today().strftime("%Y%m%d"))
     all_tasks = crud.get_club_tasks(user_task.user_id, today)
     user = crud.get_user(user_task.user_id)
-    if all_tasks:
-        if len(all_tasks) < 3:
-            for task in all_tasks:
-                task_name = await get_task_name(task.task_name)
-                local_tasks.pop(local_tasks.index(task_name))
+    if len(all_tasks) < 3:
+        for task in all_tasks:
+            task_name = await get_task_name(task.task_name)
+            local_tasks.pop(local_tasks.index(task_name))
     while c < 1:
         num = random.randint(0, len(local_tasks) - 1)
         if local_tasks[num] == "coin":
-            if await coin_task(user.user_id,
+            if await coin_task(user_task,
                                user.pet_id, user.club_id) is False:
                 continue
         elif local_tasks[num] == "heart":
