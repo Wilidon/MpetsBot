@@ -124,10 +124,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-logs
 test.py
 text.txt
 .stats.db
 notice.db
 noticed.py
 stats.db
+alembic
+alembic.ini
