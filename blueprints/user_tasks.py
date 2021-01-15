@@ -73,7 +73,6 @@ async def user_rating(event: SimpleBotEvent):
         return "Рейтинг пуст"
     logger.debug(2)
     for user_stats in top_users_stats:
-        logger.debug(user_stats.user_id)
         # Если пользователь уже есть в списке, 
         # то его статистика отдельно снизу не пишется
         if current_user.user_id == user_stats.user_id:
