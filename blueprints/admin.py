@@ -101,6 +101,8 @@ async def points(event: SimpleBotEvent):
 async def points_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
     current_user, counter = event["current_user"], 1
+    if current_user.access <= 1:
+        return None
     msg = event.object.object.message.text.split()
     if msg[0] == "/user":
         top_users_stats = crud.get_users_stats_order_by_points(limit=None)
@@ -179,6 +181,8 @@ async def task_rating(event: SimpleBotEvent):
 async def task_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
     current_user, counter = event["current_user"], 1
+    if current_user.access <= 1:
+        return None
     msg = event.object.object.message.text.split()
     if msg[0] == "/user":
         top_users_stats = crud.get_users_stats_order_by_tasks(limit=None)
@@ -329,6 +333,8 @@ async def items(event: SimpleBotEvent):
                             TextContainsFilter("/club members"))
 async def club_members(event: SimpleBotEvent):
     current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
     text, counter = "Участники клуба \n", 1
     if current_user.access <= 1:
         return None
@@ -353,6 +359,8 @@ async def club_members(event: SimpleBotEvent):
                             TextContainsFilter(["+tasks club members"]))
 async def club_members(event: SimpleBotEvent):
     current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
     if current_user.access <= 1:
         return None
     msg = event.object.object.message.text.split(" ")
@@ -416,7 +424,7 @@ async def stats(event: SimpleBotEvent):
                             TextContainsFilter(["+confirm user"]))
 async def club_members(event: SimpleBotEvent):
     current_user = event["current_user"]
-    if current_user.access <= 0:
+    if current_user.access <= 1:
         return None
     msg = event.object.object.message.text.split(" ")
     if msg[2].isdigit() is False:
@@ -503,3 +511,12 @@ async def club_members(event: SimpleBotEvent):
         else:
             await event.answer(text)
 
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/wipe"]))
+async def wipe(event: SimpleBotEvent):
+    current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
+    if crud.wipe():
+        return "Рейтинги обнулены."

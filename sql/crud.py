@@ -513,3 +513,18 @@ def create_club_log(user_id: int, task_name: int, club_id: int,
                              date=date)
     db.add(log)
     db.commit()
+
+
+def wipe():
+    users_stats = get_users_stats_order_by_tasks(limit=None)
+    for user in users_stats:
+        user = db.query(models.UserStats).filter_by(
+            user_id=user.user_id).first()
+        user.points = 0
+    clubs_stats = get_clubs_stats_order_by_points(limit=None)
+    for club in clubs_stats:
+        club = db.query(models.ClubStats).filter_by(
+            club_id=club.club_id).first()
+        club.points = 0
+    db.commit()
+    return True
