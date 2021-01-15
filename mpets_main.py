@@ -15,7 +15,7 @@ from sql import models
 from sql.database import engine
 from utils.functions import notice
 
-__version__ = "1.1.12"
+__version__ = "1.1.13"
 
 logging.basicConfig(filename="logs/vk.log",
                     filemode='a',

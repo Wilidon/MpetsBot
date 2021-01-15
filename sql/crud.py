@@ -490,3 +490,26 @@ def confirm_club_item(item_id: int):
         return True
     else:
         return False
+
+
+def create_user_log(user_id: int, task_name: int, points: int,
+                    tasks: int, date: int):
+    log = models.UserTaskLog(user_id=user_id,
+                             task_name=task_name,
+                             points=points,
+                             tasks=tasks,
+                             date=date)
+    db.add(log)
+    db.commit()
+
+
+def create_club_log(user_id: int, task_name: int, club_id: int,
+                    points: int, tasks: int, date: int):
+    log = models.ClubTaskLog(user_id=user_id,
+                             task_name=task_name,
+                             club_id=club_id,
+                             points=points,
+                             tasks=tasks,
+                             date=date)
+    db.add(log)
+    db.commit()

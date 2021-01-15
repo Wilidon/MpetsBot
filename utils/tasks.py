@@ -188,27 +188,6 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
             return True
 
 
-'''async def checking_gift_task(mpets, ):
-    gift_id = user_task.task_name.split("_")[-1]
-    if gift_id.isdigit() is False:
-        return 0
-    gifts = await mpets.view_gifts(user.pet_id)
-    if int(gift_id) == 0:
-        for gift in gifts["players"]:
-            print(gift)
-            if "сегодня" in gift["date"]:
-                crud.update_club_task(user_task.id, user_task.end,
-                                      "completed")
-                await functions.add_club_points(user.user_id, user.club_id)
-    else:
-        for gift in gifts["players"]:
-            if "сегодня" in gift["date"] and \
-                    int(gift["present_id"]) == int(gift_id):
-                crud.update_club_task(user_task.id, user_task.end,
-                                      "completed")
-                await functions.add_club_points(user.user_id, user.club_id)'''
-
-
 async def checking_chat_task(mpets, user, user_task):
     today = int(datetime.today().strftime("%Y%m%d"))
     prize = False

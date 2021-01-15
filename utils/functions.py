@@ -672,7 +672,7 @@ async def send_club_notice(club_id, score):
     notice(text)
 
 
-async def add_user_points(user_id, point=True):
+async def add_user_points(user_id, point=True, task_name=None):
     points = 0
     if point:
         points = random.randint(1, 3)
@@ -683,12 +683,13 @@ async def add_user_points(user_id, point=True):
                f"{points} 🏮 и 1 ⭐."
         logger.info(text)
         notice(text)
+        crud.create_user_log(user_id, task_name, points, 1, int(time.time()))
     user_stats = crud.get_user_stats(user_id)
     if await user_prizes(user_stats.personal_tasks):
         await send_user_notice(user_id, user_stats.personal_tasks)
 
 
-async def add_club_points(user_id=None, club_id=None, point=True):
+async def add_club_points(user_id=None, club_id=None, point=True, task_name=None):
     points, user_name = 0, None
     if point:
         points = random.randint(1, 3)
@@ -702,6 +703,7 @@ async def add_club_points(user_id=None, club_id=None, point=True):
                f" {club.name} ({club_id}) {points} 🏵 и 1 🎄."
         logger.info(text)
         notice(text)
+        crud.create_club_log(user_id, task_name, club_id, points, 1, int(time.time()))
     if user_id:
         crud.update_user_stats(user_id, club_tasks=1, club_points=points)
     club_stats = crud.get_club_stats(club_id)

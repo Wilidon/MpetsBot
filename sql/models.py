@@ -165,6 +165,31 @@ class ClubItems(Base):
     status = Column(String, default="Ожидает")
 
 
+class UserTaskLog(Base):
+    __tablename__ = "usertasklog"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger)
+    task_name = Column(String)
+    points = Column(SmallInteger)
+    tasks = Column(SmallInteger)
+    date = Column(Integer)
+
+
+class ClubTaskLog(Base):
+    __tablename__ = "clubtasklog"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger)
+    task_name = Column(String)
+    club_id = Column(Integer)
+    points = Column(SmallInteger)
+    tasks = Column(SmallInteger)
+    date = Column(Integer)
+
+
 class Bans(Base):
     __tablename__ = "bans"
     __table_args__ = {"schema": "public"}
@@ -173,3 +198,4 @@ class Bans(Base):
     user_id = Column(BigInteger)
     reason = Column(String)
     ending = Column(Integer)
+
