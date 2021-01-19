@@ -84,13 +84,13 @@ CONFIRMATION.add_text_button(text="Нет!", payload={"command": "not"},
                              color=ButtonColor.NEGATIVE)
 
 SHOP_1 = Keyboard()
-SHOP_1.add_text_button(text="400 монет",
+SHOP_1.add_text_button(text="300 монет",
                        payload={"command": "item1"},
                        color=ButtonColor.POSITIVE)
 SHOP_1.add_text_button(text="2⚙️(волш.)",
                        payload={"command": "item2"},
                        color=ButtonColor.POSITIVE)
-SHOP_1.add_text_button(text="25 ангелов",
+SHOP_1.add_text_button(text="20 ангелов",
                        payload={"command": "item3"},
                        color=ButtonColor.POSITIVE)
 SHOP_1.add_row()
@@ -102,16 +102,20 @@ SHOP_1.add_text_button(text="Назад",
 def get_shop_2(item_ids: list):
     SHOP_2 = Keyboard()
     if not (1 in item_ids):
-        SHOP_2.add_text_button(text="аватарка",
+        SHOP_2.add_text_button(text="17 серебра",
                                payload={"command": "item1"},
                                color=ButtonColor.POSITIVE)
     if not (2 in item_ids):
-        SHOP_2.add_text_button(text="35 серебра",
+        SHOP_2.add_text_button(text="2m ❤️",
                                payload={"command": "item2"},
                                color=ButtonColor.POSITIVE)
     if not (3 in item_ids):
-        SHOP_2.add_text_button(text="4 монетки удачи",
+        SHOP_2.add_text_button(text="2 монетки удачи",
                                payload={"command": "item3"},
+                               color=ButtonColor.POSITIVE)
+    if not (4 in item_ids):
+        SHOP_2.add_text_button(text="13 ангелов",
+                               payload={"command": "item4"},
                                color=ButtonColor.POSITIVE)
     SHOP_2.add_row()
     SHOP_2.add_text_button(text="Назад",

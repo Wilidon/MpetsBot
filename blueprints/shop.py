@@ -62,6 +62,12 @@ async def chooise_item(event: SimpleBotEvent):
                                           "В процессе")
                 await menu(user, event, "Награда будет начислена в течение "
                                         "недели.")
+            elif item.status == "shop_2.4":
+                item_name = f"{item.item_name} {shop1[item_id]}"
+                crud.update_user_itemname(item.id, item_name,
+                                          "В процессе")
+                await menu(user, event, "Награда будет начислена в течение "
+                                        "недели.")
         elif int(item.score) == 177:
             if item.status == "shop_3":
                 shop_id = item_id.split("m")[1]
@@ -112,6 +118,9 @@ async def shop(event: SimpleBotEvent):
             elif item.status == "shop_2.3":
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
                                    keyboard=get_shop_2([3]).get_keyboard())
+            elif item.status == "shop_2.4":
+                await event.answer(message=f"🏪 Магазин за {item.score} очков",
+                                   keyboard=get_shop_2([4]).get_keyboard())
             break
         elif int(item.score) == 177:
             if item.status == "shop_3":
