@@ -1,3 +1,5 @@
+from time import time
+
 from sql.database import Session
 from . import models
 from sqlalchemy import or_
@@ -116,9 +118,9 @@ def get_club_tasks_with_status(user_id: int, today: int):
     return db.query(
         models.ClubsTasks).filter(or_(models.ClubsTasks.status ==
                                       "completed",
-                           models.ClubsTasks.status == "waiting"),
-                           models.ClubsTasks.user_id == user_id,
-                           models.ClubsTasks.date == today).all()
+                                      models.ClubsTasks.status == "waiting"),
+                                  models.ClubsTasks.user_id == user_id,
+                                  models.ClubsTasks.date == today).all()
 
 
 def get_club_tasks(user_id: int, today: int, status: str = "waiting"):
@@ -528,3 +530,43 @@ def wipe():
         club.points = 0
     db.commit()
     return True
+
+
+def ban(user_id: int, reason: str, ending: int):
+    user = db.query(models.Users).filter_by(user_id=user_id).first()
+    ban = db.query(models.Bans).filter(models.Bans.user_id == user_id,
+                                       models.Bans.ending > ending).first()
+    if ban is None:
+        ban = models.Bans(user_id=user_id,
+                          reason=reason,
+                          ending=ending)
+        db.add(ban)
+        user.access = -1
+        db.commit()
+        return True
+    else:
+        return False
+
+
+def unban(user_id: int):
+    ban = db.query(models.Bans).filter(models.Bans.user_id == user_id,
+                                       models.Bans.ending > 10).first()
+    print(ban)
+    if ban is None:
+        return False
+    else:
+        ban.ending = 1
+        db.commit()
+        return True
+
+
+def get_ban(user_id: int):
+    return db.query(models.Bans).filter(models.Bans.user_id == user_id,
+                                        models.Bans.ending > 10).first()
+
+
+def update_user_access(user_id: int, access: int):
+    user = db.query(models.Users).filter_by(user_id=user_id).first()
+    user.access = access
+    db.commit()
+

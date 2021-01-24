@@ -14,6 +14,11 @@ from tzlocal import get_localzone
 
 from utils.constants import MENU_S
 
+month = {"01": "января", "02": "февраля", "03": "марта",
+             "04": "апреля", "05": "мая", "06": "июня",
+             "07": "июля", "08": "августа", "09": "сентября",
+             "10": "октярбря", "11": "ноября", "12": "декабря"}
+
 user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"]]
 
 user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\n "

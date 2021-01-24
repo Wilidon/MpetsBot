@@ -1,4 +1,5 @@
 import datetime
+import time
 from random import randint
 
 import pickledb
@@ -9,7 +10,7 @@ from vkwave.bots import (
     PayloadFilter, MessageArgsFilter, CommandsFilter, TextContainsFilter,
 )
 from sql import crud
-from utils.functions import add_user_points, add_club_points, notice
+from utils.functions import add_user_points, add_club_points, notice, month
 
 admin_router = DefaultRouter()
 
@@ -229,7 +230,8 @@ async def notice_user(event: SimpleBotEvent):
             try:
                 await event.api_ctx.messages.send(user_id=int(msg[2]),
                                                   message=msg[3],
-                                                  random_id=randint(1, 9999999))
+                                                  random_id=randint(1,
+                                                                    9999999))
             except Exception as e:
                 text = f"Не смог отправить сообщение пользователю {msg[2]}\n" \
                        f"Ошибка: {e}"
@@ -435,7 +437,7 @@ async def club_members(event: SimpleBotEvent):
                 end = int(end)
             except Exception as e:
                 return "❗ Не смог определить id наград"
-            for item_id in range(start, end+1):
+            for item_id in range(start, end + 1):
                 crud.confirm_user_item(item_id)
             return "✅ Предметы подтверждены"
         else:
@@ -520,3 +522,59 @@ async def wipe(event: SimpleBotEvent):
         return None
     if crud.wipe():
         return "Рейтинги обнулены."
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/ban"]))
+async def ban(event: SimpleBotEvent):
+    # format /ban {user_id} {hours} {reason}
+    current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
+    msg = event.object.object.message.text.split(" ", maxsplit=3)
+    if len(msg) < 4:
+        return "Пожалуйста, отправьте команду " \
+               "в формате:\n/ban {user_id} {hours} {reason}"
+    if msg[1].isdigit() is False or msg[2].isdigit() is False:
+        return "Будьте внимательны: /ban {user_id} {hours} {reason}"
+    user_id = int(msg[1])
+    reason = str(msg[3])
+    ending = int(msg[2]) * 60 * 60
+    ending = int(time.time()) + 10800 + ending
+    d = datetime.datetime.utcfromtimestamp(
+        ending).strftime('%d')
+    m = datetime.datetime.utcfromtimestamp(
+        ending).strftime('%m')
+    h = datetime.datetime.utcfromtimestamp(
+        ending).strftime('%H:%M')
+    left_time = f"{d} {month[m]} в {h}"
+    if crud.ban(user_id, reason, ending):
+        await event.answer(f"Пользователь был забанен.\n"
+                           f"Для снятия бана отправьте: /unban {user_id}")
+        await event.api_ctx.messages.send(user_id=user_id,
+                                          message=f"Вы были забанены.\n"
+                                                  f"Причина: {reason}\n"
+                                                  f"Окончание бана:"
+                                                  f" {left_time}",
+                                          random_id=randint(1, 99999999))
+    else:
+        await event.answer(f"Пользователь уже заблокирован.")
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/unban"]))
+async def ban(event: SimpleBotEvent):
+    # format /unban {user_id}
+    current_user = event["current_user"]
+    if current_user.access <= 1:
+        return None
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) < 2:
+        return "Пожалуйста, отправьте команду " \
+               "в формате:\n/unban {user_id}"
+    if msg[1].isdigit() is False:
+        return "Будьте внимательны: /unban {user_id}"
+    if crud.unban(int(msg[1])):
+        return "Пользователь разблокирован."
+    else:
+        return "У пользователя нет бана."

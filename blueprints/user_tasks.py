@@ -65,13 +65,11 @@ async def user_tasks(event: SimpleBotEvent):
                             PayloadFilter({"command": "user_rating"}))
 async def user_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
-    logger.debug(1)
     current_user, counter, hidden = event["current_user"], 1, False
     top_users_stats = crud.get_users_stats_order_by_points(limit=10)
     text = "🧑‍ Рейтинг игроков \n\n"
     if not top_users_stats:
         return "Рейтинг пуст"
-    logger.debug(2)
     for user_stats in top_users_stats:
         # Если пользователь уже есть в списке, 
         # то его статистика отдельно снизу не пишется

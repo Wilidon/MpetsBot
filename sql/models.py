@@ -198,4 +198,3 @@ class Bans(Base):
     user_id = Column(BigInteger)
     reason = Column(String)
     ending = Column(Integer)
-
