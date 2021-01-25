@@ -464,7 +464,7 @@ async def club_members(event: SimpleBotEvent):
             except:
                 return "❗ Не смог определить id наград"
             for item_id in range(start, end + 1):
-                crud.confirm_user_item(item_id)
+                crud.confirm_club_item(item_id)
             return "✅ Предметы подтверждены"
         else:
             return "❗ Не смог определить id награды"
