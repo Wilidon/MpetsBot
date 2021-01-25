@@ -11,6 +11,18 @@ from utils import functions
 from utils.functions import get_next_utc_unix_00_00, gifts_name
 
 
+async def check_task(user, user_task, progress, task_name):
+    if user_task.end <= progress:
+        crud.update_club_task(id=user_task.id,
+                              progress=user_task.end,
+                              status="completed")
+        await functions.add_club_points(user_id=user.user_id,
+                                        club_id=user.club_id,
+                                        task_name=task_name)
+    else:
+        crud.update_club_task(user_task.id, progress)
+
+
 async def checking_coin_task(mpets, user, user_task):
     pet = await mpets.view_profile(user.pet_id)
     if pet["status"] == "error":
@@ -19,13 +31,8 @@ async def checking_coin_task(mpets, user, user_task):
     if pet["club_coin"] is None:
         # logging
         return 0
-    progress = pet["club_coin"]
-    if user_task.end <= progress:
-        crud.update_club_task(user_task.id, user_task.end,
-                              "completed")
-        await functions.add_club_points(user.user_id, user.club_id)
-    else:
-        crud.update_club_task(user_task.id, progress)
+    progress = int(pet["club_coin"])
+    await check_task(user, user_task, progress, user_task.task_name)
 
 
 async def checking_heart_task(mpets, user, user_task):
@@ -38,7 +45,7 @@ async def checking_heart_task(mpets, user, user_task):
                 break
             for pet in pets["players"]:
                 if pet["pet_id"] == user.pet_id:
-                    progress = pet["count"]
+                    progress = int(pet["count"])
                     step = False
                     break
             page += 1
@@ -46,12 +53,7 @@ async def checking_heart_task(mpets, user, user_task):
             counter += 1
             if counter >= 5:
                 return 0
-    if user_task.end <= int(progress):
-        crud.update_club_task(user_task.id, user_task.end,
-                              "completed")
-        await functions.add_club_points(user.user_id, user.club_id)
-    else:
-        crud.update_club_task(user_task.id, progress)
+    await check_task(user, user_task, progress, user_task.task_name)
 
 
 async def checking_exp_task(mpets, user, user_task):
@@ -64,7 +66,7 @@ async def checking_exp_task(mpets, user, user_task):
                 break
             for pet in pets["players"]:
                 if pet["pet_id"] == user.pet_id:
-                    progress = pet["count"]
+                    progress = int(pet["count"])
                     step = False
                     break
             page += 1
@@ -72,12 +74,7 @@ async def checking_exp_task(mpets, user, user_task):
             counter += 1
             if counter >= 5:
                 return 0
-    if user_task.end <= progress:
-        crud.update_club_task(user_task.id, user_task.end,
-                              "completed")
-        await functions.add_club_points(user.user_id, user.club_id)
-    else:
-        crud.update_club_task(user_task.id, progress)
+    await check_task(user, user_task, progress, user_task.task_name)
 
 
 async def checking_getGift_task(mpets, user, user_task):
@@ -91,9 +88,7 @@ async def checking_getGift_task(mpets, user, user_task):
             if "сегодня" in gift["date"]:
                 pet_gift = True
         if pet_gift:
-            crud.update_club_task(user_task.id, user_task.end,
-                                  "completed")
-            await functions.add_club_points(user.user_id, user.club_id)
+            await check_task(user, user_task, user_task.end, user_task.task_name)
     else:
         gift_id = int(gifts_name[int(gift_id) - 1][0])
         for gift in gifts["players"]:
@@ -123,10 +118,7 @@ async def checking_getGift_task(mpets, user, user_task):
                     except:
                         pass
         if pet_gift:
-            crud.update_club_task(user_task.id, user_task.end,
-                                  "completed")
-            await functions.add_club_points(user.user_id, user.club_id)
-            return True
+            await check_task(user, user_task, user_task.end, user_task.task_name)
 
 
 async def checking_sendGift_task(mpets, user, user_task, pet_id):
@@ -145,10 +137,7 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                 except:
                     pass
         if pet_gift:
-            crud.update_club_task(user_task.id, user_task.end,
-                                  "completed")
-            await functions.add_club_points(user.user_id, user.club_id)
-            return True
+            await check_task(user, user_task, user_task.end, user_task.task_name)
     else:
         gift_id = int(gifts_name[int(gift_id) - 1][0])
         for gift in gifts["players"]:
@@ -182,10 +171,7 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                     except:
                         pass
         if pet_gift:
-            crud.update_club_task(user_task.id, user_task.end,
-                                  "completed")
-            await functions.add_club_points(user.user_id, user.club_id)
-            return True
+            await check_task(user, user_task, user_task.end, user_task.task_name)
 
 
 async def checking_chat_task(mpets, user, user_task):
@@ -274,21 +260,11 @@ async def checking_upRank_task(mpets, user, user_task):
         return 0
     progress = user_task.progress
     for his in history["history"]:
-        '''if crud.check_upRank_history(his["owner_id"], his["member_id"],
-                                     his["action"], his["date"]) is None:
-            crud.create_upRank_history(user.club_id, his["owner_id"],
-                                       his["member_id"], his["action"],
-                                       his["date"]) '''
         if user.pet_id == int(his["owner_id"]) and \
                 "повысил" in his["action"] and \
                 today == his["date"].split(" ")[0]:
             progress += 1
-    if user_task.end <= progress:
-        crud.update_club_task(user_task.id, user_task.end,
-                              "completed")
-        await functions.add_club_points(user.user_id, user.club_id)
-    else:
-        crud.update_club_task(user_task.id, progress)
+    await check_task(user, user_task, progress, user_task.task_name)
 
 
 async def checking_acceptPlayer_task(mpets, user, user_task):
@@ -299,21 +275,11 @@ async def checking_acceptPlayer_task(mpets, user, user_task):
         return 0
     progress = user_task.progress
     for his in history["history"]:
-        '''if crud.check_acceptPlayer_history(his["owner_id"], his["member_id"],
-                                           his["action"], his["date"]) is None:
-            crud.create_acceptPlayer_history(user.club_id, his["owner_id"],
-                                             his["member_id"], his["action"],
-                                             his["date"])'''
         if user.pet_id == int(his["owner_id"]) and \
                 "принял" in his["action"] and \
                 today == his["date"].split(" ")[0]:
             progress += 1
-    if user_task.end <= progress:
-        crud.update_club_task(user_task.id, user_task.end,
-                              "completed")
-        await functions.add_club_points(user.user_id, user.club_id)
-    else:
-        crud.update_club_task(user_task.id, progress)
+    await check_task(user, user_task, progress, user_task.task_name)
 
 
 async def start_verify_club(club):
@@ -410,7 +376,7 @@ async def checking_bots():
                 tasks.append(task)
             await asyncio.gather(*tasks)
             await asyncio.sleep(1)
-            #logger.info(f"Закончил проверять клубы за {time.time() - time0}")
+            # logger.info(f"Закончил проверять клубы за {time.time() - time0}")
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
@@ -480,7 +446,8 @@ async def checking_avatar_task(mpets, user, user_task):
             left_time = time.time() - int(start_time)
             if left_time >= 3600:
                 crud.update_user_task(user_task.id, user_task.end, "completed")
-                await functions.add_user_points(user.user_id)
+                await functions.add_user_points(user_id=user.user_id,
+                                                task_name="avatar")
             else:
                 left_time = int(left_time // 60)
                 crud.update_user_task(user_task.id, left_time, "waiting")
@@ -507,7 +474,8 @@ async def checking_anketa_task(mpets, user, user_task):
             left_time = time.time() - int(start_time)
             if left_time >= 1800:
                 crud.update_user_task(user_task.id, user_task.end, "completed")
-                await functions.add_user_points(user.user_id)
+                await functions.add_user_points(user_id=user.user_id,
+                                                task_name="anketa")
             else:
                 left_time = int(left_time // 60)
                 crud.update_user_task(user_task.id, left_time, "waiting")
@@ -532,7 +500,8 @@ async def checking_online_task(mpets, user, user_task):
             left_time = time.time() - task_name
             if left_time >= 1800:
                 crud.update_user_task(user_task.id, user_task.end, "completed")
-                await functions.add_user_points(user.user_id)
+                await functions.add_user_points(user_id=user.user_id,
+                                                task_name="30online")
             else:
                 left_time = int(left_time // 60)
                 crud.update_user_task(user_task.id, left_time, "waiting")
@@ -554,7 +523,8 @@ async def checking_inOnline_task(mpets, user, user_task):
                                                                 '%H:%M')))
         if unix_time - 60 <= int(time.time()) <= unix_time + 60:
             crud.update_user_task(user_task.id, user_task.end, "completed")
-            await functions.add_user_points(user.user_id)
+            await functions.add_user_points(user_id=user.user_id,
+                                            task_name="online")
     else:
         # timeout
         pass
