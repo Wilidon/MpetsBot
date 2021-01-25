@@ -80,5 +80,5 @@ async def main(event: SimpleBotEvent):
         await menu(current_user, event)
     elif current_user.status == 'ok' and \
             event.object.object.message.text.lower() in "админка" and \
-            current_user.access >= 1:
+            current_user.access >= 3:
         await event.answer(message="Меню", keyboard=ADMIN_MENU.get_keyboard())

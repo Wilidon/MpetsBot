@@ -19,8 +19,8 @@ async def confirm_yes(event: SimpleBotEvent):
     current_user = event["current_user"]
     if crud.check_pet_name(current_user.pet_id):
         return "Этот аккаунт уже привязан другим пользователем. " \
-               "Если он принадлежит Вам, то напишите " \
-               "[id496579832|администрации]."
+               "Если он принадлежит Вам, то позовите " \
+               "администрацию командой /report."
     crud.update_user_status(current_user.user_id, "ok")
     await event.answer(message="Аккаунт привязан!",
                        keyboard=MENU.get_keyboard())

@@ -630,3 +630,4 @@ async def ban(event: SimpleBotEvent):
                                               f"{access_name[access]}.",
                                       random_id=randint(1, 99999999))
     return f"Пользователь понижен до должности {access_name[access]}"
+
