@@ -10,7 +10,7 @@ from vkwave.bots import (
     PayloadFilter, MessageArgsFilter, CommandsFilter, TextContainsFilter,
 )
 from sql import crud
-from utils.functions import add_user_points, add_club_points, notice, month
+from utils.functions import add_user_points, add_club_points, notice, month, access_name
 
 admin_router = DefaultRouter()
 
@@ -578,3 +578,55 @@ async def ban(event: SimpleBotEvent):
         return "Пользователь разблокирован."
     else:
         return "У пользователя нет бана."
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/op"]))
+async def ban(event: SimpleBotEvent):
+    # format /op {user_id} {access}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return None
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) < 3:
+        return "Пожалуйста, отправьте команду " \
+               "в формате:\n/op {user_id} {access}"
+    if msg[1].isdigit() is False or msg[2].isdigit() is False:
+        return "Будьте внимательны: /op {user_id} {access}"
+    user_id = int(msg[1])
+    access = int(msg[2])
+    if access < 0 or access > 3:
+        return "Такой должности не существует"
+    crud.update_user_access(user_id=user_id, access=access)
+    await event.api_ctx.messages.send(user_id=user_id,
+                                      message=f"Вас повысили "
+                                              f"до должости "
+                                              f"{access_name[access]}",
+                                      random_id=randint(1, 99999999))
+    return f"Пользователь повышен до должности {access[access]}."
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/unop"]))
+async def ban(event: SimpleBotEvent):
+    # format //unop {user_id} {access}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return None
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) < 3:
+        return "Пожалуйста, отправьте команду " \
+               "в формате:\n/unop {user_id} {access}"
+    if msg[1].isdigit() is False or msg[2].isdigit() is False:
+        return "Будьте внимательны: /unop {user_id} {access}"
+    user_id = int(msg[1])
+    access = int(msg[2])
+    if access < 0 or access > 3:
+        return "Такой должности не существует"
+    crud.update_user_access(user_id=user_id, access=access)
+    await event.api_ctx.messages.send(user_id=user_id,
+                                      message=f"Вас понизили "
+                                              f"до должости "
+                                              f"{access_name[access]}.",
+                                      random_id=randint(1, 99999999))
+    return f"Пользователь понижен до должности {access[access]}"

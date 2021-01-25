@@ -569,4 +569,4 @@ def update_user_access(user_id: int, access: int):
     user = db.query(models.Users).filter_by(user_id=user_id).first()
     user.access = access
     db.commit()
-
+    return True
