@@ -603,7 +603,7 @@ async def ban(event: SimpleBotEvent):
                                               f"до должости "
                                               f"{access_name[access]}",
                                       random_id=randint(1, 99999999))
-    return f"Пользователь повышен до должности {access[access]}."
+    return f"Пользователь повышен до должности {access_name[access]}."
 
 
 @simple_bot_message_handler(admin_router,
@@ -629,4 +629,4 @@ async def ban(event: SimpleBotEvent):
                                               f"до должости "
                                               f"{access_name[access]}.",
                                       random_id=randint(1, 99999999))
-    return f"Пользователь понижен до должности {access[access]}"
+    return f"Пользователь понижен до должности {access_name[access]}"
