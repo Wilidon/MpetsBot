@@ -14,14 +14,13 @@ from utils.functions import add_user_points, add_club_points, notice, month, acc
 
 admin_router = DefaultRouter()
 
-
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(
                                 ["+points user", "+points club",
                                  "-points user", "-points club"]),
                             MessageArgsFilter(args_count=2, command_length=2))
 async def points(event: SimpleBotEvent):
-    # Профиль пользователя
+    # format +points user {user_id} {points}
     current_user = event["current_user"]
     if current_user.access <= 1:
         return None
