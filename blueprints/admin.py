@@ -334,6 +334,7 @@ async def items(event: SimpleBotEvent):
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter("/club members"))
 async def club_members(event: SimpleBotEvent):
+    # format /club members {club_id}
     current_user = event["current_user"]
     if current_user.access <= 1:
         return None
@@ -348,7 +349,8 @@ async def club_members(event: SimpleBotEvent):
         return "❗ Клуб не найден."
     for member in club_members:
         user_stats = crud.get_user_stats(member.user_id)
-        text += f"{counter}. {member.name} ({member.user_id}) --{user_stats.personal_tasks}\n"
+        text += f"{counter}. {member.name} ({member.user_id}) --" \
+                f"{user_stats.personal_tasks}🎄/{user_stats.points}🏵\n"
         counter += 1
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
