@@ -14,6 +14,7 @@ from utils.functions import add_user_points, add_club_points, notice, month, acc
 
 admin_router = DefaultRouter()
 
+
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(
                                 ["+points user", "+points club",
@@ -22,8 +23,8 @@ admin_router = DefaultRouter()
 async def points(event: SimpleBotEvent):
     # format +points user {user_id} {points}
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     msg = event.object.object.message.text.split()
     if msg[1] == "user":
         if msg[0] == "+points":
@@ -58,11 +59,11 @@ async def points(event: SimpleBotEvent):
                                 ["+tasks user", "+tasks club",
                                  "-tasks user", "-tasks club"]),
                             MessageArgsFilter(args_count=2, command_length=2))
-async def points(event: SimpleBotEvent):
-    # Профиль пользователя
+async def personal_tasks(event: SimpleBotEvent):
+    # format +tasks user {user_id} {points}
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     msg = event.object.object.message.text.split()
     if msg[1] == "user":
         if msg[0] == "+tasks":
@@ -98,14 +99,14 @@ async def points(event: SimpleBotEvent):
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(
                                 ["/user rating", "/club rating"]))
-async def points_rating(event: SimpleBotEvent):
-    # Рейтинг пользователей
+async def user_rating(event: SimpleBotEvent):
+    # format /user rating
     current_user, counter = event["current_user"], 1
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     msg = event.object.object.message.text.split()
     if msg[0] == "/user":
-        top_users_stats = crud.get_users_stats_order_by_points(limit=None)
+        top_users_stats = crud.get_users_stats_order_by_points(limit=100)
         text = "🧑‍ Рейтинг игроков.\n\n"
         if not top_users_stats:
             return "❗ Рейтинг пуст."
@@ -120,7 +121,7 @@ async def points_rating(event: SimpleBotEvent):
         else:
             await event.answer(text)
     elif msg[0] == "/club":
-        clubs = crud.get_clubs_stats_order_by_points(limit=None)
+        clubs = crud.get_clubs_stats_order_by_points(limit=100)
         text = "🏠 Рейтинг клубов.\n\n"
         if not clubs:
             return "❗ Рейтинг пуст."
@@ -140,14 +141,15 @@ async def points_rating(event: SimpleBotEvent):
                             PayloadFilter({"command": "rating_user_tasks"}))
 async def task_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
-    top_users_stats = crud.get_users_stats_order_by_tasks(limit=None)
+    top_users_stats = crud.get_users_stats_order_by_tasks(limit=100)
     text = "🧑‍ Рейтинг игроков.\n\n"
     if not top_users_stats:
         return "❗ Рейтинг пуст."
     for user_stats in top_users_stats:
         top_user = crud.get_user(user_stats.user_id)
         text += f"{counter}. {top_user.name} — " \
-                f"{user_stats.personal_tasks} ⭐\n"
+                f"{user_stats.personal_tasks} ⭐/" \
+                f"{user_stats.points}🏮\n"
         counter += 1
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
@@ -160,13 +162,14 @@ async def task_rating(event: SimpleBotEvent):
                             PayloadFilter({"command": "rating_club_tasks"}))
 async def task_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
-    clubs = crud.get_clubs_stats_order_by_tasks(limit=None)
+    clubs = crud.get_clubs_stats_order_by_tasks(limit=100)
     text = "🏠 Рейтинг клубов.\n\n"
     if not clubs:
         return "❗ Рейтинг пуст."
     for club_stats in clubs:
         club = crud.get_club(club_stats.club_id)
-        text += f"{counter}. {club.name} — {club_stats.total_tasks} 🎄\n"
+        text += f"{counter}. {club.name} — {club_stats.total_tasks} 🎄/" \
+                f"{club_stats.points}🏵\n"
         counter += 1
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
@@ -177,52 +180,12 @@ async def task_rating(event: SimpleBotEvent):
 
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(
-                                ["/user tasks", "/club tasks"]))
-async def task_rating(event: SimpleBotEvent):
-    # Рейтинг пользователей
-    current_user, counter = event["current_user"], 1
-    if current_user.access <= 1:
-        return None
-    msg = event.object.object.message.text.split()
-    if msg[0] == "/user":
-        top_users_stats = crud.get_users_stats_order_by_tasks(limit=None)
-        text = "🧑‍ Рейтинг игроков.\n\n"
-        if not top_users_stats:
-            return "❗ Рейтинг пуст."
-        for user_stats in top_users_stats:
-            top_user = crud.get_user(user_stats.user_id)
-            text += f"{counter}. {top_user.name} — " \
-                    f"{user_stats.personal_tasks} ⭐\n"
-            counter += 1
-        if len(text) > 4050:
-            await event.answer("Сообщение слишком длинное. Для решение "
-                               "проблемы напишите разработчику.")
-        else:
-            await event.answer(text)
-    elif msg[0] == "/club":
-        clubs = crud.get_clubs_stats_order_by_tasks(limit=None)
-        text = "🏠 Рейтинг клубов.\n\n"
-        if not clubs:
-            return "❗ Рейтинг пуст."
-        for club_stats in clubs:
-            club = crud.get_club(club_stats.club_id)
-            text += f"{counter}. {club.name} — {club_stats.total_tasks} 🎄\n"
-            counter += 1
-        if len(text) > 4050:
-            await event.answer("Сообщение слишком длинное. Для решение "
-                               "проблемы напишите разработчику.")
-        else:
-            await event.answer(text)
-
-
-@simple_bot_message_handler(admin_router,
-                            TextContainsFilter(
                                 ["/notice user", "/notice club"]))
 async def notice_user(event: SimpleBotEvent):
-    # Уведомление пользователю
+    # format /notice user {user_id} {message}
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     msg = event.object.object.message.text.split(" ", maxsplit=3)
     if msg[1] == "user":
         if crud.get_user(int(msg[2])):
@@ -293,53 +256,13 @@ async def task_rating(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
-                            TextContainsFilter(
-                                ["/items user", "/items club"]))
-async def items(event: SimpleBotEvent):
-    current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
-    msg = event.object.object.message.text.split(" ")
-    if msg[1] == "user":
-        items = crud.get_user_items()
-        text = "🧸 Предметы игроков.\n\n"
-        if not items:
-            return "❗ Предметов нет"
-        for item in items:
-            user = crud.get_user(item.user_id)
-            text += f"{item.id}. {user.name} ({user.pet_id}) -- {item.item_name} \n"
-        text += "\n +confirm user {id} — подтвердить предмет"
-        if len(text) > 4050:
-            await event.answer("Сообщение слишком длинное. Для решение "
-                               "проблемы напишите разработчику.")
-        else:
-            await event.answer(text)
-    if msg[1] == "club":
-        items = crud.get_club_items()
-        text = "🎈 Предметы клубов.\n\n"
-        if not items:
-            return "❗ Предметов нет"
-        for item in items:
-            club = crud.get_club(item.club_id)
-            text += f"{item.id}. {club.name} ({club.club_id}) -- {item.item_name}\n"
-        text += "\n +confirm club {id} — подтвердить предмет"
-        if len(text) > 4050:
-            await event.answer("Сообщение слишком длинное. Для решение "
-                               "проблемы напишите разработчику.")
-        else:
-            await event.answer(text)
-
-
-@simple_bot_message_handler(admin_router,
                             TextContainsFilter("/club members"))
 async def club_members(event: SimpleBotEvent):
     # format /club members {club_id}
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     text, counter = "Участники клуба \n", 1
-    if current_user.access <= 1:
-        return None
     msg = event.object.object.message.text.split(" ")
     if msg[2].isdigit() is False:
         return "❗ Клуб не найден."
@@ -362,10 +285,8 @@ async def club_members(event: SimpleBotEvent):
                             TextContainsFilter(["+tasks club members"]))
 async def club_members(event: SimpleBotEvent):
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     msg = event.object.object.message.text.split(" ")
     if msg[3].isdigit() is False and msg[4].isdigit() is False:
         return "❗ Не смог определить клуб или награду"
@@ -382,8 +303,8 @@ async def club_members(event: SimpleBotEvent):
                             TextContainsFilter("/stats"))
 async def stats(event: SimpleBotEvent):
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 2:
+        return False
     db = pickledb.load("./stats.db", True)
     total_clicks = db.get("total_clicks")
     amount_users = crud.get_amount_users()
@@ -426,9 +347,10 @@ async def stats(event: SimpleBotEvent):
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(["+confirm user"]))
 async def club_members(event: SimpleBotEvent):
+    # format +confirm user {item_id} [{item_id}-{item_id}]
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     msg = event.object.object.message.text.split(" ")
     if msg[2].isdigit() is False:
         if "-" in msg[2]:
@@ -452,9 +374,10 @@ async def club_members(event: SimpleBotEvent):
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(["+confirm club"]))
 async def club_members(event: SimpleBotEvent):
+    # format +confirm club {item_id} [{item_id}-{item_id}]
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     msg = event.object.object.message.text.split(" ")
     if msg[2].isdigit() is False:
         if "-" in msg[2]:
@@ -479,9 +402,10 @@ async def club_members(event: SimpleBotEvent):
                             TextContainsFilter(["/get user items",
                                                 "/get club items"]))
 async def club_members(event: SimpleBotEvent):
+    # format /get user items {score}
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     msg = event.object.object.message.text.split(" ")
     if msg[3].isdigit() is False:
         return "Укажите количество очков"
@@ -519,8 +443,8 @@ async def club_members(event: SimpleBotEvent):
                             TextContainsFilter(["/wipe"]))
 async def wipe(event: SimpleBotEvent):
     current_user = event["current_user"]
-    if current_user.access <= 1:
-        return None
+    if current_user.access < 3:
+        return False
     if crud.wipe():
         return "Рейтинги обнулены."
 
@@ -531,7 +455,7 @@ async def ban(event: SimpleBotEvent):
     # format /ban {user_id} {hours} {reason}
     current_user = event["current_user"]
     if current_user.access <= 1:
-        return None
+        return False
     msg = event.object.object.message.text.split(" ", maxsplit=3)
     if len(msg) < 4:
         return "Пожалуйста, отправьте команду " \
@@ -568,7 +492,7 @@ async def ban(event: SimpleBotEvent):
     # format /unban {user_id}
     current_user = event["current_user"]
     if current_user.access <= 1:
-        return None
+        return False
     msg = event.object.object.message.text.split(" ")
     if len(msg) < 2:
         return "Пожалуйста, отправьте команду " \
@@ -587,7 +511,7 @@ async def ban(event: SimpleBotEvent):
     # format /op {user_id} {access}
     current_user = event["current_user"]
     if current_user.access < 3:
-        return None
+        return False
     msg = event.object.object.message.text.split(" ")
     if len(msg) < 3:
         return "Пожалуйста, отправьте команду " \
@@ -610,10 +534,10 @@ async def ban(event: SimpleBotEvent):
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(["/unop"]))
 async def ban(event: SimpleBotEvent):
-    # format //unop {user_id} {access}
+    # format /unop {user_id} {access}
     current_user = event["current_user"]
     if current_user.access < 3:
-        return None
+        return False
     msg = event.object.object.message.text.split(" ")
     if len(msg) < 3:
         return "Пожалуйста, отправьте команду " \
@@ -631,4 +555,36 @@ async def ban(event: SimpleBotEvent):
                                               f"{access_name[access]}.",
                                       random_id=randint(1, 99999999))
     return f"Пользователь понижен до должности {access_name[access]}"
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/help"]))
+async def ban(event: SimpleBotEvent):
+    # format /help
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    text = "Помощь\n" \
+           "+points club {club_id} {points} — добавить фишки (рейтинг);\n" \
+           "+tasks club {club_id} {points} — добавить елки (гонка);\n" \
+           "+points user {user_id} {points} — добавить баллы (рейтинг);\n" \
+           "+tasks user {user_id} {points} — добавить звездочки (гонка);\n" \
+           "\n" \
+           "/user tasks — первые 100 пользователей рейтинга;\n" \
+           "/user club — первые 100 клубов рейтинга;\n" \
+           "\n" \
+           "/notice user {user_id} {message} — отправить сообщение игроку;\n" \
+           "/notice club {club_id} {message} — отправить всему клубу " \
+           "сообщение;\n" \
+           "\n" \
+           "/club members {club_id} — посмотреть список участников клуба;\n" \
+           "+tasks club members {club_id} {points} — начислить всем " \
+           "участникам клуба звездочки;\n" \
+           "\n" \
+           "/ban {user_id} {hours} {reason} — забанить пользователя;\n" \
+           "/unban {user_id} {hours} {reason} — разбанить пользователя;\n" \
+           "\n" \
+           "/op {user_id} {access} — повысить пользователя;\n" \
+           "/unop {user_id} {access} — понизить пользователя."
+    await event.answer(text)
 
