@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import copy
 
 import requests
-from loguru import logger
 from vkwave.bots import SimpleLongPollBot
 
 from config import get_settings
@@ -15,16 +14,18 @@ from tzlocal import get_localzone
 from utils.constants import MENU_S
 
 month = {"01": "января", "02": "февраля", "03": "марта",
-             "04": "апреля", "05": "мая", "06": "июня",
-             "07": "июля", "08": "августа", "09": "сентября",
-             "10": "октярбря", "11": "ноября", "12": "декабря"}
+         "04": "апреля", "05": "мая", "06": "июня",
+         "07": "июля", "08": "августа", "09": "сентября",
+         "10": "октярбря", "11": "ноября", "12": "декабря"}
 
 access_name = {0: "Пользователь",
                1: "VIP-игрок",
                2: "Модератор",
                3: "Администратор"}
 
-user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"]]
+user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"],
+              # ["charm"], ["races"]
+              ]
 
 user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\n "
                              "📈 Прогресс: {} из {} \n"
@@ -43,7 +44,9 @@ user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\
 user_completed_tasks_list = {"avatar": "Поставить аватар {}\n",
                              "anketa": "Сменить данные в «О себе»\n",
                              "30online": "Не выходить из онлайна 30 минут\n",
-                             "in_online": "Войти в игру в {} по МСК\n", }
+                             "in_online": "Войти в игру в {} по МСК\n",
+                             "charm": "Набрать {} рейтинга в снежках\n",
+                             "races": "Набрать {} рейтинга в скачках\n"}
 
 club_tasks = ["exp", "heart", "coin",
               "get_gift",
@@ -226,10 +229,10 @@ async def get_limits(level):
 
 
 def get_next_utc_unix_00_00():
-    DAY = timedelta(1)
+    day = timedelta(1)
     local_tz = get_localzone()
     now = datetime.now(local_tz)
-    t = now.replace(tzinfo=None) + DAY
+    t = now.replace(tzinfo=None) + day
     t = str(t).split(" ")[0]
     t += " 00:00:00"
     next_utc = int(time.mktime(time.strptime(t, '%Y-%m-%d %H:%M:%S')))
@@ -256,7 +259,7 @@ async def coin_task(task, pet_id, club_id):
         crud.update_club_task_v2(id=task.id, task_name="coin",
                                  progress=progress, end=end, date=today)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -281,7 +284,7 @@ async def heart_task(task, pet_id, club_id):
                         step = False
                         break
                 page += 1
-            except:
+            except Exception:
                 counter += 1
                 if counter >= 5:
                     return False
@@ -291,7 +294,7 @@ async def heart_task(task, pet_id, club_id):
         crud.update_club_task_v2(id=task.id, task_name="heart",
                                  progress=progress, end=end, date=today)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -316,17 +319,17 @@ async def exp_task(task, pet_id, club_id):
                         step = False
                         break
                 page += 1
-            except:
+            except Exception:
                 counter += 1
                 if counter >= 5:
                     return False
         level = await mpets.view_profile(pet_id)
         limits = await get_limits(level["level"])
         end = int(progress) + limits["exp"]
-        crud.update_club_task_v2(task=task.id, task_name="exp",
+        crud.update_club_task_v2(id=task.id, task_name="exp",
                                  progress=progress, end=end, date=today)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -423,7 +426,7 @@ async def get_task_name(task_name):
     if "send" in task_name:
         return task_name.rsplit("_", maxsplit=1)[0]
     elif "get" in task_name:
-        present_id = task_name.split("_")[-1]
+        # present_id = task_name.split("_")[-1]
         return task_name.rsplit("_", maxsplit=1)[0]
     else:
         return task_name
@@ -440,7 +443,7 @@ async def creation_club_tasks(user_task):
             task_name = await get_task_name(task.task_name)
             try:
                 local_tasks.pop(local_tasks.index(task_name))
-            except:
+            except Exception:
                 pass
     while c < 1:
         num = random.randint(0, len(local_tasks) - 1)
@@ -612,17 +615,17 @@ async def club_prizes(score):
 
 def notice(message):
     settings = get_settings()
-    r = requests.get(f"https://api.telegram.org/bot"
-                     f"{settings.tg_token}/sendMessage",
-                     params={"chat_id": settings.chat_id,
-                             "text": message})
+    requests.get(f"https://api.telegram.org/bot"
+                 f"{settings.tg_token}/sendMessage",
+                 params={"chat_id": settings.chat_id,
+                         "text": message})
 
 
 async def send_user_notice(user_id, score):
-    '''
+    """
     Поздравляем! Вы набрали 50 ⭐️
     Доступные товары появились в 🏪Магазине.
-    '''
+    """
     settings = get_settings()
     message = f"Поздравляем! Вы набрали {score} ⭐️\n" \
               f"Вам будет зачислен приз – {prizes[score]}"

@@ -265,53 +265,14 @@ def check_msg(thread_id: int, message: str, post_date: str, page: int):
                                                       page=page).first()
 
 
-def create_upRank_history(club_id: int, owner_id: int, member_id: int,
-                          action: str, date: str):
-    history = models.ClubUpRankHistory(club_id=club_id,
-                                       owner_id=owner_id,
-                                       member_id=member_id,
-                                       action=action,
-                                       date=date)
-    db.add(history)
-    db.commit()
-
-
-def check_upRank_history(owner_id: int, member_id: int, action: str,
-                         date: str):
-    return db.query(models.ClubUpRankHistory).filter_by(owner_id=owner_id,
-                                                        member_id=member_id,
-                                                        action=action,
-                                                        date=date).first()
-
-
-def create_acceptPlayer_history(club_id: int, owner_id: int, member_id: int,
-                                action: str, date: str):
-    history = models.ClubAcceptPlayerHistory(club_id=club_id,
-                                             owner_id=owner_id,
-                                             member_id=member_id,
-                                             action=action,
-                                             date=date)
-    db.add(history)
-    db.commit()
-
-
-def check_acceptPlayer_history(owner_id: int, member_id: int, action: str,
-                               date: str):
-    return db.query(models.ClubAcceptPlayerHistory).filter_by(
-        owner_id=owner_id,
-        member_id=member_id,
-        action=action,
-        date=date).first()
-
-
 def create_user_task_for_user(user_id: int, task_name: str, progress: int,
                               end: int, date: int):
-    club_task = models.UsersTasks(user_id=user_id,
+    user_task = models.UsersTasks(user_id=user_id,
                                   task_name=task_name,
                                   progress=progress,
                                   end=end,
                                   date=date)
-    db.add(club_task)
+    db.add(user_task)
     db.commit()
 
 

@@ -106,30 +106,6 @@ class ClubChat(Base):
     date = Column(Integer)
 
 
-class ClubUpRankHistory(Base):
-    __tablename__ = "clubuprankhistory"
-    __table_args__ = {"schema": "public"}
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    club_id = Column(Integer)
-    owner_id = Column(Integer)
-    member_id = Column(Integer)
-    action = Column(String)
-    date = Column(String)
-
-
-class ClubAcceptPlayerHistory(Base):
-    __tablename__ = "clubacceptplayerhistory"
-    __table_args__ = {"schema": "public"}
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    club_id = Column(Integer)
-    owner_id = Column(Integer)
-    member_id = Column(Integer)
-    action = Column(String)
-    date = Column(String)
-
-
 class ThreadsMessages(Base):
     __tablename__ = "threadsmessages"
     __table_args__ = {"schema": "public"}

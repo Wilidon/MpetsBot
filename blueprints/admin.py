@@ -7,7 +7,7 @@ from vkwave.bots import (
     DefaultRouter,
     SimpleBotEvent,
     simple_bot_message_handler,
-    PayloadFilter, MessageArgsFilter, CommandsFilter, TextContainsFilter,
+    PayloadFilter, MessageArgsFilter, TextContainsFilter,
 )
 from sql import crud
 from utils.functions import add_user_points, add_club_points, notice, month, access_name
@@ -609,8 +609,8 @@ async def ban(event: SimpleBotEvent):
 
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(["/unop"]))
-async def ban(event: SimpleBotEvent):
-    # format //unop {user_id} {access}
+async def unop(event: SimpleBotEvent):
+    # format /unop {user_id} {access}
     current_user = event["current_user"]
     if current_user.access < 3:
         return None
