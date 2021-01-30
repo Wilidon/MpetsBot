@@ -632,7 +632,7 @@ async def send_user_notice(user_id, score):
     if "shop" in prizes[score]:
         crud.add_user_item(user_id, prizes[score], score, status=prizes[score])
         message = f"Поздравляем! Вы набрали {score} ⭐️\n" \
-                  f"Доступные товары появились в 🏪Магазине."
+                  f"Доступные призы появились в 🏪 Магазине."
     else:
         crud.add_user_item(user_id, prizes[score], score)
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
