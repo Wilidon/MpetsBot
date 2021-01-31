@@ -576,7 +576,7 @@ async def totalstats(event: SimpleBotEvent):
             c_stage_10 += 1
         elif 1239 <= club.total_tasks:
             c_stage_11 += 1
-    user_items = crud.get_user_items()
+    user_items = crud.get_all_user_items()
     for item in user_items:
         if item.score == 10:
             item_1 += 1
@@ -594,7 +594,7 @@ async def totalstats(event: SimpleBotEvent):
             item_7 += 1
         elif item.score == 177:
             item_8 += 1
-    club_items = crud.get_club_items()
+    club_items = crud.get_all_club_items()
     for item in club_items:
         if item.score == 30:
             c_item_1 += 1
@@ -627,7 +627,7 @@ async def totalstats(event: SimpleBotEvent):
            f"👨🏼‍💼 На 5 этапе: {stage_5}\n" \
            f"👨🏼‍💼 На 6 этапе: {stage_6}\n" \
            f"👨🏼‍💼 На 7 этапе: {stage_7}\n" \
-           f"👨🏼‍💼 Прошли гонку: {stage_8}\n" \
+           f"👨🏼‍💼 Прошли гонку: {stage_8}\n\n" \
            f"🎈 На 0 этапе: {c_stage_0}\n" \
            f"🎈 На 1 этапе: {c_stage_1}\n" \
            f"🎈 На 2 этапе: {c_stage_2}\n" \
@@ -639,7 +639,7 @@ async def totalstats(event: SimpleBotEvent):
            f"🎈 На 8 этапе: {c_stage_8}\n" \
            f"🎈 На 9 этапе: {c_stage_9}\n" \
            f"🎈 На 10 этапе: {c_stage_10}\n" \
-           f"🎈 Прошли гонку: {c_stage_11}\n" \
+           f"🎈 Прошли гонку: {c_stage_11}\n\n" \
            f"{prizes[10]}: {item_1}\n" \
            f"{prizes[25]}: {item_2}\n" \
            f"{prizes[40]}: {item_3}\n" \
@@ -647,7 +647,7 @@ async def totalstats(event: SimpleBotEvent):
            f"{prizes[100]}: {item_5}\n" \
            f"{prizes[125]}: {item_6}\n" \
            f"{prizes[160]}: {item_7}\n" \
-           f"{prizes[177]}: {item_8}\n" \
+           f"{prizes[177]}: {item_8}\n\n" \
            f"{c_prizes[30]}: {c_item_1}\n" \
            f"{c_prizes[70]}: {c_item_2}\n" \
            f"{c_prizes[160]}: {c_item_3}\n" \
