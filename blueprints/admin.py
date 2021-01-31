@@ -519,7 +519,7 @@ async def stats(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
-                            TextContainsFilter("/totalstats"))
+                            TextContainsFilter("/stagestats"))
 async def totalstats(event: SimpleBotEvent):
     current_user = event["current_user"]
     if current_user.access < 2:
@@ -690,5 +690,9 @@ async def ban(event: SimpleBotEvent):
            "/unban {user_id} {hours} {reason} — разбанить пользователя;\n" \
            "\n" \
            "/op {user_id} {access} — повысить пользователя;\n" \
-           "/unop {user_id} {access} — понизить пользователя."
+           "/unop {user_id} {access} — понизить пользователя;\n" \
+           "\n" \
+           "/stats — статистика;\n" \
+           "/stagestats — статистика по гонке и призам;\n" \
+           "/taskstats - статистика по заданиям ( в будущем )."
     await event.answer(text)
