@@ -558,6 +558,28 @@ async def ban(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/pt"]))
+async def view_profile(event: SimpleBotEvent):
+    # format /pt {user_id}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) < 2:
+        return "Пожалуйста, отправьте команду " \
+               "в формате:\n/pt {user_id}"
+    if msg[1].isdigit() is False:
+        return "Будьте внимательны: /pt {user_id}"
+    user_id = int(msg[1])
+    today = int(datetime.today().strftime("%Y%m%d"))
+    tasks = crud.get_user_tasks(user_id, today)
+    text = "Задания\n"
+    for task in tasks:
+        text += f"{task.id}. {task.task_name} - {task.progress}/{task.end}\n"
+    return text
+
+
+@simple_bot_message_handler(admin_router,
                             TextContainsFilter(["/help"]))
 async def ban(event: SimpleBotEvent):
     # format /help

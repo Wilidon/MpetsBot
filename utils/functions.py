@@ -56,7 +56,7 @@ club_tasks = ["exp", "heart", "coin",
               # ["send_gift_player"],
               # ["send_specific_gift_player"],
               # ["chat"],
-              # ["play"],
+              #"play",
               # "thread",
               "upRank",
               "acceptPlayer"]
