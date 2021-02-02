@@ -56,7 +56,7 @@ club_tasks = ["exp", "heart", "coin",
               # ["send_gift_player"],
               # ["send_specific_gift_player"],
               # ["chat"],
-              #"play",
+              "play",
               # "thread",
               "upRank",
               "acceptPlayer"]
@@ -388,7 +388,6 @@ async def chat_task(user_id):
 
 
 async def play_task(user_id):
-    # todo
     today = int(datetime.today().strftime("%Y%m%d"))
     crud.create_club_task_for_user(user_id=user_id, task_name="play",
                                    progress=0, end=5, date=today)

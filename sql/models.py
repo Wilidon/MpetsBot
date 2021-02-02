@@ -166,6 +166,17 @@ class ClubTaskLog(Base):
     date = Column(Integer)
 
 
+class ClubGame(Base):
+    __tablename__ = "clubgame"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    pet_id = Column(Integer)
+    thread_id = Column(Integer)
+    message_id = Column(Integer)
+    page = Column(Integer)
+
+
 class Bans(Base):
     __tablename__ = "bans"
     __table_args__ = {"schema": "public"}

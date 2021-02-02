@@ -136,6 +136,7 @@ def get_club_tasks(user_id: int, today: int, status: str = "waiting"):
                                                  status=status,
                                                  date=today).all()
 
+
 def get_club_tasks_without_status(user_id: int, today: int):
     return db.query(models.ClubsTasks).filter_by(user_id=user_id,
                                                  date=today).all()
@@ -550,3 +551,20 @@ def update_user_access(user_id: int, access: int):
     user.access = access
     db.commit()
     return True
+
+
+def get_message(message_id: int):
+    return db.query(models.ClubGame).filter_by(message_id=message_id).first()
+
+
+def get_user_pet_id(pet_id: int):
+    return db.query(models.Users).filter_by(pet_id=pet_id).first()
+
+
+def create_play_message(pet_id: int, thread_id: int, message_id: int, page: int):
+    play_msg = models.ClubGame(pet_id=pet_id,
+                               thread_id=thread_id,
+                               message_id=message_id,
+                               page=page)
+    db.add(play_msg)
+    db.commit()

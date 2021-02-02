@@ -191,10 +191,6 @@ async def checking_chat_task(mpets, user, user_task):
                                          msg["message"], today)
 
 
-async def checking_play_task(mpets, user, user_task):
-    pass
-
-
 async def checking_thread_task(mpets, user, user_task):
     forums = await mpets.forums(user.club_id)
     if forums["status"] == "error":
@@ -318,8 +314,6 @@ async def start_verify_club(club):
                         await checking_sendGift_task(mpets, user, user_task)
                     elif user_task.task_name == "chat":
                         await checking_chat_task(mpets, user, user_task)
-                    elif user_task.task_name == "play":
-                        await checking_play_task(mpets, user, user_task)
                     elif user_task.task_name == "thread":
                         pass
                         # await checking_thread_task(mpets, user, user_task)
@@ -612,3 +606,37 @@ async def creating_club_tasks():
         except Exception as e:
             logger.error(f"Ошибка при создании задания {e}")
             await asyncio.sleep(10)
+
+
+async def checking_thread():
+    mpets = MpetsApi()
+    await mpets.start()
+    thread_id, page = 2570403, 1
+    while True:
+        try:
+            thread = await mpets.thread(2570403, page)
+            for msg in thread['messages']:
+                if crud.get_message(msg['message_id']):
+                    continue
+                user = crud.get_user_pet_id(msg['pet_id'])
+                if user is None:
+                    crud.create_play_message(pet_id=msg['pet_id'],
+                                             thread_id=thread_id,
+                                             message_id=msg['message_id'],
+                                             page=page)
+                    continue
+                today = int(datetime.today().strftime("%Y%m%d"))
+                user_tasks = crud.get_club_tasks(user.user_id, today, "waiting")
+                for task in user_tasks:
+                    if task.task_name != "play":
+                        continue
+                    await check_task(user, task, task.progress+1, "play")
+                crud.create_play_message(pet_id=msg['pet_id'],
+                                         thread_id=thread_id,
+                                         message_id=msg['message_id'],
+                                         page=page)
+            if len(thread['messages']) == 15:
+                page+=1
+            await asyncio.sleep(1)
+        except:
+            pass
