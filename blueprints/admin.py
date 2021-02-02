@@ -10,6 +10,7 @@ from vkwave.bots import (
     PayloadFilter, MessageArgsFilter, TextContainsFilter,
 )
 from sql import crud
+from utils import functions
 from utils.functions import add_user_points, add_club_points, notice, month, access_name, prizes, c_prizes
 
 admin_router = DefaultRouter()
@@ -660,6 +661,83 @@ async def totalstats(event: SimpleBotEvent):
            f"{c_prizes[1111]}: {c_item_10}\n" \
            f"{c_prizes[1239]}: {c_item_11}"
     await event.answer(message=text)
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/pt"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /pt {user_id}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if msg[1].isdigit() is False:
+        return "Будьте внимательны: /pt {user_id}"
+    user_id = int(msg[1])
+    today = int(datetime.datetime.today().strftime("%Y%m%d"))
+    tasks = crud.get_user_tasks(user_id, today)
+    text = "Задания\n"
+    for task in tasks:
+        text += f"{task.id}. {task.task_name} - {task.progress}/{task.end}\n"
+    return text
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/ct"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /ct {user_id}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if msg[1].isdigit() is False:
+        return "Будьте внимательны: /ct {user_id}"
+    user_id = int(msg[1])
+    today = int(datetime.datetime.today().strftime("%Y%m%d"))
+    tasks = crud.get_club_tasks_without_status(user_id, today)
+    text = "Задания\n"
+    for task in tasks:
+        text += f"{task.id}. {task.task_name} - {task.progress}/{task.end}\n"
+    return text
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/cut"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /cut {id}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if msg[1].isdigit() is False:
+        return "Будьте внимательны: /cut {id}"
+    task_id = int(msg[1])
+    task = crud.get_user_task(id=task_id)
+    crud.update_user_task(id=task_id, progress=task.end, status="completed")
+    await functions.add_user_points(user_id=task.user_id,
+                                    task_name=task.task_name)
+    return "Задание подтверждено"
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/cct"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /cct {id}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if msg[1].isdigit() is False:
+        return "Будьте внимательны: /cct {id}"
+    task_id = int(msg[1])
+    task = crud.get_club_task(id=task_id)
+    club_id = crud.get_user(task.user_id).club_id
+    crud.update_club_task(id=task_id, progress=task.end, status="completed")
+    await functions.add_club_points(user_id=task.user_id,
+                                    club_id=club_id,
+                                    task_name=task.task_name)
+    return "Задание подтверждено"
+
 
 
 @simple_bot_message_handler(admin_router,

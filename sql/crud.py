@@ -103,6 +103,10 @@ def get_users_with_club(club_id: int):
     return db.query(models.Users).filter_by(club_id=club_id).all()
 
 
+def get_user_task(id: int):
+    return db.query(models.UsersTasks).filter_by(id=id,).first()
+
+
 def get_user_tasks(user_id: int, today: int):
     return db.query(models.UsersTasks).filter_by(user_id=user_id,
                                                  date=today).all()
@@ -123,9 +127,17 @@ def get_club_tasks_with_status(user_id: int, today: int):
                                   models.ClubsTasks.date == today).all()
 
 
+def get_club_task(id: int):
+    return db.query(models.ClubsTasks).filter_by(id=id).first()
+
+
 def get_club_tasks(user_id: int, today: int, status: str = "waiting"):
     return db.query(models.ClubsTasks).filter_by(user_id=user_id,
                                                  status=status,
+                                                 date=today).all()
+
+def get_club_tasks_without_status(user_id: int, today: int):
+    return db.query(models.ClubsTasks).filter_by(user_id=user_id,
                                                  date=today).all()
 
 
@@ -520,7 +532,6 @@ def ban(user_id: int, reason: str, ending: int):
 def unban(user_id: int):
     ban = db.query(models.Bans).filter(models.Bans.user_id == user_id,
                                        models.Bans.ending > 10).first()
-    print(ban)
     if ban is None:
         return False
     else:
