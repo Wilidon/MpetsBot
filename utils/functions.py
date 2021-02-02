@@ -387,10 +387,10 @@ async def chat_task(user_id):
                                    progress=0, end=1, date=today)
 
 
-async def play_task(user_id):
+async def play_task(task):
     today = int(datetime.today().strftime("%Y%m%d"))
-    crud.create_club_task_for_user(user_id=user_id, task_name="play",
-                                   progress=0, end=5, date=today)
+    crud.update_club_task_v2(id=task.id, task_name="play",
+                             progress=0, end=5, date=today)
 
 
 async def thread_task(user_id):
