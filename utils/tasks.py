@@ -138,6 +138,7 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                     pass
         if pet_gift:
             await check_task(user, user_task, user_task.end, user_task.task_name)
+            return True
     else:
         gift_id = int(gifts_name[int(gift_id) - 1][0])
         for gift in gifts["players"]:
@@ -172,6 +173,7 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                         pass
         if pet_gift:
             await check_task(user, user_task, user_task.end, user_task.task_name)
+            return True
 
 
 async def checking_chat_task(mpets, user, user_task):
