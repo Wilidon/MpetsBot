@@ -371,6 +371,10 @@ def get_user_items():
     return db.query(models.UserItems).filter_by(status="В процессе").all()
 
 
+def get_all_user_items():
+    return db.query(models.UserItems).all()
+
+
 def get_user_items_with_score(score: int):
     return db.query(models.UserItems).filter_by(score=score,
                                                 status="В процессе").all()
@@ -378,6 +382,10 @@ def get_user_items_with_score(score: int):
 
 def get_club_items():
     return db.query(models.ClubItems).filter_by(status="В процессе").all()
+
+
+def get_all_club_items():
+    return db.query(models.ClubItems).all()
 
 
 def get_club_items_with_score(score: int):

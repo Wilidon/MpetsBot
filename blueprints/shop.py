@@ -17,7 +17,10 @@ shop_router = DefaultRouter()
 @simple_bot_message_handler(shop_router,
                             PayloadFilter({"command": "item1"}) |
                             PayloadFilter({"command": "item2"}) |
-                            PayloadFilter({"command": "item3"}))
+                            PayloadFilter({"command": "item3"}) |
+                            PayloadFilter({"command": "item4"}) |
+                            PayloadFilter({"command": "item5"}) |
+                            PayloadFilter({"command": "item6"}))
 async def chooise_item(event: SimpleBotEvent):
     user = event["current_user"]
     try:
@@ -102,13 +105,16 @@ async def shop(event: SimpleBotEvent):
     items = crud.get_user_item(current_user.user_id, "shop%")
     for item in items:
         if int(item.score) == 100:
-            await event.answer(message=f"🏪 Магазин за {item.score} очков",
+            await event.answer(message=f"🏪 Магазин за {item.score} очков\n"
+                                       f"Выберите один приз на выбор",
                                keyboard=SHOP_1.get_keyboard())
             break
         elif int(item.score) == 125:
             if item.status == "shop_2":
-                await event.answer(message=f"🏪 Магазин за {item.score} очков",
-                                   keyboard=get_shop_2([]).get_keyboard())
+                await event.answer(
+                    message=f"🏪 Магазин за {item.score} очков\n"
+                            f"Выберите два приза на выбор",
+                    keyboard=get_shop_2([]).get_keyboard())
             elif item.status == "shop_2.1":
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
                                    keyboard=get_shop_2([1]).get_keyboard())
@@ -124,8 +130,10 @@ async def shop(event: SimpleBotEvent):
             break
         elif int(item.score) == 177:
             if item.status == "shop_3":
-                await event.answer(message=f"🏪 Магазин за {item.score} очков",
-                                   keyboard=get_shop_3([]).get_keyboard())
+                await event.answer(
+                    message=f"🏪 Магазин за {item.score} очков\n"
+                            f"Выберите три приза на выбор",
+                    keyboard=get_shop_3([]).get_keyboard())
             elif item.status == "shop_3.1":
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
                                    keyboard=get_shop_3([1]).get_keyboard())

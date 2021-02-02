@@ -109,6 +109,7 @@ def get_shop_2(item_ids: list):
         SHOP_2.add_text_button(text="2m ❤️",
                                payload={"command": "item2"},
                                color=ButtonColor.POSITIVE)
+    SHOP_2.add_row()
     if not (3 in item_ids):
         SHOP_2.add_text_button(text="2 монетки удачи",
                                payload={"command": "item3"},
@@ -139,6 +140,18 @@ def get_shop_3(item_ids: list):
                                payload={"command": "item3"},
                                color=ButtonColor.POSITIVE)
     SHOP_3.add_row()
+    if not (1 in item_ids):
+        SHOP_3.add_text_button(text="600 монет",
+                               payload={"command": "item1"},
+                               color=ButtonColor.POSITIVE)
+    if not (2 in item_ids):
+        SHOP_3.add_text_button(text="16m ❣️",
+                               payload={"command": "item2"},
+                               color=ButtonColor.POSITIVE)
+    if not (3 in item_ids):
+        SHOP_3.add_text_button(text="6⚙️(обыч.)",
+                               payload={"command": "item3"},
+                               color=ButtonColor.POSITIVE)
     SHOP_3.add_text_button(text="Назад",
                            payload={"command": "menu"},
                            color=ButtonColor.SECONDARY)
