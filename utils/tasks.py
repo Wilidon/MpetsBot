@@ -678,6 +678,9 @@ async def update_charm_rating():
                                                     task_name="charm",
                                                     today=today)
                 if user_task is None:
+                    crud.update_charm_place(pet_id=pet["pet_id"],
+                                            place=pet["place"],
+                                            score=pet["score"])
                     continue
                 else:
                     difference = user_task.end - int(pet["score"])
