@@ -647,7 +647,7 @@ async def checking_thread():
 async def update_charm_rating():
     mpets = MpetsApi()
     await mpets.start()
-    page = 159
+    page = 1
     time_start = time.time()
     while True:
         try:
@@ -699,7 +699,7 @@ async def update_charm_rating():
             if elapsed_time >= 5:
                 logger.critical(f"charm | {elapsed_time} | page {page}")
             page += 1
-            if page >= 160:
+            if page >= 668:
                 elapsed_time = time.time() - time_start
                 if elapsed_time < 599:
                     logger.debug(f"charm | total time {elapsed_time}")
