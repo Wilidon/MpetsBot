@@ -291,8 +291,38 @@ async def buy(category, item_id, cookies, timeout, connector):
         return {'status': 'error', 'code': 0, 'msg': ''}
 
 
-async def best(type, page, cookies, connector):
-    pass
+async def best(type, page, cookies, timeout, connector):
+    try:
+        def has_class(tag):
+            return not tag.has_attr("class")
+
+        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=timeout),
+                                 connector=connector) as session:
+            params = {type: "true", "page": page}
+            pets = []
+            resp = await session.get("http://mpets.mobi/best", params=params)
+            await session.close()
+            if "Вы кликаете слишком быстро" in await resp.text():
+                return await best(type, page, cookies, timeout, connector)
+            resp = BeautifulSoup(await resp.read(), "lxml")
+            resp = resp.find("table", {"class": "players tlist font_14 td_un"})
+            resp = resp.find_all(has_class, recursive=False)
+            for pet in resp:
+                place = int(pet.find("td").text)
+                pet_id = pet.find("a", {"class": "c_brown3"})['href']
+                pet_id = int(pet_id.split("id=")[1])
+                name = pet.find("a", {"class": "c_brown3"}).text
+                beauty = int(pet.find_all("td")[2].text)
+                pets.append({"place": place,
+                             "pet_id": pet_id,
+                             "name": name,
+                             "score": beauty})
+            return {"status": "ok",
+                    "pets": pets}
+    except Exception as e:
+        return {"status": "error",
+                "code": 0,
+                "msg": e}
 
 
 async def find_pet(name, cookies, connector):
@@ -334,8 +364,24 @@ async def online(cookies, connector):
     pass
 
 
-async def game_time(cookies, connector):
-    pass
+async def game_time(cookies, timeout, connector):
+    try:
+        async with ClientSession(cookies=cookies,
+                                 timeout=ClientTimeout(total=timeout),
+                                 connector=connector) as session:
+            resp = await session.get("http://mpets.mobi/main")
+            await session.close()
+            if "Вы кликаете слишком быстро" in await resp.text():
+                return await game_time(cookies, timeout, connector)
+            resp = BeautifulSoup(await resp.read(), "lxml")
+            resp = resp.find("div", {"class": "small mt20 mb20 c_lbrown cntr td_un"})
+            time = resp.find("div", {"class": "mt5 mb5"}).text.split(", ")[1].split("\n")[0]
+            return {"status": "ok",
+                    "time": time}
+    except Exception as e:
+        return {"status": "error",
+                "code": 0,
+                "msg": e}
 
 
 async def items_effect_vip(cookies, connector):

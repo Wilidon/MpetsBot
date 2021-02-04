@@ -24,7 +24,8 @@ access_name = {0: "Пользователь",
                3: "Администратор"}
 
 user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"],
-              # ["charm"], ["races"]
+              ["charm"],
+              #["races"]
               ]
 
 user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\n "
@@ -39,14 +40,20 @@ user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\
                    "in_online": "Войти в игру в {} по МСК.\n "
                                 "📈 Прогресс: {} из {} \n"
                                 "🎖 Награда: 1 ⭐ и 1-3 🏮\n",
+                   "charm": "Набрать очки в игре «Снежки»\n"
+                            "📈 Прогресс: {} из {} \n"
+                            "🎖 Награда: 1 ⭐ и 1-3 🏮\n",
+                   "races": "Набрать очки в игре «Скачки»\n"
+                            "📈 Прогресс: {} из {} \n"
+                            "🎖 Награда: 1 ⭐ и 1-3 🏮\n"
                    }
 
 user_completed_tasks_list = {"avatar": "Поставить аватар {}\n",
                              "anketa": "Сменить данные в «О себе»\n",
                              "30online": "Не выходить из онлайна 30 минут\n",
                              "in_online": "Войти в игру в {} по МСК\n",
-                             "charm": "Набрать {} рейтинга в снежках\n",
-                             "races": "Набрать {} рейтинга в скачках\n"}
+                             "charm": "Набрать очки в игре «Снежки»\n",
+                             "races": "Набрать очки в игре «Скачки»\n"}
 
 club_tasks = ["exp", "heart", "coin",
               "get_gift",
@@ -552,6 +559,26 @@ async def in_online_task(user_id):
     return True
 
 
+async def charm_task(user_id, pet_id):
+    today = int(datetime.today().strftime("%Y%m%d"))
+    rating = crud.get_charm_rating(pet_id=pet_id)
+    if rating is None:
+        return False
+    crud.create_user_task_for_user(user_id=user_id, task_name="charm",
+                                   progress=rating.score,
+                                   end=rating.score+30, date=today)
+
+
+async def races_task(user_id, pet_id):
+    today = int(datetime.today().strftime("%Y%m%d"))
+    rating = crud.get_races_rating(pet_id=pet_id)
+    if rating is None:
+        return False
+    crud.create_user_task_for_user(user_id=user_id, task_name="races",
+                                   progress=rating.score,
+                                   end=rating.score+30, date=today)
+
+
 async def creation_user_tasks(user):
     today = int(datetime.today().strftime("%Y%m%d"))
     c = 0
@@ -572,6 +599,10 @@ async def creation_user_tasks(user):
             if await in_online_task(user.user_id) is False:
                 local_tasks.pop(num)
                 continue
+        elif local_tasks[num][0] == "charm":
+            await charm_task(user.user_id, user.pet_id)
+        elif local_tasks[num][0] == "races":
+            await races_task(user.user_id, user.pet_id)
         c += 1
         local_tasks.pop(num)
 

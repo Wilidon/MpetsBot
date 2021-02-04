@@ -6,12 +6,13 @@ from loguru import logger
 from config import logger_config_for_core
 from utils.functions import notice
 from utils.tasks import checking_bots, update_user_data, checking_users_tasks, \
-    creating_club_tasks, checking_thread
+    creating_club_tasks, checking_thread, update_charm_rating, update_races_rating
 
 
 async def main():
     methods = [update_user_data(), checking_bots(), checking_users_tasks(),
-               creating_club_tasks(), checking_thread()]
+               creating_club_tasks(), checking_thread(), update_charm_rating(),
+               update_races_rating()]
     tasks = []
     for method in methods:
         task = asyncio.create_task(method)

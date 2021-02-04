@@ -183,7 +183,7 @@ class MpetsApi:
         pass
 
     async def best(self, type, page):
-        pass
+        return await main.best(type, page, self.cookies, self.timeout, self.connector)
 
     async def find_pet(self, name):
         """ Поиск питомца
@@ -212,7 +212,7 @@ class MpetsApi:
         pass
 
     async def game_time(self):
-        pass
+        return await main.game_time(self.cookies, self.timeout, self.connector)
 
     async def threads(self, forum_id, page=1):
         """ Получить список топов

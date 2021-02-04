@@ -41,7 +41,13 @@ async def user_tasks(event: SimpleBotEvent):
                 arg = task_name.split("_")[-1]
             args = [arg, progress, end]
         else:
-            args = [progress, end]
+            if task_name in ["charm", "races"]:
+                if end - progress > 30:
+                    args = [0, 30 + ((end - progress) - 30)]
+                else:
+                    args = [30 - (end - progress), 30]
+            else:
+                args = [progress, end]
         if progress >= end:
             if "in_online" in task_name:
                 task_name = task_name.rsplit("_", maxsplit=1)[0]

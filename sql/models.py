@@ -177,6 +177,26 @@ class ClubGame(Base):
     page = Column(Integer)
 
 
+class CharmRating(Base):
+    __tablename__ = "charmrating"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    pet_id = Column(Integer)
+    place = Column(Integer)
+    score = Column(Integer)
+
+
+class RacesRating(Base):
+    __tablename__ = "racesrating"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    pet_id = Column(Integer)
+    place = Column(Integer)
+    score = Column(Integer)
+
+
 class Bans(Base):
     __tablename__ = "bans"
     __table_args__ = {"schema": "public"}

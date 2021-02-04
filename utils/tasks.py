@@ -632,13 +632,150 @@ async def checking_thread():
                 for task in user_tasks:
                     if task.task_name != "play":
                         continue
-                    await check_task(user, task, task.progress+1, "play")
+                    await check_task(user, task, task.progress + 1, "play")
                 crud.create_play_message(pet_id=msg['pet_id'],
                                          thread_id=thread_id,
                                          message_id=msg['message_id'],
                                          page=page)
             if len(thread['messages']) == 15:
-                page+=1
+                page += 1
             await asyncio.sleep(1)
+        except:
+            pass
+
+
+async def update_charm_rating():
+    mpets = MpetsApi()
+    await mpets.start()
+    page = 159
+    time_start = time.time()
+    while True:
+        try:
+            time0 = time.time()
+            game_time = await mpets.game_time()
+            if game_time["status"] != "ok":
+                continue
+            if int(game_time["time"].split(":")[1]) % 10 == 0:
+                continue
+            resp = await mpets.best("charm", page)
+            if resp["status"] != "ok":
+                continue
+            for pet in resp["pets"]:
+                top = crud.get_charm_place(place=pet["place"])
+                if top is None:
+                    crud.create_charm_rating(pet_id=pet["pet_id"],
+                                             place=pet["place"],
+                                             score=pet["score"])
+                    continue
+                today = int(datetime.today().strftime("%Y%m%d"))
+                user = crud.get_user_pet_id(pet_id=pet["pet_id"])
+                if user is None:
+                    crud.update_charm_place(pet_id=pet["pet_id"],
+                                            place=pet["place"],
+                                            score=pet["score"])
+                    continue
+                user_task = crud.get_user_task_name(user_id=user.user_id,
+                                                    task_name="charm",
+                                                    today=today)
+                if user_task is None:
+                    continue
+                else:
+                    difference = user_task.end - int(pet["score"])
+                    if difference > 0:
+                        if user_task.progress < int(pet["score"]):
+                            a = int(pet["score"]) - user_task.progress
+                            progress = user_task.progress + a
+                        else:
+                            progress = int(pet["score"])
+                        crud.update_user_task(id=user_task.id,
+                                              progress=progress)
+                    else:
+                        crud.update_user_task(id=user_task.id,
+                                              progress=user_task.end,
+                                              status="completed")
+                        await functions.add_user_points(user_id=user.user_id,
+                                                        task_name="charm")
+            elapsed_time = time.time() - time0
+            if elapsed_time >= 5:
+                logger.critical(f"charm | {elapsed_time} | page {page}")
+            page += 1
+            if page >= 160:
+                elapsed_time = time.time() - time_start
+                if elapsed_time < 599:
+                    logger.debug(f"charm | total time {elapsed_time}")
+                    await asyncio.sleep(600 - elapsed_time)
+                else:
+                    logger.debug(f"charm | total time {elapsed_time}")
+                time_start = time.time()
+                page = 1
+        except Exception as e:
+            raise
+            pass
+
+
+async def update_races_rating():
+    mpets = MpetsApi()
+    await mpets.start()
+    page = 1
+    time_start = time.time()
+    while True:
+        try:
+            time0 = time.time()
+            game_time = await mpets.game_time()
+            if game_time["status"] != "ok":
+                continue
+            if int(game_time["time"].split(":")[1]) % 10 == 0:
+                continue
+            resp = await mpets.best("races", page)
+            if resp["status"] != "ok":
+                continue
+            for pet in resp["pets"]:
+                top = crud.get_races_place(place=pet["place"])
+                if top is None:
+                    crud.create_races_rating(pet_id=pet["pet_id"],
+                                             place=pet["place"],
+                                             score=pet["score"])
+                    continue
+                today = int(datetime.today().strftime("%Y%m%d"))
+                user = crud.get_user_pet_id(pet_id=pet["pet_id"])
+                if user is None:
+                    crud.update_races_place(pet_id=pet["pet_id"],
+                                            place=pet["place"],
+                                            score=pet["score"])
+                    continue
+                user_task = crud.get_user_task_name(user_id=user.user_id,
+                                                    task_name="races",
+                                                    today=today)
+                if user_task is None:
+                    continue
+                else:
+                    difference = user_task.end - int(pet["score"])
+                    if difference > 0:
+                        if user_task.progress < int(pet["score"]):
+                            a = int(pet["score"]) - user_task.progress
+                            progress = user_task.progress + a
+                        else:
+                            progress = int(pet["score"])
+                        crud.update_user_task(id=user_task.id,
+                                              progress=progress)
+                    else:
+                        crud.update_user_task(id=user_task.id,
+                                              progress=user_task.end,
+                                              status="completed")
+                        await functions.add_user_points(user_id=user.user_id,
+                                                        task_name="races")
+            elapsed_time = time.time() - time0
+            if elapsed_time >= 5:
+                logger.critical(f"races | {elapsed_time} | page {page}")
+            page += 1
+            if page >= 668:
+                elapsed_time = time.time() - time_start
+                if elapsed_time < 599:
+                    logger.debug(f"races | total time {elapsed_time}")
+                    await asyncio.sleep(600 - elapsed_time)
+                else:
+                    logger.debug(f"races | total time {elapsed_time}")
+                time_start = time.time()
+                page = 1
         except:
             pass
