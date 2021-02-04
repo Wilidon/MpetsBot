@@ -709,7 +709,6 @@ async def update_charm_rating():
                 time_start = time.time()
                 page = 1
         except Exception as e:
-            raise
             pass
 
 
