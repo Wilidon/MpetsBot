@@ -682,6 +682,8 @@ async def update_charm_rating():
                                             place=pet["place"],
                                             score=pet["score"])
                     continue
+                elif user_task.status == "completed":
+                    continue
                 else:
                     difference = user_task.end - int(pet["score"])
                     if difference > 0:
@@ -749,6 +751,8 @@ async def update_races_rating():
                                                     task_name="races",
                                                     today=today)
                 if user_task is None:
+                    continue
+                elif user_task.status == "completed":
                     continue
                 else:
                     difference = user_task.end - int(pet["score"])
