@@ -600,9 +600,11 @@ async def creation_user_tasks(user):
                 local_tasks.pop(num)
                 continue
         elif local_tasks[num][0] == "charm":
-            await charm_task(user.user_id, user.pet_id)
+            if await charm_task(user.user_id, user.pet_id) is False:
+                continue
         elif local_tasks[num][0] == "races":
-            await races_task(user.user_id, user.pet_id)
+            if await races_task(user.user_id, user.pet_id) is False:
+                continue
         c += 1
         local_tasks.pop(num)
 
