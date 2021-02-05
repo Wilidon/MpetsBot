@@ -9,7 +9,7 @@ from vkwave.bots import (
 
 from sql import crud
 from utils.constants import SHOP_1, MENU, get_shop_2, get_shop_3, menu
-from utils.functions import shop1, notice
+from utils.functions import shop1, notice, shop2, shop3
 
 shop_router = DefaultRouter()
 
@@ -42,31 +42,31 @@ async def chooise_item(event: SimpleBotEvent):
         elif int(item.score) == 125:
             if item.status == "shop_2":
                 shop_id = item_id.split("m")[1]
-                crud.update_user_itemname(item.id, shop1[item_id],
+                crud.update_user_itemname(item.id, shop2[item_id],
                                           f"shop_2.{shop_id}")
                 await event.answer(message=f"🏪 Выберите второй предмет",
                                    keyboard=get_shop_2([int(
                                        shop_id)]).get_keyboard())
             elif item.status == "shop_2.1":
-                item_name = f"{item.item_name} {shop1[item_id]}"
+                item_name = f"{item.item_name} {shop2[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
                 await menu(user, event, "Награда будет начислена в течение "
                                         "недели.")
             elif item.status == "shop_2.2":
-                item_name = f"{item.item_name} {shop1[item_id]}"
+                item_name = f"{item.item_name} {shop2[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
                 await menu(user, event, "Награда будет начислена в течение "
                                         "недели.")
             elif item.status == "shop_2.3":
-                item_name = f"{item.item_name} {shop1[item_id]}"
+                item_name = f"{item.item_name} {shop2[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
                 await menu(user, event, "Награда будет начислена в течение "
                                         "недели.")
             elif item.status == "shop_2.4":
-                item_name = f"{item.item_name} {shop1[item_id]}"
+                item_name = f"{item.item_name} {shop2[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
                 await menu(user, event, "Награда будет начислена в течение "
@@ -74,25 +74,25 @@ async def chooise_item(event: SimpleBotEvent):
         elif int(item.score) == 177:
             if item.status == "shop_3":
                 shop_id = item_id.split("m")[1]
-                crud.update_user_itemname(item.id, shop1[item_id],
+                crud.update_user_itemname(item.id, shop3[item_id],
                                           f"shop_3.{shop_id}")
                 await event.answer(message=f"🏪 Выберите второй предмет",
-                                   keyboard=get_shop_2([int(
+                                   keyboard=get_shop_3([int(
                                        shop_id)]).get_keyboard())
             elif item.status == "shop_3.1":
-                item_name = f"{item.item_name} {shop1[item_id]}"
+                item_name = f"{item.item_name} {shop3[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
                                    keyboard=MENU.get_keyboard())
             elif item.status == "shop_3.2":
-                item_name = f"{item.item_name} {shop1[item_id]}"
+                item_name = f"{item.item_name} {shop3[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
                                    keyboard=MENU.get_keyboard())
             elif item.status == "shop_3.3":
-                item_name = f"{item.item_name} {shop1[item_id]}"
+                item_name = f"{item.item_name} {shop3[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
