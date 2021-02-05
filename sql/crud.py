@@ -342,10 +342,11 @@ def get_bot(user_id: int):
     return db.query(models.Bots).filter_by(user_id=user_id).first()
 
 
-def update_bot(user_id: int, pet_id: int, name: str):
+def update_bot(user_id: int, pet_id: int, name: str, password: str):
     user_bot = db.query(models.Bots).filter_by(user_id=user_id).first()
     user_bot.pet_id = pet_id
     user_bot.name = name
+    user_bot.password = password
     db.commit()
 
 

@@ -540,9 +540,9 @@ async def start_verify_user(user):
             log = logger.bind(context=f"account {resp}")
             log.warning(f"Ошибка при создании бота. Пользователь:"
                         f" {user.user_id}")
-            return 0
+            return False
     if not user_tasks:
-        return 0
+        return False
     mpets = MpetsApi(user_bot.name, user_bot.password)
     resp = await mpets.login()
     if resp["status"] != "ok":
@@ -550,9 +550,23 @@ async def start_verify_user(user):
         log.warning(f"Ошибка при авторизации бота. Пользователь:"
                     f" {user.user_id}")
         mpets = MpetsApi()
-        resp = await mpets.login()
-        if resp["status"] != "ok":
-            return 0
+        resp = await mpets.start()
+        if resp["status"] == "ok":
+            user_bot = crud.update_bot(user.user_id, resp["pet_id"],
+                                       resp["name"], resp["password"])
+        else:
+            log = logger.bind(context=f"account {resp}")
+            log.warning(f"Ошибка при создании бота. Пользователь:"
+                        f" {user.user_id}")
+            return False
+    mpets = MpetsApi(user_bot.name, user_bot.password)
+    resp = await mpets.login()
+    if resp["status"] != "ok":
+        log = logger.bind(context=f"account {resp}")
+        log.warning(f"Ошибка при авторизации бота. Пользователь:"
+                    f" {user.user_id}")
+        mpets = MpetsApi()
+        await mpets.start()
     for user_task in user_tasks:
         try:
             if user_task.status == "completed":
