@@ -24,8 +24,7 @@ access_name = {0: "Пользователь",
                3: "Администратор"}
 
 user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"],
-              ["charm"],
-              #["races"]
+              ["charm"], ["races"]
               ]
 
 user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\n "
