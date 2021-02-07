@@ -517,13 +517,13 @@ def wipe():
 
 def ban(user_id: int, reason: str, ending: int):
     user = db.query(models.Users).filter_by(user_id=user_id).first()
-    ban = db.query(models.Bans).filter(models.Bans.user_id == user_id,
-                                       models.Bans.ending > ending).first()
-    if ban is None:
-        ban = models.Bans(user_id=user_id,
-                          reason=reason,
-                          ending=ending)
-        db.add(ban)
+    ban_info = db.query(models.Bans).filter(models.Bans.user_id == user_id,
+                                            models.Bans.ending > ending).first()
+    if ban_info is None:
+        ban_info = models.Bans(user_id=user_id,
+                               reason=reason,
+                               ending=ending)
+        db.add(ban_info)
         user.access = -1
         db.commit()
         return True
@@ -532,12 +532,12 @@ def ban(user_id: int, reason: str, ending: int):
 
 
 def unban(user_id: int):
-    ban = db.query(models.Bans).filter(models.Bans.user_id == user_id,
-                                       models.Bans.ending > 10).first()
-    if ban is None:
+    ban_info = db.query(models.Bans).filter(models.Bans.user_id == user_id,
+                                            models.Bans.ending > 10).first()
+    if ban_info is None:
         return False
     else:
-        ban.ending = 1
+        ban_info.ending = 1
         db.commit()
         return True
 

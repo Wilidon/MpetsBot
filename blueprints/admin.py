@@ -683,15 +683,15 @@ async def confirm_club(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
-                            TextContainsFilter(["/ct"]))
+                            TextContainsFilter(["/ut"]))
 async def confirm_club(event: SimpleBotEvent):
-    # format /ct {user_id}
+    # format /ut {user_id}
     current_user = event["current_user"]
     if current_user.access < 3:
         return False
     msg = event.object.object.message.text.split(" ")
     if msg[1].isdigit() is False:
-        return "Будьте внимательны: /ct {user_id}"
+        return "Будьте внимательны: /ut {user_id}"
     user_id = int(msg[1])
     today = int(datetime.datetime.today().strftime("%Y%m%d"))
     tasks = crud.get_club_tasks_without_status(user_id, today)
