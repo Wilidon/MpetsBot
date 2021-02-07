@@ -38,6 +38,7 @@ def get_settings():
 
 def get_db():
     db = pickledb.load(get_settings().pickle, True)
+    db.set("1", "1")
     try:
         db.lgetall("user_tasks")
     except KeyError:
