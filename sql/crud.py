@@ -626,7 +626,7 @@ def update_charm_place(pet_id: int, place: int, score: int):
 
 
 def update_races_place(pet_id: int, place: int, score: int):
-    pet = db.query(models.RacesRatingg).filter_by(place=place).first()
+    pet = db.query(models.RacesRating).filter_by(place=place).first()
     pet.pet_id = pet_id
     pet.place = place
     pet.score = score
