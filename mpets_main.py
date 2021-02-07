@@ -11,11 +11,8 @@ from blueprints.shop import shop_router
 from blueprints.user_tasks import user_router
 from config import get_settings, logger_config
 from middlewares import UserMiddleware
-from sql import models
-from sql.database import engine
-from utils.functions import notice
 
-__version__ = "1.5.8"
+__version__ = "1.5.9"
 
 logging.basicConfig(filename="logs/vk.log",
                     filemode='a',

@@ -1,6 +1,7 @@
 import sys
 from functools import lru_cache
 
+import pickledb
 from pydantic import BaseSettings
 
 
@@ -15,6 +16,8 @@ class Settings(BaseSettings):
     db_name: str
 
     chat_id: str
+
+    pickle: str
 
     bot1: str
     bot2: str
@@ -32,6 +35,20 @@ class Settings(BaseSettings):
 def get_settings():
     return Settings()
 
+
+def get_db():
+    db = pickledb.load(get_settings().pickle, True)
+    try:
+        db.lgetall("user_tasks")
+    except KeyError:
+        db.lcreate("user_tasks")
+    try:
+        db.lgetall("club_tasks")
+    except KeyError:
+        db.lcreate("club_tasks")
+    return db
+
+get_db()
 
 logger_config = {
     "handlers": [

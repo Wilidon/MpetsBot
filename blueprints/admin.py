@@ -9,6 +9,8 @@ from vkwave.bots import (
     simple_bot_message_handler,
     PayloadFilter, MessageArgsFilter, TextContainsFilter,
 )
+
+from config import get_db
 from sql import crud
 from utils import functions
 from utils.functions import add_user_points, add_club_points, notice, month, access_name, prizes, c_prizes
@@ -738,6 +740,95 @@ async def confirm_club(event: SimpleBotEvent):
                                     task_name=task.task_name)
     return "Задание подтверждено"
 
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/usertasks"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /usertask
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    db = get_db()
+    resp = db.lgetall("user_tasks")
+    return str(resp)
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/add usertask"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /add usertask {task_name}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    task_name = msg[2]
+    db = get_db()
+    db.ladd("user_tasks", task_name)
+    return "Задание добавлено"
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/del usertask"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /del usertask {task_name}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    task_name = msg[2]
+    db = get_db()
+    if db.lexists("user_tasks", task_name) is True:
+        r = db.lgetall("user_tasks")
+        for i in range(len(r)):
+            if r[i] == task_name:
+                db.lpop("user_tasks", i)
+                break
+    return "Задание удалено"
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/clubtasks"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /clubtask
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    db = get_db()
+    resp = db.lgetall("club_tasks")
+    return str(resp)
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/add clubtask"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /add clubtask {task_name}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    task_name = msg[2]
+    db = get_db()
+    db.ladd("club_tasks", task_name)
+    return "Задание добавлено"
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/del clubtask"]))
+async def confirm_club(event: SimpleBotEvent):
+    # format /del clubtask {task_name}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    task_name = msg[2]
+    db = get_db()
+    if db.lexists("club_tasks", task_name) is True:
+        r = db.lgetall("club_tasks")
+        for i in range(len(r)):
+            if r[i] == task_name:
+                db.lpop("club_tasks", i)
+                break
+    return "Задание удалено"
 
 
 @simple_bot_message_handler(admin_router,

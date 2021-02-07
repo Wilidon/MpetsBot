@@ -3,16 +3,16 @@ import time
 from datetime import datetime, timedelta
 import copy
 
+import pickledb
 import requests
 from vkwave.bots import SimpleLongPollBot
 
-from config import get_settings
+from config import get_settings, get_db
 from mpetsapi import MpetsApi
 from sql import crud
 from tzlocal import get_localzone
 
 from utils.constants import MENU_S
-
 month = {"01": "января", "02": "февраля", "03": "марта",
          "04": "апреля", "05": "мая", "06": "июня",
          "07": "июля", "08": "августа", "09": "сентября",
@@ -23,9 +23,6 @@ access_name = {0: "Пользователь",
                2: "Модератор",
                3: "Администратор"}
 
-user_tasks = [["avatar"], ["anketa"], ["30online"], ["in_online"],
-              ["charm"], ["races"]
-              ]
 
 user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\n "
                              "📈 Прогресс: {} из {} \n"
@@ -438,7 +435,8 @@ async def get_task_name(task_name):
 
 async def creation_club_tasks(user_task):
     c = 0
-    local_tasks = copy.deepcopy(club_tasks)
+    db = get_db()
+    local_tasks = db.lgetall("club_tasks")
     today = int(datetime.today().strftime("%Y%m%d"))
     all_tasks = crud.get_club_tasks(user_task.user_id, today)
     user = crud.get_user(user_task.user_id)
@@ -584,25 +582,26 @@ async def creation_user_tasks(user):
     all_tasks = crud.get_user_tasks(user.user_id, today)
     if all_tasks:
         return 0
-    local_tasks = copy.deepcopy(user_tasks)
+    db = get_db()
+    local_tasks = db.lgetall("user_tasks")
     while c < 3:
         num = random.randint(0, len(local_tasks) - 1)
-        if local_tasks[num][0] == "avatar":
+        if local_tasks[num] == "avatar":
             await avatar_task(user.user_id)
-        elif local_tasks[num][0] == "anketa":
+        elif local_tasks[num] == "anketa":
             if await anketa_task(user.user_id, user.pet_id) is False:
                 continue
-        elif local_tasks[num][0] == "30online":
+        elif local_tasks[num] == "30online":
             await online_task(user.user_id)
-        elif local_tasks[num][0] == "in_online":
+        elif local_tasks[num] == "in_online":
             if await in_online_task(user.user_id) is False:
                 local_tasks.pop(num)
                 continue
-        elif local_tasks[num][0] == "charm":
+        elif local_tasks[num] == "charm":
             if await charm_task(user.user_id, user.pet_id) is False:
                 local_tasks.pop(num)
                 continue
-        elif local_tasks[num][0] == "races":
+        elif local_tasks[num] == "races":
             if await races_task(user.user_id, user.pet_id) is False:
                 local_tasks.pop(num)
                 continue
