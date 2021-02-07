@@ -273,7 +273,7 @@ async def club_member(event: SimpleBotEvent):
         return "❗ Клуб не найден."
     for member in club_members:
         user_stats = crud.get_user_stats(member.user_id)
-        text += f"{counter}. {member.name} ({member.user_id}) --" \
+        text += f"{counter}. {member.name} ({member.pet_id}) --" \
                 f"{user_stats.personal_tasks}🎄/{user_stats.points}🏵\n"
         counter += 1
     if len(text) > 4050:
