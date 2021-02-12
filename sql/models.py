@@ -197,6 +197,16 @@ class RacesRating(Base):
     score = Column(Integer)
 
 
+class ExchangeGifts(Base):
+    __tablename__ = "exchangegifts"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    pet_id = Column(Integer)
+    friend_id = Column(Integer)
+    present_id = Column(Integer)
+
+
 class Bans(Base):
     __tablename__ = "bans"
     __table_args__ = {"schema": "public"}

@@ -5,6 +5,7 @@ from vkwave.bots import SimpleLongPollBot
 
 from blueprints.admin import admin_router
 from blueprints.club_tasks import club_router
+from blueprints.holidays import holidays_router
 from blueprints.menu import menu_router
 from blueprints.register import reg_router
 from blueprints.shop import shop_router
@@ -12,7 +13,7 @@ from blueprints.user_tasks import user_router
 from config import get_settings, logger_config
 from middlewares import UserMiddleware
 
-__version__ = "1.5.9"
+__version__ = "1.6.0"
 
 logging.basicConfig(filename="logs/vk.log",
                     filemode='a',
@@ -42,6 +43,7 @@ if __name__ == "__main__":
     bot.dispatcher.add_router(reg_router)
     bot.dispatcher.add_router(user_router)
     bot.dispatcher.add_router(club_router)
+    bot.dispatcher.add_router(holidays_router)
     bot.dispatcher.add_router(admin_router)
 
     bot.dispatcher.add_router(menu_router)

@@ -593,15 +593,15 @@ async def checking_users_tasks():
             users = crud.get_users_with_status("ok")
             tasks, counter = [], 0
             time0 = time.time()
-            for user in users:
+            for i in range(0, len(users)):
+                user = users[i]
                 task = asyncio.create_task(start_verify_user(user))
                 tasks.append(task)
-                if len(users) >= 10:
-                    if len(tasks) >= 10:
-                        await asyncio.gather(*tasks)
-                        await asyncio.sleep(1)
-                        tasks = []
-                else:
+                if len(tasks) >= 10:
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(1)
+                    tasks = []
+                elif i + 1 == len(users):
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
@@ -799,3 +799,167 @@ async def update_races_rating():
                 page = 1
         except:
             pass
+
+
+async def checking_avatar_htask(mpets, user, user_task):
+    profile = await mpets.view_profile(user.pet_id)
+    if profile["status"] != "ok":
+        return 0
+    task_name = user_task.task_name
+    avatar_id = user_task.task_name.split("_")[-1]
+    avatar_id = avatar_id.rsplit(":", maxsplit=1)[0]
+    if int(profile["ava_id"]) in [4, 8]:
+        ava = task_name.split("_", maxsplit=1)[-1]
+        start_time = ava.rsplit(":", maxsplit=1)[1]
+        if int(start_time) == 0:
+            task_name = f"avatar_{avatar_id}:{int(time.time())}"
+            crud.update_user_task_name(user_task.id, task_name)
+        else:
+            left_time = time.time() - int(start_time)
+            if left_time >= 86400:
+                crud.update_user_task(user_task.id, user_task.end, "completed")
+                crud.add_user_item(user.user_id, "❤ | 2 ангела", 1)
+            else:
+                left_time = int(left_time // 60 // 60)
+                crud.update_user_task(user_task.id, left_time, "waiting")
+    else:
+        task_name = f"avatar_{avatar_id}:0"
+        crud.update_user_task(user_task.id, 0, "waiting")
+        crud.update_user_task_name(user_task.id, task_name)
+
+
+async def checking_anketa_htask(mpets, user, user_task):
+    profile = await mpets.view_anketa(user.pet_id)
+    if profile["status"] != "ok":
+        return False
+    task_name = user_task.task_name
+    anketa_about = task_name.split("_", maxsplit=1)[-1]
+    anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
+    if profile["about"] in ["❤"]:
+        ank = task_name.split("_", maxsplit=1)[-1]
+        start_time = ank.rsplit(":", maxsplit=1)[1]
+        if int(start_time) == 0:
+            task_name = f"anketa_{anketa_about}:{int(time.time())}"
+            crud.update_user_task_name(user_task.id, task_name)
+        else:
+            left_time = time.time() - int(start_time)
+            if left_time >= 86400:
+                crud.update_user_task(user_task.id, user_task.end, "completed")
+                crud.add_user_item(user.user_id, "❤ | 2 ангела", 1)
+            else:
+                left_time = int(left_time // 60 // 60)
+                crud.update_user_task(user_task.id, left_time, "waiting")
+    else:
+        task_name = f"anketa_{anketa_about}:0"
+        crud.update_user_task(user_task.id, 0, "waiting")
+        crud.update_user_task_name(user_task.id, task_name)
+
+
+async def checking_exchangeGifts_htask(mpets, user, user_task):
+    progress = user_task.progress
+    gifts = await mpets.view_gifts(user.pet_id)
+    for gift in gifts["players"]:
+        if ("вчера" in gift["date"] or "сегодня" in gift["date"]) \
+                and gift["present_id"] in [11, 34]:
+            another_gifts = await mpets.view_gifts(gift["pet_id"])
+            for g in another_gifts["players"]:
+                if ("вчера" in g["date"] or "сегодня" in g["date"]) \
+                        and g["present_id"] in [11, 34] and g["pet_id"] == user.pet_id:
+                    if crud.get_pet_pair(pet_id=user.pet_id,
+                                         friend_id=gift["pet_id"]) is None:
+                        crud.create_gift_pair(pet_id=user.pet_id,
+                                              friend_id=gift["pet_id"],
+                                              present_id=gift["present_id"])
+                        progress += 1
+    if progress < user_task.end:
+        crud.update_user_task(user_task.id, progress, "waiting")
+    else:
+        crud.update_user_task(user_task.id, user_task.end, "completed")
+        crud.add_user_item(user.user_id, "❤ | 10 ангелов", 1)
+
+
+async def start_checking_holiday_tasks(user):
+    user_tasks = crud.get_user_tasks(user.user_id, 214)
+    user_bot = crud.get_bot(user.user_id)
+    if user_bot is None:
+        mpets = MpetsApi()
+        resp = await mpets.start()
+        if resp["status"] == "ok":
+            user_bot = crud.create_bot(user.user_id, resp["pet_id"],
+                                       resp["name"], resp["password"])
+        else:
+            log = logger.bind(context=f"account {resp}")
+            log.warning(f"Ошибка при создании бота. Пользователь:"
+                        f" {user.user_id}")
+            return False
+    if not user_tasks:
+        return False
+    mpets = MpetsApi(user_bot.name, user_bot.password)
+    resp = await mpets.login()
+    if resp["status"] != "ok":
+        log = logger.bind(context=f"account {resp}")
+        log.warning(f"Ошибка при авторизации бота. Пользователь:"
+                    f" {user.user_id}")
+        mpets = MpetsApi()
+        resp = await mpets.start()
+        if resp["status"] == "ok":
+            user_bot = crud.update_bot(user.user_id, resp["pet_id"],
+                                       resp["name"], resp["password"])
+        else:
+            log = logger.bind(context=f"account {resp}")
+            log.warning(f"Ошибка при создании бота. Пользователь:"
+                        f" {user.user_id}")
+            return False
+    mpets = MpetsApi(user_bot.name, user_bot.password)
+    resp = await mpets.login()
+    if resp["status"] != "ok":
+        log = logger.bind(context=f"account {resp}")
+        log.warning(f"Ошибка при авторизации бота. Пользователь:"
+                    f" {user.user_id}")
+        mpets = MpetsApi()
+        await mpets.start()
+    for user_task in user_tasks:
+        try:
+            if user_task.status == "completed":
+                continue
+            elif user_task.status == "timeout":
+                continue
+            elif "avatar" in user_task.task_name:
+                await checking_avatar_htask(mpets, user, user_task)
+            elif "anketa" in user_task.task_name:
+                await checking_anketa_htask(mpets, user, user_task)
+            elif "gifts" in user_task.task_name:
+                await checking_exchangeGifts_htask(mpets, user, user_task)
+        except Exception as e:
+            logger.error(f"start_verify_user {user.user_id}"
+                         f"task {user_task.task_name}"
+                         f"error {e}")
+
+
+async def checking_holiday_tasks():
+    while True:
+        try:
+            today = int(datetime.today().strftime("%m%d"))
+            if 212 <= today <= 214:
+                users = crud.get_users_with_status("ok")
+                tasks, counter = [], 0
+                for i in range(0, len(users)):
+                    user = users[i]
+                    user_tasks = crud.get_user_tasks(user.user_id, 214)
+                    if not user_tasks:
+                        continue
+                    task = asyncio.create_task(start_checking_holiday_tasks(user))
+                    tasks.append(task)
+                    if len(tasks) >= 10:
+                        await asyncio.gather(*tasks)
+                        await asyncio.sleep(1)
+                        tasks = []
+                    elif i + 1 == len(users):
+                        await asyncio.gather(*tasks)
+                        await asyncio.sleep(1)
+                        tasks = []
+            else:
+                await asyncio.sleep(120)
+        except Exception as e:
+            logger.error(e)
+            await asyncio.sleep(10)

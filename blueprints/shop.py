@@ -8,7 +8,7 @@ from vkwave.bots import (
 )
 
 from sql import crud
-from utils.constants import SHOP_1, MENU, get_shop_2, get_shop_3, menu
+from utils.constants import SHOP_1, get_shop_2, get_shop_3, menu
 from utils.functions import shop1, notice, shop2, shop3
 
 shop_router = DefaultRouter()
@@ -32,8 +32,9 @@ async def chooise_item(event: SimpleBotEvent):
         if int(item.score) == 100:
             crud.update_user_itemname(item.id, shop1[item_id],
                                       "В процессе")
-            await menu(user, event,
-                       "Награда будет начислена в течение недели.")
+            await menu(user=user,
+                       event=event,
+                       message="Награда будет начислена в течение недели.")
             text = f"Игрок {user.first_name} {user.last_name} | {user.name} " \
                    f"({user.pet_id}) выбрал в магазине: \n" \
                    f"{shop1[item_id]}"
@@ -77,26 +78,32 @@ async def chooise_item(event: SimpleBotEvent):
                 crud.update_user_itemname(item.id, shop3[item_id],
                                           f"shop_3.{shop_id}")
                 await event.answer(message=f"🏪 Выберите второй предмет",
-                                   keyboard=get_shop_3([int(
+                                   keyboard=get_shop_2([int(
                                        shop_id)]).get_keyboard())
             elif item.status == "shop_3.1":
                 item_name = f"{item.item_name} {shop3[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
-                await event.answer(message=f"🏪 Магазин за {item.score} очков",
-                                   keyboard=MENU.get_keyboard())
+                await menu(user, event, "Награда будет начислена в течение "
+                                        "недели.")
             elif item.status == "shop_3.2":
                 item_name = f"{item.item_name} {shop3[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
-                await event.answer(message=f"🏪 Магазин за {item.score} очков",
-                                   keyboard=MENU.get_keyboard())
+                await menu(user, event, "Награда будет начислена в течение "
+                                        "недели.")
             elif item.status == "shop_3.3":
                 item_name = f"{item.item_name} {shop3[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
                                           "В процессе")
-                await event.answer(message=f"🏪 Магазин за {item.score} очков",
-                                   keyboard=MENU.get_keyboard())
+                await menu(user, event, "Награда будет начислена в течение "
+                                        "недели.")
+            elif item.status == "shop_3.4":
+                item_name = f"{item.item_name} {shop3[item_id]}"
+                crud.update_user_itemname(item.id, item_name,
+                                          "В процессе")
+                await menu(user, event, "Награда будет начислена в течение "
+                                        "недели.")
 
 
 @simple_bot_message_handler(shop_router, PayloadFilter({"command": "shop"}))

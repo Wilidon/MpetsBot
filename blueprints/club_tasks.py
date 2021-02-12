@@ -226,8 +226,7 @@ async def club_rating(event: SimpleBotEvent):
     elif int(profile["club_id"]) != current_user_club.club_id:
         return "Вы не состоите в клубе"
     elif not current_user_tasks:
-        return "На данный момент нет заданий. Возможно, Ваш клуб не " \
-               "зарегистрирован в системе."
+        return "Такого задания у Вас нет."
     for user_task in current_user_tasks:
         if user_task.status == 'completed':
             continue

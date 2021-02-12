@@ -8,7 +8,7 @@ from vkwave.bots import (
 )
 
 from sql import crud
-from utils.constants import MENU
+from utils.constants import menu
 
 reg_router = DefaultRouter()
 
@@ -22,8 +22,9 @@ async def confirm_yes(event: SimpleBotEvent):
                "Если он принадлежит Вам, то позовите " \
                "администрацию командой /report."
     crud.update_user_status(current_user.user_id, "ok")
-    await event.answer(message="Аккаунт привязан!",
-                       keyboard=MENU.get_keyboard())
+    await menu(user=current_user,
+               event=event,
+               message="Аккаунт привязан!")
 
 
 @simple_bot_message_handler(reg_router, PayloadFilter({"command": "not"}))

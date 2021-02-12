@@ -294,6 +294,8 @@ def close_all_user_tasks(user_id: int):
         user_id=user_id,
         status="waiting").all()
     for task in user_tasks:
+        if task.date == 214:
+            continue
         task.status = "timeout"
         db.commit()
 
@@ -637,3 +639,16 @@ def get_user_task_name(user_id: int, task_name: str, today: int):
     return db.query(models.UsersTasks).filter_by(user_id=user_id,
                                                  task_name=task_name,
                                                  date=today).first()
+
+
+def create_gift_pair(pet_id: int, friend_id: int, present_id: int):
+    pair = models.ExchangeGifts(pet_id=pet_id,
+                                friend_id=friend_id,
+                                present_id=present_id)
+    db.add(pair)
+    db.commit()
+
+
+def get_pet_pair(pet_id: int, friend_id: int):
+    return db.query(models.ExchangeGifts).filter_by(pet_id=pet_id,
+                                                    friend_id=friend_id).first()

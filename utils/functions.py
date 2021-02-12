@@ -12,7 +12,8 @@ from mpetsapi import MpetsApi
 from sql import crud
 from tzlocal import get_localzone
 
-from utils.constants import MENU_S
+from utils.constants import get_keyboard
+
 month = {"01": "января", "02": "февраля", "03": "марта",
          "04": "апреля", "05": "мая", "06": "июня",
          "07": "июля", "08": "августа", "09": "сентября",
@@ -22,7 +23,6 @@ access_name = {0: "Пользователь",
                1: "VIP-игрок",
                2: "Модератор",
                3: "Администратор"}
-
 
 user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\n "
                              "📈 Прогресс: {} из {} \n"
@@ -43,6 +43,21 @@ user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\
                             "📈 Прогресс: {} из {} \n"
                             "🎖 Награда: 1 ⭐ и 1-3 🏮\n"
                    }
+holiday_0214 = {"gifts": "Обменяться подарками из раздела «Праздники: День Св. Валентина» с 15 разными игроками\n"
+                        "📈 Прогресс: {} из {}\n"
+                        "🎖 Награда: 10 ангелов\n",
+                "avatar": "Поставить аватарку на выбор: Влюблённый котик, Влюблённая кошка  на 24 часа\n"
+                          "📈 Прогресс: {} из {}ч\n"
+                          "🎖 Награда: 2 ангела \n",
+                "anketa": "Поставить «❤️» в анкету на 24 часа\n"
+                          "📈 Прогресс: {} из {}ч\n"
+                          "🎖 Награда: 2 ангела\n",
+                }
+
+holiday_0214_completed = {
+    "gifts": "Обменяться подарками из раздела «Праздники: День Св. Валентина» с 15 разными игроками\n",
+    "avatar": "Поставить аватарку на выбор: Влюблённый котик, Влюблённая кошка  на 24 часа\n",
+    "anketa": "Поставить «❤️» в анкету на 24 часа", }
 
 user_completed_tasks_list = {"avatar": "Поставить аватар {}\n",
                              "anketa": "Сменить данные в «О себе»\n",
@@ -563,7 +578,7 @@ async def charm_task(user_id, pet_id):
         return False
     crud.create_user_task_for_user(user_id=user_id, task_name="charm",
                                    progress=rating.score,
-                                   end=rating.score+30, date=today)
+                                   end=rating.score + 30, date=today)
 
 
 async def races_task(user_id, pet_id):
@@ -573,7 +588,7 @@ async def races_task(user_id, pet_id):
         return False
     crud.create_user_task_for_user(user_id=user_id, task_name="races",
                                    progress=rating.score,
-                                   end=rating.score+30, date=today)
+                                   end=rating.score + 30, date=today)
 
 
 async def creation_user_tasks(user):
@@ -607,6 +622,23 @@ async def creation_user_tasks(user):
                 continue
         c += 1
         local_tasks.pop(num)
+
+
+async def creation_valentineDay_tasks(user):
+    all_tasks = crud.get_user_tasks(user.user_id, 214)
+    if all_tasks:
+        return False
+    avatars = [[8, "Влюбленная кошечка"], [4, "Влюбленный котик"]]
+    task_name = f"avatar_{random.choice(avatars)[0]}:0"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=24, date=214)
+    task_name = "anketa_1:0"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=24, date=214)
+    task_name = "gifts"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=15, date=214)
+    return True
 
 
 async def user_prizes(score):
@@ -669,11 +701,12 @@ async def send_user_notice(user_id, score):
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
     if int(score) in [100, 125, 177]:
         try:
+            keyboard = await get_keyboard(shop=True)
             await bot.api_context.messages.send(user_id=user_id,
                                                 message=message,
                                                 random_id=random.randint(1,
                                                                          9999999),
-                                                keyboard=MENU_S.get_keyboard())
+                                                keyboard=keyboard.get_keyboard())
         except Exception as e:
             text = f"Не смог отправить сообщение пользователю {user_id}\n" \
                    f"Ошибка: {e}"

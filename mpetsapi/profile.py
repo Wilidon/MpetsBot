@@ -243,8 +243,8 @@ async def view_gifts(pet_id, page, cookies, timeout, connector):
                     pet_id = pet_id["href"].split("=")[1]
                 date = item.find("span", {"class": "gray_color font_13"}).text
                 date = date.split("получен")[1]
-                players.append({"pet_id": pet_id, "name": name,
-                                "present_id": present_id, "date": date})
+                players.append({"pet_id": int(pet_id), "name": name,
+                                "present_id": int(present_id), "date": date})
             return {'status': 'ok',
                     'page': page,
                     'players': players}

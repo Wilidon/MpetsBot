@@ -3,7 +3,7 @@ from vkwave.bots import DefaultRouter, SimpleBotEvent, \
 
 from mpetsapi import MpetsApi
 from sql import crud
-from utils.constants import MENU, CONFIRMATION, MENU_S, menu, ADMIN_MENU
+from utils.constants import CONFIRMATION, menu
 from utils.functions import notice
 
 menu_router = DefaultRouter()
@@ -11,7 +11,7 @@ menu_router = DefaultRouter()
 
 @simple_bot_message_handler(menu_router,
                             PayloadFilter({"command": "menu"}))
-async def points(event: SimpleBotEvent):
+async def back_menu(event: SimpleBotEvent):
     user = event["current_user"]
     await menu(user, event)
 
@@ -19,7 +19,7 @@ async def points(event: SimpleBotEvent):
 @simple_bot_message_handler(menu_router,
                             TextContainsFilter(
                                 ["/report"]))
-async def points(event: SimpleBotEvent):
+async def report(event: SimpleBotEvent):
     user = event["current_user"]
     try:
         msg = event.object.object.message.text.split(" ", maxsplit=1)[1]
