@@ -835,7 +835,7 @@ async def checking_anketa_htask(mpets, user, user_task):
     task_name = user_task.task_name
     anketa_about = task_name.split("_", maxsplit=1)[-1]
     anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
-    if profile["about"] in ["❤", "❤️"]:
+    if profile["about"] in ["❤", "❤️", "♥️"]:
         ank = task_name.split("_", maxsplit=1)[-1]
         start_time = ank.rsplit(":", maxsplit=1)[1]
         if int(start_time) == 0:
