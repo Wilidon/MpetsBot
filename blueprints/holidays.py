@@ -53,6 +53,15 @@ async def holiday(event: SimpleBotEvent):
                 task_name].format(*args) + "Выполнено ✅\n\n "
             counter += 1
         else:
+            if "avatar" in task_name or "anketa" in task_name:
+                sec = task_name.split("_", maxsplit=1)[-1]
+                start_time = sec.rsplit(":", maxsplit=1)[1]
+                left_time = int(time.time()) - int(start_time)
+                if left_time >= 86400:
+                    pass
+                elif left_time <= 3600:
+                    progress = await timer(left_time)
+            args = [progress, end]
             task_name = task_name.split("_", maxsplit=1)[0]
             text += f"{counter}. " + holiday_0214[task_name].format(*args) + "\n"
             counter += 1

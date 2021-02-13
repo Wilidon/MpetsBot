@@ -761,7 +761,7 @@ async def add_user_points(user_id, point=True, task_name=None):
     if point:
         text = f"Пользователь {user.name} ({user_id}) заработал " \
                f"{points} 🏮 и 1 ⭐."
-        # notice(text)
+        notice(text)
         crud.create_user_log(user_id, task_name, points, 1, int(time.time()))
     user_stats = crud.get_user_stats(user_id)
     if await user_prizes(user_stats.personal_tasks):
@@ -780,7 +780,7 @@ async def add_club_points(user_id=None, club_id=None, point=True, task_name=None
     if point:
         text = f"Пользователь {user_name} ({user_id}) заработал в клуб" \
                f" {club.name} ({club_id}) {points} 🏵 и 1 🎄."
-        # notice(text)
+        notice(text)
         crud.create_club_log(user_id, task_name, club_id, points, 1, int(time.time()))
     if user_id:
         crud.update_user_stats(user_id, club_tasks=1, club_points=points)

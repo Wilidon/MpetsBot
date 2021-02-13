@@ -857,24 +857,32 @@ async def checking_anketa_htask(mpets, user, user_task):
 
 async def checking_exchangeGifts_htask(mpets, user, user_task):
     progress = user_task.progress
-    gifts = await mpets.view_gifts(user.pet_id)
-    for gift in gifts["players"]:
-        if ("вчера" in gift["date"] or "сегодня" in gift["date"]) \
-                and int(gift["present_id"]) in [11, 34]:
-            if gift["pet_id"] is None:
-                continue
-            another_gifts = await mpets.view_gifts(gift["pet_id"])
-            for g in another_gifts["players"]:
-                if g["pet_id"] is None:
+    page = 1
+    today = True
+    while True:
+        if today is False:
+            break
+        today = False
+        gifts = await mpets.view_gifts(user.pet_id, page)
+        for gift in gifts["players"]:
+            if ("вчера" in gift["date"] or "сегодня" in gift["date"]) \
+                    and int(gift["present_id"]) in [11, 34]:
+                today = True
+                if gift["pet_id"] is None:
                     continue
-                if ("вчера" in g["date"] or "сегодня" in g["date"]) \
-                        and int(g["present_id"]) in [11, 34] and int(g["pet_id"]) == user.pet_id:
-                    if crud.get_pet_pair(pet_id=user.pet_id,
-                                         friend_id=gift["pet_id"]) is None:
-                        crud.create_gift_pair(pet_id=user.pet_id,
-                                              friend_id=gift["pet_id"],
-                                              present_id=gift["present_id"])
-                        progress += 1
+                another_gifts = await mpets.view_gifts(gift["pet_id"])
+                for g in another_gifts["players"]:
+                    if g["pet_id"] is None:
+                        continue
+                    if ("вчера" in g["date"] or "сегодня" in g["date"]) \
+                            and int(g["present_id"]) in [11, 34] and int(g["pet_id"]) == user.pet_id:
+                        if crud.get_pet_pair(pet_id=user.pet_id,
+                                             friend_id=gift["pet_id"]) is None:
+                            crud.create_gift_pair(pet_id=user.pet_id,
+                                                  friend_id=gift["pet_id"],
+                                                  present_id=gift["present_id"])
+                            progress += 1
+        page +=1
     if progress < user_task.end:
         crud.update_user_task(user_task.id, progress, "waiting")
     else:
