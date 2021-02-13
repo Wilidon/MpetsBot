@@ -835,7 +835,7 @@ async def checking_anketa_htask(mpets, user, user_task):
     task_name = user_task.task_name
     anketa_about = task_name.split("_", maxsplit=1)[-1]
     anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
-    if profile["about"] in ["❤"]:
+    if profile["about"] in ["❤", "❤️"]:
         ank = task_name.split("_", maxsplit=1)[-1]
         start_time = ank.rsplit(":", maxsplit=1)[1]
         if int(start_time) == 0:
@@ -860,7 +860,7 @@ async def checking_exchangeGifts_htask(mpets, user, user_task):
     gifts = await mpets.view_gifts(user.pet_id)
     for gift in gifts["players"]:
         if ("вчера" in gift["date"] or "сегодня" in gift["date"]) \
-                and gift["present_id"] in [11, 34]:
+                and int(gift["present_id"]) in [11, 34]:
             if gift["pet_id"] is None:
                 continue
             another_gifts = await mpets.view_gifts(gift["pet_id"])
@@ -868,7 +868,7 @@ async def checking_exchangeGifts_htask(mpets, user, user_task):
                 if g["pet_id"] is None:
                     continue
                 if ("вчера" in g["date"] or "сегодня" in g["date"]) \
-                        and g["present_id"] in [11, 34] and int(g["pet_id"]) == user.pet_id:
+                        and int(g["present_id"]) in [11, 34] and int(g["pet_id"]) == user.pet_id:
                     if crud.get_pet_pair(pet_id=user.pet_id,
                                          friend_id=gift["pet_id"]) is None:
                         crud.create_gift_pair(pet_id=user.pet_id,
