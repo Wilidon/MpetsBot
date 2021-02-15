@@ -876,9 +876,10 @@ async def checking_exchangeGifts_htask(mpets, user, user_task):
                     for g in another_gifts["players"]:
                         if g["pet_id"] is None:
                             continue
+                        if "вчера" in g["date"]:
+                            leave = False
                         if ("вчера" in g["date"] or "сегодня" in g["date"]) \
                                 and int(g["present_id"]) in [11, 34] and int(g["pet_id"]) == user.pet_id:
-                            leave = False
                             if crud.get_pet_pair(pet_id=user.pet_id,
                                                  friend_id=gift["pet_id"]) is None:
                                 crud.create_gift_pair(pet_id=user.pet_id,
