@@ -36,7 +36,7 @@ async def holiday(event: SimpleBotEvent):
     text = ""
     current_user = event["current_user"]
     today = int(datetime.today().strftime("%m%d"))
-    if 212 <= today <= 215:
+    if 212 <= today <= 216:
         text = f"🥰 Список заданий ко дню Святого Валентина.\n\n"
         holiday = True
     current_user_tasks = crud.get_user_tasks(current_user.user_id, 214)
@@ -65,7 +65,7 @@ async def holiday(event: SimpleBotEvent):
             task_name = task_name.split("_", maxsplit=1)[0]
             text += f"{counter}. " + holiday_0214[task_name].format(*args) + "\n"
             counter += 1
-    left_time = 1613422800 - int(time.time())
+    left_time = 1613473200 - int(time.time())
     if left_time > 0:
         text += f"\n До окончания заданий {await timer(left_time)}"
     else:

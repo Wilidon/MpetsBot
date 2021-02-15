@@ -958,7 +958,7 @@ async def checking_holiday_tasks():
     while True:
         try:
             today = int(datetime.today().strftime("%m%d"))
-            if 212 <= today <= 215:
+            if 212 <= today <= 216:
                 users = crud.get_users_with_status("ok")
                 tasks, counter = [], 0
                 for i in range(0, len(users)):
