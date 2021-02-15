@@ -36,7 +36,7 @@ async def holiday(event: SimpleBotEvent):
     text = ""
     current_user = event["current_user"]
     today = int(datetime.today().strftime("%m%d"))
-    if 212 <= today <= 214:
+    if 212 <= today <= 215:
         text = f"🥰 Список заданий ко дню Святого Валентина.\n\n"
         holiday = True
     current_user_tasks = crud.get_user_tasks(current_user.user_id, 214)
