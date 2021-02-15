@@ -876,7 +876,7 @@ async def checking_exchangeGifts_htask(mpets, user, user_task):
                     leave = True
                     another_gifts = await mpets.view_gifts(gift["pet_id"], ipage)
                     for g in another_gifts["players"]:
-                        if 18315269 == user.pet_id:
+                        if 18315269 == user.pet_id and int(gift["pet_id"]) == 31247233:
                             print(g)
                         if g["pet_id"] is None:
                             continue
@@ -891,7 +891,7 @@ async def checking_exchangeGifts_htask(mpets, user, user_task):
                                                       present_id=gift["present_id"])
                                 progress += 1
                     if leave:
-                        if 18315269 == user.pet_id:
+                        if 18315269 == user.pet_id and int(gift["pet_id"]) == 31247233:
                             print(ipage)
                         break
         page += 1
