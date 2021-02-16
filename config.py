@@ -48,8 +48,6 @@ def get_db():
         db.lcreate("club_tasks")
     return db
 
-get_db()
-
 logger_config = {
     "handlers": [
         {"sink": sys.stdout},

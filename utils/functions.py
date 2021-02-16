@@ -37,9 +37,11 @@ user_tasks_list = {"avatar": "Поставить аватар {} на 1 час.\
                                 "📈 Прогресс: {} из {} \n"
                                 "🎖 Награда: 1 ⭐ и 1-3 🏅\n",
                    "charm": "Набрать очки в игре «Снежки»\n"
+                            "🔝 Ваш рейтинг: {}\n"
                             "📈 Прогресс: {} из {} \n"
                             "🎖 Награда: 1 ⭐ и 1-3 🏅\n",
                    "races": "Набрать очки в игре «Скачки»\n"
+                            "🔝 Ваш рейтинг: {}\n"
                             "📈 Прогресс: {} из {} \n"
                             "🎖 Награда: 1 ⭐ и 1-3 🏅\n"
                    }
@@ -575,6 +577,8 @@ async def charm_task(user_id, pet_id):
     today = int(datetime.today().strftime("%Y%m%d"))
     rating = crud.get_charm_rating(pet_id=pet_id)
     if rating is None:
+        return False
+    elif rating.score >= 4000:
         return False
     crud.create_user_task_for_user(user_id=user_id, task_name="charm",
                                    progress=rating.score,

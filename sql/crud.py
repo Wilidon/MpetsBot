@@ -307,6 +307,12 @@ def update_user_task(id: int, progress: int, status: str = "waiting"):
     db.commit()
 
 
+def update_user_task_end(id: int, end: int):
+    user_task = db.query(models.UsersTasks).filter_by(id=id).first()
+    user_task.end = end
+    db.commit()
+
+
 def update_user_task_name(id: int, task_name: str):
     user_task = db.query(models.UsersTasks).filter_by(id=id).first()
     user_task.task_name = task_name

@@ -42,10 +42,14 @@ async def user_tasks(event: SimpleBotEvent):
             args = [arg, progress, end]
         else:
             if task_name in ["charm", "races"]:
+                if task_name in "charm":
+                    rating = crud.get_charm_rating(pet_id=current_user.pet_id)
+                if task_name in "races":
+                    rating = crud.get_races_rating(pet_id=current_user.pet_id)
                 if end - progress > 30:
-                    args = [0, 30 + ((end - progress) - 30)]
+                    args = [rating, 0, 30 + ((end - progress) - 30)]
                 else:
-                    args = [30 - (end - progress), 30]
+                    args = [rating, 30 - (end - progress), 30, ]
             else:
                 args = [progress, end]
         if progress >= end:

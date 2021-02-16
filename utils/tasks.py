@@ -701,13 +701,19 @@ async def update_charm_rating():
                 else:
                     difference = user_task.end - int(pet["score"])
                     if difference > 0:
+                        # количество очков меньше, чем нужно
                         if user_task.progress < int(pet["score"]):
+                            # количество очков увеличилось
                             a = int(pet["score"]) - user_task.progress
                             progress = user_task.progress + a
                         else:
+                            # количество очков уменьшилось
                             progress = int(pet["score"])
+                            end = progress + 30
                         crud.update_user_task(id=user_task.id,
                                               progress=progress)
+                        crud.update_user_task_end(id=user_task.id,
+                                                  end=end)
                     else:
                         crud.update_user_task(id=user_task.id,
                                               progress=user_task.end,
@@ -771,13 +777,19 @@ async def update_races_rating():
                 else:
                     difference = user_task.end - int(pet["score"])
                     if difference > 0:
+                        # количество очков меньше, чем нужно
                         if user_task.progress < int(pet["score"]):
+                            # количество очков увеличилось
                             a = int(pet["score"]) - user_task.progress
                             progress = user_task.progress + a
                         else:
+                            # количество очков уменьшилось
                             progress = int(pet["score"])
+                            end = progress + 30
                         crud.update_user_task(id=user_task.id,
                                               progress=progress)
+                        crud.update_user_task_end(id=user_task.id,
+                                                  end=end)
                     else:
                         crud.update_user_task(id=user_task.id,
                                               progress=user_task.end,
