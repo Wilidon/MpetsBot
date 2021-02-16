@@ -65,7 +65,7 @@ async def holiday(event: SimpleBotEvent):
             task_name = task_name.split("_", maxsplit=1)[0]
             text += f"{counter}. " + holiday_0214[task_name].format(*args) + "\n"
             counter += 1
-    left_time = 1613473200 - int(time.time())
+    left_time = 1613509200 - int(time.time())
     if left_time > 0:
         text += f"\n До окончания заданий {await timer(left_time)}"
     else:

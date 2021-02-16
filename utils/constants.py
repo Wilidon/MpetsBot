@@ -137,7 +137,7 @@ def get_shop_3(item_ids: list):
 
 async def menu(user, event, message="Меню", holiday=False):
     today = int(datetime.today().strftime("%m%d"))
-    if 213 <= today <= 215:
+    if 213 <= today <= 216:
         holiday = True
     items = crud.get_user_item(user.user_id, "shop_%")
     if items:
