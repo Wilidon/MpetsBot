@@ -13,7 +13,7 @@ from blueprints.user_tasks import user_router
 from config import get_settings, logger_config
 from middlewares import UserMiddleware
 
-__version__ = "1.6.9"
+__version__ = "1.6.10"
 
 logging.basicConfig(filename="logs/vk.log",
                     filemode='a',
