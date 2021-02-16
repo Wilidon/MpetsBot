@@ -170,11 +170,11 @@ async def profile(event: SimpleBotEvent):
     total_members_in_club = len(crud.get_users_with_club(current_user.club_id))
     text = f"🏠 Профиль клуба {user_club.name}\n\n" \
            f"🎄 Набранные очки: {total_tasks} \n" \
-           f"🏵 Фишки: {points} \n" \
+           f"🎈 Шариков: {points} \n" \
            f"🧸  Участников: {total_members_in_club}\n"\
            f"————\n"\
            f"Вы выполнили: {user_stats.club_tasks} 📋\n"\
-           f"Вы набрали: {user_stats.club_points} 🏵\n\n"\
+           f"Вы набрали: {user_stats.club_points} 🎈\n\n"\
            f"🐾 Зимняя гонка:\n\n"\
            f"0🚩 — 30🎄 — 70🎄 — 160🎄 — 230🎄 — 350🎄 — 510🎄"\
            f" — 620🎄 — 800🎄 — 980🎄 — 1111🎄 — 1239🏁"
@@ -196,13 +196,13 @@ async def club_rating(event: SimpleBotEvent):
         if current_user.club_id == club_stats.club_id:
             hidden = True
         club = crud.get_club(club_stats.club_id)
-        text += f"{counter}. {club.name} — {club_stats.points} 🏵\n"
+        text += f"{counter}. {club.name} — {club_stats.points} 🎈\n"
         counter += 1
     if not hidden:
         current_user_club = crud.get_club(current_user.club_id)
         current_user_club_stats = crud.get_club_stats(current_user.club_id)
         if current_user_club_stats:
-            text += f"\n{current_user_club.name} — {current_user_club_stats.points} 🏵\n"
+            text += f"\n{current_user_club.name} — {current_user_club_stats.points} 🎈\n"
     await menu(user=current_user, event=event, message=text)
 
 

@@ -116,7 +116,7 @@ async def user_rating(event: SimpleBotEvent):
         for user_stats in top_users_stats:
             top_user = crud.get_user(user_stats.user_id)
             text += f"{counter}. [id{top_user.user_id}|{top_user.name}] " \
-                    f"({top_user.pet_id}) — {user_stats.points} 🏮\n"
+                    f"({top_user.pet_id}) — {user_stats.points} 🏅\n"
             counter += 1
         if len(text) > 4050:
             await event.answer("Сообщение слишком длинное. Для решение "
@@ -131,7 +131,7 @@ async def user_rating(event: SimpleBotEvent):
         for club_stats in clubs:
             club = crud.get_club(club_stats.club_id)
             text += f"{counter}. {club.name} ({club.club_id}) —" \
-                    f" {club_stats.points} 🏵\n"
+                    f" {club_stats.points} 🎈\n"
             counter += 1
         if len(text) > 4050:
             await event.answer("Сообщение слишком длинное. Для решение "
@@ -152,7 +152,7 @@ async def task_rating(event: SimpleBotEvent):
         top_user = crud.get_user(user_stats.user_id)
         text += f"{counter}. {top_user.name} — " \
                 f"{user_stats.personal_tasks} ⭐/" \
-                f"{user_stats.points}🏮\n"
+                f"{user_stats.points}🏅\n"
         counter += 1
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
@@ -172,7 +172,7 @@ async def task_rating(event: SimpleBotEvent):
     for club_stats in clubs:
         club = crud.get_club(club_stats.club_id)
         text += f"{counter}. {club.name} — {club_stats.total_tasks} 🎄/" \
-                f"{club_stats.points}🏵\n"
+                f"{club_stats.points}🎈\n"
         counter += 1
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
@@ -514,9 +514,9 @@ async def stats(event: SimpleBotEvent):
            f"✅ Выполнено: {amount_completed_c_t}\n" \
            f"❌ Просрочено: {amount_timeout_c_t}\n\n" \
            f"⭐️ Всего: {amount_1}\n" \
-           f"🏮 Всего: {amount_2}\n" \
+           f"🏅 Всего: {amount_2}\n" \
            f"🎄 Всего: {amount_3}\n" \
-           f"🏵 Всего: {amount_4}\n\n" \
+           f"🎈 Всего: {amount_4}\n\n" \
            f"👆🏻 Всего кликов: {total_clicks}"
     return text
 

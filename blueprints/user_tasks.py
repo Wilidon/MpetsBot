@@ -86,11 +86,11 @@ async def user_rating(event: SimpleBotEvent):
         if current_user.user_id == user_stats.user_id:
             hidden = True
         top_user = crud.get_user(user_stats.user_id)
-        text += f"{counter}. {top_user.name} — {user_stats.points} 🏮\n"
+        text += f"{counter}. {top_user.name} — {user_stats.points} 🏅\n"
         counter += 1
     if not hidden:
         current_user_stats = crud.get_user_stats(current_user.user_id)
-        text += f"\n{current_user.name} — {current_user_stats.points} 🏮\n"
+        text += f"\n{current_user.name} — {current_user_stats.points} 🏅\n"
     await menu(user=current_user, event=event, message=text)
 
 
@@ -108,7 +108,7 @@ async def profile(event: SimpleBotEvent):
                f"🧩 ID: {current_user.id} / {current_user.pet_id}\n" \
                f"👨🏼‍💼 Имя: {current_user.name}\n" \
                f"🏠 Клуб: {club_name}\n" \
-               f"🏮 Баллы: {current_user_stats.points}\n" \
+               f"🏅 Медалей: {current_user_stats.points}\n" \
                f"⭐ Набрано звездочек: {current_user_stats.personal_tasks}\n" \
                f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
@@ -119,7 +119,7 @@ async def profile(event: SimpleBotEvent):
         text = f"🧸 Ваш профиль:\n" \
                f"🧩 ID: {current_user.id} / {current_user.pet_id}\n" \
                f"👨🏼‍💼 Имя: {current_user.name}\n" \
-               f"🏮 Баллы: {current_user_stats.points}\n" \
+               f"🏅 Медалей: {current_user_stats.points}\n" \
                f"⭐ Набрано звездочек: {current_user_stats.personal_tasks}\n" \
                f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
