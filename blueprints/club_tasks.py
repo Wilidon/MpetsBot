@@ -100,7 +100,7 @@ async def profile(event: SimpleBotEvent):
                 crud.close_all_club_tasks(current_user.user_id)
             return "Задания генерируются. " \
                    "Повторите попытку через несколько минут."
-        text = f"🎈 Список заданий для клуба {current_user_club.name}.\n\n"
+        text = f"✏️ Список заданий для клуба {current_user_club.name}.\n\n"
         counter = 1
         for task in tasks:
             present_id = False

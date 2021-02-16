@@ -19,17 +19,17 @@ async def get_keyboard(shop: bool = False, access: int = 0, holiday: bool = Fals
                          payload={"command": "club_tasks"},
                          color=ButtonColor.SECONDARY)
     MENU.add_row()
-    MENU.add_text_button(text="🏮 Рейтинг",
+    MENU.add_text_button(text="🏅 Рейтинг",
                          payload={"command": "user_rating"},
                          color=ButtonColor.SECONDARY)
-    MENU.add_text_button(text="🏵 Рейтинг",
+    MENU.add_text_button(text="🎈 Рейтинг",
                          payload={"command": "club_rating"},
                          color=ButtonColor.SECONDARY)
     MENU.add_row()
     MENU.add_text_button(text="🧸 Профиль",
                          payload={"command": "profile"},
                          color=ButtonColor.POSITIVE)
-    MENU.add_text_button(text="🎈 Клуб",
+    MENU.add_text_button(text="🏡 Клуб",
                          payload={"command": "club"},
                          color=ButtonColor.POSITIVE)
     if shop:

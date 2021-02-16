@@ -28,7 +28,7 @@ async def user_tasks(event: SimpleBotEvent):
         crud.close_all_user_tasks(current_user.user_id)
         await functions.creation_user_tasks(current_user)
     current_user_tasks = crud.get_user_tasks(current_user.user_id, today)
-    text = f"🎈 Список заданий для {current_user.name}.\n\n"
+    text = f"✏️ Список заданий для {current_user.name}.\n\n"
     counter = 1
     for task in current_user_tasks:
         task_name, progress, end = task.task_name, task.progress, task.end
