@@ -720,17 +720,16 @@ async def update_charm_rating():
                                               status="completed")
                         await functions.add_user_points(user_id=user.user_id,
                                                         task_name="charm")
+                    crud.update_charm_place(pet_id=pet["pet_id"],
+                                            place=pet["place"],
+                                            score=pet["score"])
             elapsed_time = time.time() - time0
             if elapsed_time >= 5:
                 logger.critical(f"charm | {elapsed_time} | page {page}")
             page += 1
             if page >= 668:
                 elapsed_time = time.time() - time_start
-                if elapsed_time < 599:
-                    logger.debug(f"charm | total time {elapsed_time}")
-                    await asyncio.sleep(600 - elapsed_time)
-                else:
-                    logger.debug(f"charm | total time {elapsed_time}")
+                logger.debug(f"charm | total time {elapsed_time}")
                 time_start = time.time()
                 page = 1
         except Exception as e:
@@ -796,17 +795,16 @@ async def update_races_rating():
                                               status="completed")
                         await functions.add_user_points(user_id=user.user_id,
                                                         task_name="races")
+                    crud.update_charm_place(pet_id=pet["pet_id"],
+                                            place=pet["place"],
+                                            score=pet["score"])
             elapsed_time = time.time() - time0
             if elapsed_time >= 5:
                 logger.critical(f"races | {elapsed_time} | page {page}")
             page += 1
             if page >= 668:
                 elapsed_time = time.time() - time_start
-                if elapsed_time < 599:
-                    logger.debug(f"races | total time {elapsed_time}")
-                    await asyncio.sleep(600 - elapsed_time)
-                else:
-                    logger.debug(f"races | total time {elapsed_time}")
+                logger.debug(f"races | total time {elapsed_time}")
                 time_start = time.time()
                 page = 1
         except:
