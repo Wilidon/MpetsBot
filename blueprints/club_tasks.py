@@ -9,9 +9,9 @@ from vkwave.bots import (
 from loguru import logger
 from mpetsapi import MpetsApi
 from sql import crud
-from utils.constants import menu
-from utils.functions import get_limits, club_tasks_list, club_completed_tasks_list, \
-    gifts_name
+from keyboards.kb import menu
+from utils.functions import get_limits
+from utils.constants import club_tasks_list, club_completed_tasks_list, gifts_name
 from utils.tasks import checking_sendGift_task
 
 club_router = DefaultRouter()

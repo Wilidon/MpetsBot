@@ -1,14 +1,13 @@
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from vkwave.bots import DefaultRouter, SimpleBotEvent, \
-    simple_bot_message_handler, PayloadFilter, TextContainsFilter
+    simple_bot_message_handler, PayloadFilter
 
-from mpetsapi import MpetsApi
 from sql import crud
 from utils import functions
-from utils.constants import CONFIRMATION, menu
-from utils.functions import notice, holiday_0214_completed, holiday_0214
+from keyboards.kb import menu
+from utils.constants import holiday_0214_completed, holiday_0214
 
 holidays_router = DefaultRouter()
 
@@ -31,7 +30,7 @@ async def timer(sec):
 
 @simple_bot_message_handler(holidays_router,
                             PayloadFilter({"command": "0214"}))
-async def holiday(event: SimpleBotEvent):
+async def holiday_handler(event: SimpleBotEvent):
     holiday = False
     text = ""
     current_user = event["current_user"]

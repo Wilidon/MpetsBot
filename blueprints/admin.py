@@ -13,7 +13,8 @@ from vkwave.bots import (
 from config import get_db
 from sql import crud
 from utils import functions
-from utils.functions import add_user_points, add_club_points, notice, month, access_name, prizes, c_prizes
+from utils.functions import add_user_points, add_club_points, notice
+from utils.constants import month, access_name, prizes, c_prizes
 
 admin_router = DefaultRouter()
 

@@ -3,7 +3,7 @@ from vkwave.bots import DefaultRouter, SimpleBotEvent, \
 
 from mpetsapi import MpetsApi
 from sql import crud
-from utils.constants import CONFIRMATION, menu
+from keyboards.kb import CONFIRMATION, menu
 from utils.functions import notice
 
 menu_router = DefaultRouter()

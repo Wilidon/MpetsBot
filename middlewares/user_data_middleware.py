@@ -7,7 +7,7 @@ import pickledb
 from vkwave.bots import BaseMiddleware, BotEvent, MiddlewareResult
 
 from sql import crud
-from utils.functions import month
+from utils.constants import month
 
 
 class UserMiddleware(BaseMiddleware):

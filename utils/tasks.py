@@ -1,6 +1,6 @@
 import asyncio
-from datetime import datetime
 import time
+from datetime import datetime
 
 from loguru import logger
 
@@ -8,7 +8,7 @@ from config import get_settings
 from mpetsapi import MpetsApi
 from sql import crud
 from utils import functions
-from utils.functions import get_next_utc_unix_00_00, gifts_name
+from utils.constants import gifts_name
 
 
 async def check_task(user, user_task, progress, task_name):
@@ -49,7 +49,7 @@ async def checking_heart_task(mpets, user, user_task):
                     step = False
                     break
             page += 1
-        except:
+        except Exception:
             counter += 1
             if counter >= 5:
                 return 0
@@ -70,7 +70,7 @@ async def checking_exp_task(mpets, user, user_task):
                     step = False
                     break
             page += 1
-        except:
+        except Exception:
             counter += 1
             if counter >= 5:
                 return 0
@@ -107,7 +107,7 @@ async def checking_getGift_task(mpets, user, user_task):
                                 (int(gift["present_id"]) == 35 or
                                  int(gift["present_id"]) == 38):
                             pet_gift = True
-                    except:
+                    except Exception:
                         pass
             else:
                 if gift["pet_id"]:
@@ -115,7 +115,7 @@ async def checking_getGift_task(mpets, user, user_task):
                         if "сегодня" in gift["date"] and \
                                 int(gift["present_id"]) == int(gift_id):
                             pet_gift = True
-                    except:
+                    except Exception:
                         pass
         if pet_gift:
             await check_task(user, user_task, user_task.end, user_task.task_name)
@@ -134,7 +134,7 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                     if user.pet_id == int(gift["pet_id"]) and \
                             "сегодня" in gift["date"]:
                         pet_gift = True
-                except:
+                except Exception:
                     pass
         if pet_gift:
             await check_task(user, user_task, user_task.end, user_task.task_name)
@@ -160,7 +160,7 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                                  int(gift["present_id"]) == 38) and \
                                 user.pet_id == int(gift["pet_id"]):
                             pet_gift = True
-                    except:
+                    except Exception:
                         pass
             else:
                 if gift["pet_id"]:
@@ -169,7 +169,7 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
                                 int(gift["present_id"]) == gift_id and \
                                 user.pet_id == int(gift["pet_id"]):
                             pet_gift = True
-                    except:
+                    except Exception:
                         pass
         if pet_gift:
             await check_task(user, user_task, user_task.end, user_task.task_name)
@@ -178,7 +178,6 @@ async def checking_sendGift_task(mpets, user, user_task, pet_id):
 
 async def checking_chat_task(mpets, user, user_task):
     today = int(datetime.today().strftime("%Y%m%d"))
-    prize = False
     chat = await mpets.chat(user.club_id)
     for msg in chat["messages"]:
         if crud.get_chat_message(user.club_id, user.pet_id, msg["message"],
@@ -197,7 +196,7 @@ async def checking_thread_task(mpets, user, user_task):
     forums = await mpets.forums(user.club_id)
     if forums["status"] == "error":
         # logging
-        return 0
+        return False
     progress = user_task.progress
     for i in range(0, 2):
         threads = await mpets.threads(forums["forums_id"][i]["forum_id"])
@@ -225,7 +224,6 @@ async def checking_thread_task(mpets, user, user_task):
                 page = crud.get_last_page_thread(thread).page
                 page = int(page)
                 while True:
-                    time0 = time.time()
                     thread_info = await mpets.thread(thread, page)
                     if thread_info["status"] == "error":
                         break
@@ -255,11 +253,26 @@ async def checking_upRank_task(mpets, user, user_task):
     today = datetime.today().strftime("%d.%m")
     if history["status"] == "error":
         # logging
-        return 0
+        return False
     progress = user_task.progress
     for his in history["history"]:
         if user.pet_id == int(his["owner_id"]) and \
                 "повысил" in his["action"] and \
+                today == his["date"].split(" ")[0]:
+            progress += 1
+    await check_task(user, user_task, progress, user_task.task_name)
+
+
+async def checking_downRank_task(mpets, user, user_task):
+    history = await mpets.club_history(user.club_id)
+    today = datetime.today().strftime("%d.%m")
+    if history["status"] == "error":
+        # logging
+        return False
+    progress = user_task.progress
+    for his in history["history"]:
+        if user.pet_id == int(his["owner_id"]) and \
+                "понизил" in his["action"] and \
                 today == his["date"].split(" ")[0]:
             progress += 1
     await check_task(user, user_task, progress, user_task.task_name)
@@ -299,7 +312,6 @@ async def start_verify_club(club):
                 return 0
             for user_task in user_tasks:
                 try:
-                    time0 = time.time()
                     if user_task.status == "completed":
                         continue
                     elif user_task.task_name == "coin":
@@ -311,9 +323,6 @@ async def start_verify_club(club):
                     elif "get_gift" in user_task.task_name or \
                             "get_random_gift" in user_task.task_name:
                         await checking_getGift_task(mpets, user, user_task)
-                    elif "send_gift_player" in user_task.task_name or \
-                            "send_specific_gift_player" in user_task.task_name:
-                        await checking_sendGift_task(mpets, user, user_task)
                     elif user_task.task_name == "chat":
                         await checking_chat_task(mpets, user, user_task)
                     elif user_task.task_name == "thread":
@@ -321,18 +330,10 @@ async def start_verify_club(club):
                         # await checking_thread_task(mpets, user, user_task)
                     elif user_task.task_name == "upRank":
                         await checking_upRank_task(mpets, user, user_task)
+                    elif user_task.task_name == "downRank":
+                        await checking_downRank_task(mpets, user, user_task)
                     elif user_task.task_name == "acceptPlayer":
                         await checking_acceptPlayer_task(mpets, user, user_task)
-                    '''t = time.time() - time0
-                    if t > 30:
-                        logger.info(
-                            f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
-                    elif t > 60:
-                        logger.error(
-                            f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")
-                    elif t > 120:
-                        logger.critical(
-                            f"юзер {user.pet_id} клуб {user.club_id} за {t} задание {user_task.task_name}")'''
                 except Exception as e:
                     log = logger.bind(context=e)
                     log.error(f"Не удалось задание у клуба({club.club_id})"
@@ -360,7 +361,6 @@ async def start_verify_account(club):
 async def checking_bots():
     while True:
         try:
-            time0 = time.time()
             clubs_with_status_ok = crud.get_clubs(status="ok")
             clubs_with_status_waiting = crud.get_clubs(status="waiting")
             tasks = []
@@ -592,7 +592,6 @@ async def checking_users_tasks():
         try:
             users = crud.get_users_with_status("ok")
             tasks, counter = [], 0
-            time0 = time.time()
             for i in range(0, len(users)):
                 user = users[i]
                 task = asyncio.create_task(start_verify_user(user))
@@ -654,7 +653,7 @@ async def checking_thread():
             if len(thread['messages']) == 15:
                 page += 1
             await asyncio.sleep(1)
-        except:
+        except Exception:
             pass
 
 
@@ -699,8 +698,10 @@ async def update_charm_rating():
                 elif user_task.status == "completed":
                     continue
                 else:
+                    # если разность больше 0, то игрок должен набрать еще рейтинга
                     difference = user_task.end - int(pet["score"])
                     if difference > 0:
+                        end = 0
                         # количество очков меньше, чем нужно
                         if user_task.progress < int(pet["score"]):
                             # количество очков увеличилось
@@ -712,8 +713,9 @@ async def update_charm_rating():
                             end = progress + 30
                         crud.update_user_task(id=user_task.id,
                                               progress=progress)
-                        crud.update_user_task_end(id=user_task.id,
-                                                  end=end)
+                        if end != 0:
+                            crud.update_user_task_end(id=user_task.id,
+                                                      end=end)
                     else:
                         crud.update_user_task(id=user_task.id,
                                               progress=user_task.end,
@@ -732,7 +734,7 @@ async def update_charm_rating():
                 logger.debug(f"charm | total time {elapsed_time}")
                 time_start = time.time()
                 page = 1
-        except Exception as e:
+        except Exception:
             pass
 
 
@@ -776,6 +778,7 @@ async def update_races_rating():
                 else:
                     difference = user_task.end - int(pet["score"])
                     if difference > 0:
+                        end = 0
                         # количество очков меньше, чем нужно
                         if user_task.progress < int(pet["score"]):
                             # количество очков увеличилось
@@ -787,8 +790,9 @@ async def update_races_rating():
                             end = progress + 30
                         crud.update_user_task(id=user_task.id,
                                               progress=progress)
-                        crud.update_user_task_end(id=user_task.id,
-                                                  end=end)
+                        if end != 0:
+                            crud.update_user_task_end(id=user_task.id,
+                                                      end=end)
                     else:
                         crud.update_user_task(id=user_task.id,
                                               progress=user_task.end,
@@ -807,7 +811,7 @@ async def update_races_rating():
                 logger.debug(f"races | total time {elapsed_time}")
                 time_start = time.time()
                 page = 1
-        except:
+        except Exception:
             pass
 
 

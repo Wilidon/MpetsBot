@@ -1,5 +1,3 @@
-import datetime
-
 from vkwave.bots import (
     DefaultRouter,
     SimpleBotEvent,
@@ -8,7 +6,7 @@ from vkwave.bots import (
 )
 
 from sql import crud
-from utils.constants import menu
+from keyboards.kb import menu
 
 reg_router = DefaultRouter()
 

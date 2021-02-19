@@ -8,8 +8,9 @@ from vkwave.bots import (
 )
 
 from sql import crud
-from utils.constants import SHOP_1, get_shop_2, get_shop_3, menu
-from utils.functions import shop1, notice, shop2, shop3
+from keyboards.kb import SHOP_1, get_shop_2, get_shop_3, menu
+from utils.functions import notice
+from utils.constants import shop1, shop2, shop3
 
 shop_router = DefaultRouter()
 
@@ -21,11 +22,11 @@ shop_router = DefaultRouter()
                             PayloadFilter({"command": "item4"}) |
                             PayloadFilter({"command": "item5"}) |
                             PayloadFilter({"command": "item6"}))
-async def chooise_item(event: SimpleBotEvent):
+async def choose_item(event: SimpleBotEvent):
     user = event["current_user"]
     try:
         item_id = json.loads(event.object.object.message.payload)["command"]
-    except:
+    except Exception:
         return "Ошибка"
     items = crud.get_user_item(user.user_id, "shop_%")
     for item in items:
@@ -72,38 +73,33 @@ async def chooise_item(event: SimpleBotEvent):
                                           "В процессе")
                 await menu(user, event, "Награда будет начислена в течение "
                                         "недели.")
+            break
         elif int(item.score) == 177:
+            ids = item.status.split("_3")[1].split(".")[1:]
+            ids = [int(i) for i in ids]
+            print(ids)
+            shop_id = item_id.split("m")[1]
             if item.status == "shop_3":
-                shop_id = item_id.split("m")[1]
                 crud.update_user_itemname(item.id, shop3[item_id],
                                           f"shop_3.{shop_id}")
                 await event.answer(message=f"🏪 Выберите второй предмет",
-                                   keyboard=get_shop_2([int(
+                                   keyboard=get_shop_3([int(
                                        shop_id)]).get_keyboard())
-            elif item.status == "shop_3.1":
+            elif len(ids) == 1:
                 item_name = f"{item.item_name} {shop3[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
-                                          "В процессе")
-                await menu(user, event, "Награда будет начислена в течение "
-                                        "недели.")
-            elif item.status == "shop_3.2":
+                                          f"{item.status}.{shop_id}")
+                ids.append(int(shop_id))
+                print(ids)
+                await event.answer(message=f"🏪 Выберите третий предмет",
+                                   keyboard=get_shop_3(ids).get_keyboard())
+            elif len(ids) == 2:
                 item_name = f"{item.item_name} {shop3[item_id]}"
                 crud.update_user_itemname(item.id, item_name,
-                                          "В процессе")
+                                          f"В процессе")
                 await menu(user, event, "Награда будет начислена в течение "
                                         "недели.")
-            elif item.status == "shop_3.3":
-                item_name = f"{item.item_name} {shop3[item_id]}"
-                crud.update_user_itemname(item.id, item_name,
-                                          "В процессе")
-                await menu(user, event, "Награда будет начислена в течение "
-                                        "недели.")
-            elif item.status == "shop_3.4":
-                item_name = f"{item.item_name} {shop3[item_id]}"
-                crud.update_user_itemname(item.id, item_name,
-                                          "В процессе")
-                await menu(user, event, "Награда будет начислена в течение "
-                                        "недели.")
+            break
 
 
 @simple_bot_message_handler(shop_router, PayloadFilter({"command": "shop"}))
@@ -136,18 +132,14 @@ async def shop(event: SimpleBotEvent):
                                    keyboard=get_shop_2([4]).get_keyboard())
             break
         elif int(item.score) == 177:
+            ids = item.status.split("_3")[1].split(".")[1:]
+            ids = [int(i) for i in ids]
             if item.status == "shop_3":
                 await event.answer(
                     message=f"🏪 Магазин за {item.score} очков\n"
                             f"Выберите три приза на выбор",
                     keyboard=get_shop_3([]).get_keyboard())
-            elif item.status == "shop_3.1":
+            else:
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
-                                   keyboard=get_shop_3([1]).get_keyboard())
-            elif item.status == "shop_3.2":
-                await event.answer(message=f"🏪 Магазин за {item.score} очков",
-                                   keyboard=get_shop_3([2]).get_keyboard())
-            elif item.status == "shop_3.3":
-                await event.answer(message=f"🏪 Магазин за {item.score} очков",
-                                   keyboard=get_shop_3([3]).get_keyboard())
+                                   keyboard=get_shop_3(ids).get_keyboard())
             break

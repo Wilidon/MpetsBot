@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from loguru import logger
 from vkwave.bots import (
     DefaultRouter,
     SimpleBotEvent,
@@ -10,9 +9,8 @@ from vkwave.bots import (
 
 from sql import crud
 from utils import functions
-from utils.constants import menu
-from utils.functions import user_tasks_list, avatar_name, \
-    user_completed_tasks_list
+from keyboards.kb import menu
+from utils.constants import user_tasks_list, avatar_name, user_completed_tasks_list
 
 user_router = DefaultRouter()
 
