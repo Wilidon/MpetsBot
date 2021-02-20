@@ -3,7 +3,7 @@ holiday_1402 = [213, 215, 214]
 holiday_1402_prizes = {"gifts": "14 ангелов",
                        "avatar": "2 ангела",
                        "anketa": "2 ангела"}
-holiday_2302 = [220, 224, 223]
+holiday_2302 = [222, 224, 223]
 holiday_2302_prizes = {"gifts": "26 серебра",
                        "avatar": "3 серебра",
                        "anketa": "3 серебра"}
