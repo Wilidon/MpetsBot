@@ -77,7 +77,6 @@ async def choose_item(event: SimpleBotEvent):
         elif int(item.score) == 177:
             ids = item.status.split("_3")[1].split(".")[1:]
             ids = [int(i) for i in ids]
-            print(ids)
             shop_id = item_id.split("m")[1]
             if item.status == "shop_3":
                 crud.update_user_itemname(item.id, shop3[item_id],
@@ -90,7 +89,6 @@ async def choose_item(event: SimpleBotEvent):
                 crud.update_user_itemname(item.id, item_name,
                                           f"{item.status}.{shop_id}")
                 ids.append(int(shop_id))
-                print(ids)
                 await event.answer(message=f"🏪 Выберите третий предмет",
                                    keyboard=get_shop_3(ids).get_keyboard())
             elif len(ids) == 2:
