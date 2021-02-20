@@ -10,8 +10,8 @@ from mpetsapi import MpetsApi
 from sql import crud
 from tzlocal import get_localzone
 
-from keyboards.kb import get_keyboard
-from utils.constants import prizes, c_prizes, gifts_name, avatar_name
+from keyboards.kb import get_kb
+from utils.constants import prizes, c_prizes, gifts_name, avatar_name, holiday_1402, holiday_2302
 
 
 async def get_limits(level):
@@ -410,20 +410,37 @@ async def creation_user_tasks(user):
         local_tasks.pop(num)
 
 
-async def creation_valentineDay_tasks(user):
-    all_tasks = crud.get_user_tasks(user.user_id, 214)
+async def creation_valentineDay_tasks(user, date):
+    crud.close_all_user_htasks(user_id=user.user_id, date=date[2])
+    all_tasks = crud.get_user_tasks(user.user_id, date[2])
     if all_tasks:
         return False
-    avatars = [[8, "Влюбленная кошечка"], [4, "Влюбленный котик"]]
-    task_name = f"avatar_{random.choice(avatars)[0]}:0"
+    task_name = f"avatar_1:0"
     crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
-                                   progress=0, end=24, date=214)
+                                   progress=0, end=24, date=date[2])
     task_name = "anketa_1:0"
     crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
-                                   progress=0, end=24, date=214)
+                                   progress=0, end=24, date=date[2])
     task_name = "gifts"
     crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
-                                   progress=0, end=15, date=214)
+                                   progress=0, end=15, date=date[2])
+    return True
+
+
+async def creation_defenderDay_tasks(user, date):
+    crud.close_all_user_htasks(user_id=user.user_id, date=date[2])
+    all_tasks = crud.get_user_tasks(user.user_id, date[2])
+    if all_tasks:
+        return False
+    task_name = f"avatar_1:0"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=24, date=date[2])
+    task_name = "anketa_1:0"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=24, date=date[2])
+    task_name = "gifts"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=23, date=date[2])
     return True
 
 
@@ -487,7 +504,7 @@ async def send_user_notice(user_id, score):
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
     if int(score) in [100, 125, 177]:
         try:
-            keyboard = await get_keyboard(shop=True)
+            keyboard = await get_kb(shop=True)
             await bot.api_context.messages.send(user_id=user_id,
                                                 message=message,
                                                 random_id=random.randint(1,

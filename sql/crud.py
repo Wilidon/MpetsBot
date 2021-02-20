@@ -300,6 +300,16 @@ def close_all_user_tasks(user_id: int):
         db.commit()
 
 
+def close_all_user_htasks(user_id: int, date: int):
+    user_tasks = db.query(models.UsersTasks).filter_by(
+        user_id=user_id,
+        status="waiting").all()
+    for task in user_tasks:
+        if task.date == date:
+            task.status = "timeout"
+        db.commit()
+
+
 def update_user_task(id: int, progress: int, status: str = "waiting"):
     user_task = db.query(models.UsersTasks).filter_by(id=id).first()
     user_task.progress = progress

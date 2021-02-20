@@ -4,14 +4,19 @@ from vkwave.bots import Keyboard, ButtonColor
 
 
 from sql import crud
-from utils.constants import shop2, shop3
+from utils.constants import shop2, shop3, holiday_1402, holiday_2302
 
 
-async def get_keyboard(shop: bool = False, access: int = 0, holiday: bool = False):
+async def get_kb(shop: bool = False, access: int = 0, holiday: int = False):
     MENU = Keyboard()
-    if holiday:
+    if holiday_1402[0] <= holiday <= holiday_1402[1]+1:
         MENU.add_text_button(text="❤️День Святого Валентина",
                              payload={"command": "0214"},
+                             color=ButtonColor.POSITIVE)
+        MENU.add_row()
+    elif holiday_2302[0] <= holiday <= holiday_2302[1]+1:
+        MENU.add_text_button(text="👨‍✈️День защитника Отечества",
+                             payload={"command": "0223"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
     MENU.add_text_button(text="🗒 Личные задания",
@@ -140,12 +145,10 @@ def get_shop_3(item_ids: list):
 
 async def menu(user, event, message="Меню", holiday=False):
     today = int(datetime.today().strftime("%m%d"))
-    if 213 <= today <= 216:
-        holiday = True
     items = crud.get_user_item(user.user_id, "shop_%")
     if items:
-        keyboard = await get_keyboard(shop=True, access=user.access, holiday=holiday)
+        keyboard = await get_kb(shop=True, access=user.access, holiday=today)
         await event.answer(message=message, keyboard=keyboard.get_keyboard())
     else:
-        keyboard = await get_keyboard(access=user.access, holiday=holiday)
+        keyboard = await get_kb(access=user.access, holiday=today)
         await event.answer(message=message, keyboard=keyboard.get_keyboard())
