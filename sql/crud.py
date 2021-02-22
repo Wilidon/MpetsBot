@@ -657,14 +657,16 @@ def get_user_task_name(user_id: int, task_name: str, today: int):
                                                  date=today).first()
 
 
-def create_gift_pair(pet_id: int, friend_id: int, present_id: int):
+def create_gift_pair(pet_id: int, friend_id: int, present_id: int, date: int):
     pair = models.ExchangeGifts(pet_id=pet_id,
                                 friend_id=friend_id,
-                                present_id=present_id)
+                                present_id=present_id,
+                                date=date)
     db.add(pair)
     db.commit()
 
 
-def get_pet_pair(pet_id: int, friend_id: int):
+def get_pet_pair(pet_id: int, friend_id: int, date: int):
     return db.query(models.ExchangeGifts).filter_by(pet_id=pet_id,
-                                                    friend_id=friend_id).first()
+                                                    friend_id=friend_id,
+                                                    date=date).first()

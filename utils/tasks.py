@@ -891,9 +891,11 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
     today = True
     gift_ids = []
     if holiday_1402[0] <= date <= holiday_1402[1]:
+        hdate = holiday_1402[2]
         prize = holiday_1402_prizes['gifts']
         gift_ids = [11, 34]
     elif holiday_2302[0] <= date <= holiday_2302[1]:
+        hdate = holiday_2302[2]
         prize = holiday_2302_prizes['gifts']
         gift_ids = [26, 27, 35]
     while True:
@@ -918,10 +920,12 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
                         if ("вчера" in g["date"] or "сегодня" in g["date"]) \
                                 and int(g["present_id"]) in gift_ids and int(g["pet_id"]) == user.pet_id:
                             if crud.get_pet_pair(pet_id=user.pet_id,
-                                                 friend_id=gift["pet_id"]) is None:
+                                                 friend_id=gift["pet_id"],
+                                                 date=hdate) is None:
                                 crud.create_gift_pair(pet_id=user.pet_id,
                                                       friend_id=gift["pet_id"],
-                                                      present_id=gift["present_id"])
+                                                      present_id=gift["present_id"],
+                                                      date=hdate)
                                 progress += 1
                     if leave:
                         break
@@ -997,7 +1001,7 @@ async def checking_holiday_tasks():
             today = int(datetime.today().strftime("%m%d"))
             if holiday_1402[0] <= today <= holiday_1402[1]:
                 date = holiday_1402[2]
-            elif holiday_2302[0] <= today <= holiday_2302[0]:
+            elif holiday_2302[0] <= today <= holiday_2302[1]:
                 date = holiday_2302[2]
             else:
                 await asyncio.sleep(120)

@@ -205,6 +205,7 @@ class ExchangeGifts(Base):
     pet_id = Column(Integer)
     friend_id = Column(Integer)
     present_id = Column(Integer)
+    date = Column(Integer, default=None)
 
 
 class Bans(Base):
