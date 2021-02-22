@@ -906,6 +906,8 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
         for gift in gifts["players"]:
             if ("вчера" in gift["date"] or "сегодня" in gift["date"]) \
                     and int(gift["present_id"]) in gift_ids:
+                if user.pet_id == 11145531:
+                    logger.debug(gift)
                 today = True
                 if gift["pet_id"] is None:
                     continue
@@ -913,6 +915,8 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
                     leave = True
                     another_gifts = await mpets.view_gifts(gift["pet_id"], ipage)
                     for g in another_gifts["players"]:
+                        if user.pet_id == 11145531:
+                            logger.debug(f"Питомец: {gift['name']}. {g}")
                         if g["pet_id"] is None:
                             continue
                         if "вчера" in g["date"] or "сегодня" in g["date"]:
