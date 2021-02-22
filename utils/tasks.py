@@ -858,7 +858,7 @@ async def checking_anketa_htask(mpets, user, user_task):
         smiles = ["❤", "❤️", "♥️"]
     elif holiday_2302[0] <= today <= holiday_2302[1]:
         prize = holiday_2302_prizes['anketa']
-        smiles = ["⭐️"]
+        smiles = ["⭐️", "⭐"]
     profile = await mpets.view_anketa(user.pet_id)
     if profile["status"] != "ok":
         return False
