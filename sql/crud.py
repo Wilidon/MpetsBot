@@ -296,6 +296,10 @@ def close_all_user_tasks(user_id: int):
     for task in user_tasks:
         if task.date == 214:
             continue
+        if task.date == 223:
+            continue
+        if task.date == 308:
+            continue
         task.status = "timeout"
         db.commit()
 
@@ -670,3 +674,12 @@ def get_pet_pair(pet_id: int, friend_id: int, date: int):
     return db.query(models.ExchangeGifts).filter_by(pet_id=pet_id,
                                                     friend_id=friend_id,
                                                     date=date).first()
+
+
+def open_all_user_htasks(date: int):
+    user_tasks = db.query(models.UsersTasks).filter_by(
+        status="waiting").all()
+    for task in user_tasks:
+        if task.date == date:
+            task.status = "waiting"
+        db.commit()
