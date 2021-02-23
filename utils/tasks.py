@@ -821,7 +821,7 @@ async def checking_avatar_htask(mpets, user, user_task):
     if holiday_1402[0] <= today <= holiday_1402[1]:
         prize = holiday_1402_prizes['avatar']
         avatar_ids = [4, 8]
-    elif holiday_2302[0] <= today <= holiday_2302[0]:
+    elif holiday_2302[0] <= today <= holiday_2302[1]:
         prize = holiday_2302_prizes['avatar']
         avatar_ids = [6, 7]
     profile = await mpets.view_profile(user.pet_id)
