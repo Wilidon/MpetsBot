@@ -1015,14 +1015,17 @@ async def checking_holiday_tasks():
                     continue
                 task = asyncio.create_task(start_checking_holiday_tasks(user=user, date=date))
                 tasks.append(task)
-                if len(tasks) >= 10:
+                '''if len(tasks) >= 10:
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
                 elif i + 1 == len(users):
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
-                    tasks = []
+                    tasks = []'''
+            await asyncio.gather(*tasks)
+            await asyncio.sleep(1)
+            tasks = []
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
