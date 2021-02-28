@@ -233,7 +233,7 @@ async def task_rating(event: SimpleBotEvent):
         return "❗ Предметов нет"
     for item in items:
         user = crud.get_user(item.user_id)
-        text += f"{item.id}. {user.pet_id} — {user.name} — {item.item_name} \n"
+        text += f"{item.id}. {user.pet_id} ({user.user_id}) — {user.name} — {item.item_name} \n"
     text += "\n +confirm user {id} — подтвердить предмет"
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
