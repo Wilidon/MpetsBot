@@ -146,7 +146,7 @@ async def user_rating(event: SimpleBotEvent):
                             PayloadFilter({"command": "rating_user_tasks"}))
 async def task_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
-    top_users_stats = crud.get_users_stats_order_by_tasks(limit=100)
+    top_users_stats = crud.get_users_stats_order_by_tasks(limit=1000)
     text = "🧑‍ Рейтинг игроков.\n\n"
     if not top_users_stats:
         return "❗ Рейтинг пуст."
@@ -156,18 +156,17 @@ async def task_rating(event: SimpleBotEvent):
                 f"{user_stats.personal_tasks} 🌼/" \
                 f"{user_stats.points}🏅\n"
         counter += 1
-    if len(text) > 4050:
-        await event.answer("Сообщение слишком длинное. Для решение "
-                           "проблемы напишите разработчику.")
-    else:
-        await event.answer(text)
+        if len(text) > 4050:
+            await event.answer(text)
+            text = "🧑‍ Рейтинг игроков.\n\n"
+    await event.answer(text)
 
 
 @simple_bot_message_handler(admin_router,
                             PayloadFilter({"command": "rating_club_tasks"}))
 async def task_rating(event: SimpleBotEvent):
     current_user, counter = event["current_user"], 1
-    clubs = crud.get_clubs_stats_order_by_tasks(limit=100)
+    clubs = crud.get_clubs_stats_order_by_tasks(limit=1000)
     text = "🏠 Рейтинг клубов.\n\n"
     if not clubs:
         return "❗ Рейтинг пуст."
@@ -176,11 +175,10 @@ async def task_rating(event: SimpleBotEvent):
         text += f"{counter}. {club.name} — {club_stats.total_tasks} 🦋/" \
                 f"{club_stats.points}🎈\n"
         counter += 1
-    if len(text) > 4050:
-        await event.answer("Сообщение слишком длинное. Для решение "
-                           "проблемы напишите разработчику.")
-    else:
-        await event.answer(text)
+        if len(text) > 4050:
+            await event.answer(text)
+            text = "🏠 Рейтинг клубов.\n\n"
+    await event.answer(text)
 
 
 @simple_bot_message_handler(admin_router,
