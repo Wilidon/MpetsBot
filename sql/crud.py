@@ -741,3 +741,31 @@ def get_club_task_log(user_id: int, limit: int = 3):
 def get_collection_log(user_id: int, limit: int = 3):
     return db.query(models.CollectionsLog).filter_by(user_id=user_id).order_by(
         models.CollectionsLog.id.desc()).limit(limit=limit).all()
+
+
+def total_wipe():
+    users_stats = get_users_stats_order_by_tasks(limit=None)
+    for user in users_stats:
+        user = db.query(models.UserStats).filter_by(
+            user_id=user.user_id).first()
+        user.points = 0
+        user.personal_tasks = 0
+    clubs_stats = get_clubs_stats_order_by_points(limit=None)
+    for club in clubs_stats:
+        club = db.query(models.ClubStats).filter_by(
+            club_id=club.club_id).first()
+        club.points = 0
+        club.total_tasks = 0
+    db.commit()
+    return True
+
+
+def mega_total_wipe():
+    users_stats = get_users_stats_order_by_tasks(limit=None)
+    for user in users_stats:
+        user = db.query(models.UserStats).filter_by(
+            user_id=user.user_id).first()
+        user.club_tasks = 0
+        user.club_points = 0
+    db.commit()
+    return True
