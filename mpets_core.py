@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import time
 
 from loguru import logger
@@ -30,7 +31,9 @@ if __name__ == '__main__':
     noticed = False
     while True:
         try:
-            asyncio.run(main())
+            today = int(datetime.datetime.today().strftime("%Y%m%d"))
+            if today != 20210228:
+                asyncio.run(main())
         except Exception as e:
             logger.critical(f"MpetsCore down. {e}")
             if not noticed:

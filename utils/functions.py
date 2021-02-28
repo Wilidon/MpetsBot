@@ -11,6 +11,7 @@ from sql import crud
 from tzlocal import get_localzone
 
 from keyboards.kb import get_kb
+from utils.collection_handler import create_collection_item
 from utils.constants import prizes, c_prizes, gifts_name, avatar_name, holiday_1402, holiday_2302
 
 
@@ -446,16 +447,13 @@ async def creation_defenderDay_tasks(user, date):
 
 async def user_prizes(score):
     """
-    10 - 1 Монетка удачи
-    25 - 200 монет
-    40 - 5m ❣️
-    70 - 25 золотых перьев и 5 ⭐️
-    100 - магазин, 1 товар на выбор (300 монет, 2 волшебных шестерни, 20 ангелов )
-    125 - магазин, 2 товара на выбор ( 17 серебра, 5m ❤️, 2 Монетки удачи, 13 ангелов )
-    160 - 400 монет
-    177 - магазин, 3 товара на выбор ( 15🏮 , 5m ❤️, 4 ⚙️, 10 👼 , 15 🍿 , 5 ⭐️ )
+    15🌼 — 20 🍿 и 1 ⚙️
+    35🌼 — 2 монетки удачи
+    52🌼 — 300 монет
+    76🌼 — 20 👼 и 1 волш.⚙️
+    100🌼 — 10 🏅  и 10m ❤️
     """
-    if int(score) in [10, 25, 40, 70, 100, 125, 160, 177]:
+    if int(score) in [15, 35, 52, 76, 100]:
         return True
     return False
 
@@ -463,18 +461,8 @@ async def user_prizes(score):
 async def club_prizes(score):
     """
     30 - 2 ⭐️ всем участвующим
-    70 - 300 монет в копилку клуба
-    160 - 200k опыта
-    230 - 5m сердечек в копилку клуба и по 5 👼 всем участвующим
-    350 - 15 🎄 и 5 фишек
-    510 - 1 ключ и по 15 серебра всем участвующим
-    620 - 10m сердечек
-    800 - 2’000 монет
-    980 - по 1 шестерни и по 1 монетке удачи  всем участвующим
-    1111 - 400k опыта в копилку, 15m сердец и подарки всем участвующим
-    1239 - 2 🔑 и 10 фишек
     """
-    if int(score) in [30, 70, 160, 230, 350, 510, 620, 800, 980, 1111, 1239]:
+    if int(score) in []:
         return True
     return False
 
@@ -566,6 +554,9 @@ async def add_user_points(user_id, point=True, task_name=None):
                f"{points} 🏮 и 1 ⭐."
         # notice(text)
         crud.create_user_log(user_id, task_name, points, 1, int(time.time()))
+        item_info = await create_collection_item(user_id=user_id)
+        crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+                                   collection_id=item_info['collection_id'])
     user_stats = crud.get_user_stats(user_id)
     if await user_prizes(user_stats.personal_tasks):
         await send_user_notice(user_id, user_stats.personal_tasks)
@@ -585,6 +576,9 @@ async def add_club_points(user_id=None, club_id=None, point=True, task_name=None
                f" {club.name} ({club_id}) {points} 🏵 и 1 🎄."
         # notice(text)
         crud.create_club_log(user_id, task_name, club_id, points, 1, int(time.time()))
+        item_info = await create_collection_item(user_id=user_id)
+        crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+                                   collection_id=item_info['collection_id'])
     if user_id:
         crud.update_user_stats(user_id, club_tasks=1, club_points=points)
     club_stats = crud.get_club_stats(club_id)

@@ -111,22 +111,22 @@ async def profile(event: SimpleBotEvent):
                f"👨🏼‍💼 Имя: {current_user.name}\n" \
                f"🏠 Клуб: {club_name}\n" \
                f"🏅 Медалей: {current_user_stats.points}\n" \
-               f"⭐ Набрано звездочек: {current_user_stats.personal_tasks}\n" \
+               f"🌼 Набрано: {current_user_stats.personal_tasks}\n" \
                f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
                f"{datetime.fromtimestamp(current_user.created_at)}\n\n" \
-               f"🐾 Зимняя гонка:\n\n" \
-               f"0🚩— 10⭐ — 25⭐ — 40⭐ — 70⭐ — 100⭐ — 125⭐ — 160⭐ — 177⭐🏁"
+               f"🐾 Весенняя гонка:\n\n" \
+               f"0🚩— 15🌼 — 35🌼 — 52🌼 — 76🌼 — 100🌼 — 149🌼 — 187🌼 — 203🌼 — 251🌼 — 276🌼🏁"
     else:
         text = f"🧸 Ваш профиль:\n" \
                f"🧩 ID: {current_user.id} / {current_user.pet_id}\n" \
                f"👨🏼‍💼 Имя: {current_user.name}\n" \
                f"🏅 Медалей: {current_user_stats.points}\n" \
-               f"⭐ Набрано звездочек: {current_user_stats.personal_tasks}\n" \
+               f"🌼 Набрано: {current_user_stats.personal_tasks}\n" \
                f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
                f"{datetime.fromtimestamp(current_user.created_at)}\n\n" \
-               f"🐾 Зимняя гонка:\n\n" \
-               f"0🚩— 10⭐ — 25⭐ — 40⭐ — 70⭐ — 100⭐ — 125⭐ — 160⭐ — 177⭐🏁"
+               f"🐾 Весенняя гонка:\n\n" \
+               f"0🚩— 15🌼 — 35🌼 — 52🌼 — 76🌼 — 100🌼 — 149🌼 — 187🌼 — 203🌼 — 251🌼 — 276🌼🏁"
 
     await menu(user=current_user, event=event, message=text)

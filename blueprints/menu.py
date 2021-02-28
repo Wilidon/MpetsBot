@@ -4,6 +4,7 @@ from vkwave.bots import DefaultRouter, SimpleBotEvent, \
 from mpetsapi import MpetsApi
 from sql import crud
 from keyboards.kb import CONFIRMATION, menu
+from utils.constants import user_task_log, club_task_log, collections
 from utils.functions import notice
 
 menu_router = DefaultRouter()
@@ -25,10 +26,42 @@ async def report(event: SimpleBotEvent):
         msg = event.object.object.message.text.split(" ", maxsplit=1)[1]
     except:
         msg = "Null"
-    text = f"{user.first_name} {user.last_name} ({user.user_id}) нуждается в "\
+    text = f"{user.first_name} {user.last_name} ({user.user_id}) нуждается в " \
            f"психологической помощи.\n\n" \
            f"Его сообщение: «{msg}»"
     notice(message=text)
+
+
+@simple_bot_message_handler(menu_router,
+                            TextContainsFilter(
+                                ["/logs"]))
+async def logs(event: SimpleBotEvent):
+    user = event["current_user"]
+    text = "Список последних наград\n\n"
+    text += f"✏️ Личные: \n"
+    user_log = crud.get_user_task_log(user_id=user.user_id)
+    club_log = crud.get_club_task_log(user_id=user.user_id)
+    collection_log = crud.get_collection_log(user_id=user.user_id)
+    for task in user_log:
+        task_name = task.task_name
+        if "in_online" in task.task_name or \
+                "30online_0" in task.task_name:
+            task_name = task_name.rsplit("_")[0]
+        text += f"{user_task_log[task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
+    text += f"\n🎈Клубные:\n"
+    for task in club_log:
+        task_name = task.task_name
+        if "send_specific_gift_any_player" in task.task_name or \
+                "get_gift_30" in task.task_name or \
+                "send_gift_any_player_0" in task.task_name or \
+                "get_random_gift_0" in task.task_name:
+            task_name = task_name.rsplit("_")[0]
+        text += f"{club_task_log[task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
+    text += f"\n🧩 Коллекции: \n"
+    for collection in collection_log:
+        collection_icon = collections[collection.collection_id]['required'][collection.part_id-1]['icon']
+        text += f"{collections[collection.collection_id]['name']} — {collection_icon} \n"
+    await event.answer(message=text)
 
 
 @simple_bot_message_handler(menu_router)

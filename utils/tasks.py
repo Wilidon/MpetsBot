@@ -342,7 +342,7 @@ async def start_verify_club(club):
                               f"ошибка {e}")
     except Exception as e:
         log = logger.bind(context=e)
-        log.error(f"Не удалось проверить клуб({club.club_id})")
+        log.error(f"Не удалось проверить клуб({club.club_id})\n task {user_task}")
 
 
 async def start_verify_account(club):
@@ -903,6 +903,10 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
             break
         today = False
         gifts = await mpets.view_gifts(user.pet_id, page)
+        try:
+            g = gifts["players"]
+        except:
+            logger.error(f"user {user.user_id} {gifts}")
         for gift in gifts["players"]:
             if ("вчера" in gift["date"] or "сегодня" in gift["date"]) \
                     and int(gift["present_id"]) in gift_ids:
@@ -912,6 +916,10 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
                 for ipage in range(1, 5):
                     leave = True
                     another_gifts = await mpets.view_gifts(gift["pet_id"], ipage)
+                    try:
+                        g = another_gifts["players"]
+                    except:
+                        logger.error(f"user {user.user_id} {another_gifts}")
                     for g in another_gifts["players"]:
                         if g["pet_id"] is None:
                             continue
@@ -990,8 +998,8 @@ async def start_checking_holiday_tasks(user, date):
             elif "gifts" in user_task.task_name:
                 await checking_exchangeGifts_htask(mpets, user, user_task, date)
         except Exception as e:
-            logger.error(f"start_verify_user {user.user_id}"
-                         f"task {user_task.task_name}"
+            logger.error(f"start_verify_user {user.user_id} "
+                         f"task {user_task.task_name} "
                          f"error {e}")
 
 

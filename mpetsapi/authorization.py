@@ -79,7 +79,7 @@ async def login(name, password, timeout, connector):
                     return {"status": "error",
                             "code": 5,
                             "msg": "Authorization failed"}
-    except:
+    except Exception as e:
         return {"status": "error",
                 "code": 4,
-                "msg": "Authorization failed"}
+                "msg": e}

@@ -1,7 +1,8 @@
 import time
 
+import pytz
 from sqlalchemy import (Column, Integer, String,
-                        BigInteger, SmallInteger)
+                        BigInteger, SmallInteger, func, DateTime)
 
 from .database import Base
 
@@ -206,6 +207,41 @@ class ExchangeGifts(Base):
     friend_id = Column(Integer)
     present_id = Column(Integer)
     date = Column(Integer, default=None)
+
+
+class Collections(Base):
+    __tablename__ = "collections"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer)
+    collection_id = Column(Integer)
+    type1 = Column(Integer, default=0)
+    type2 = Column(Integer, default=0)
+    type3 = Column(Integer, default=0)
+    type4 = Column(Integer, default=0)
+    type5 = Column(Integer, default=0)
+
+
+class CollectedCollections(Base):
+    __tablename__ = "collectedcollections"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer)
+    collection_id = Column(Integer)
+    collected_time = Column(DateTime(timezone=True), default=func.now(tz=pytz.timezone('Etc/GMT+3')))
+
+
+class CollectionsLog(Base):
+    __tablename__ = "collectionslog"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer)
+    part_id = Column(Integer)
+    collection_id = Column(Integer)
+    collected_time = Column(DateTime(timezone=True), default=func.now(tz=pytz.timezone('Etc/GMT+3')))
 
 
 class Bans(Base):

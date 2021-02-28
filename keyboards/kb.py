@@ -2,23 +2,27 @@ from datetime import datetime
 
 from vkwave.bots import Keyboard, ButtonColor
 
-
 from sql import crud
-from utils.constants import shop2, shop3, holiday_1402, holiday_2302
+from utils.collection_handler import check_collected_collection
+from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections
 
 
 async def get_kb(shop: bool = False, access: int = 0, holiday: int = False):
     MENU = Keyboard()
-    if holiday_1402[0] <= holiday <= holiday_1402[1]+1:
+    if holiday_1402[0] <= holiday <= holiday_1402[1] + 1:
         MENU.add_text_button(text="❤️День Святого Валентина",
                              payload={"command": "0214"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
-    elif holiday_2302[0] <= holiday <= holiday_2302[1]+1:
+    elif holiday_2302[0] <= holiday <= holiday_2302[1]:
         MENU.add_text_button(text="👨‍✈️День защитника Отечества",
                              payload={"command": "0223"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
+    MENU.add_text_button(text="🧩Коллекции ",
+                         payload={"command": "collections"},
+                         color=ButtonColor.POSITIVE)
+    MENU.add_row()
     MENU.add_text_button(text="🗒 Личные задания",
                          payload={"command": "user_tasks"},
                          color=ButtonColor.SECONDARY)
@@ -143,7 +147,57 @@ def get_shop_3(item_ids: list):
     return SHOP_3
 
 
-async def menu(user, event, message="Меню", holiday=False):
+async def to_collect(user, event, message="Лера, не забудь добавить текст"):
+    COLLECTION_KB = Keyboard()
+    for collection in collections.items():
+        collection_id = collection[0]
+        result = await check_collected_collection(user_id=user.user_id,
+                                                  collection_id=collection_id)
+        if collection_id == 4:
+            COLLECTION_KB.add_row()
+        if result is False:
+            payload = {"command": "collection_id=" + str(collection_id)}
+            COLLECTION_KB.add_text_button(text=collection_id,
+                                          payload=payload,
+                                          color=ButtonColor.SECONDARY)
+        else:
+            payload = {"command": "collection_id=" + str(collection_id)}
+            COLLECTION_KB.add_text_button(text=collection_id,
+                                          payload=payload,
+                                          color=ButtonColor.POSITIVE)
+    COLLECTION_KB.add_row()
+    COLLECTION_KB.add_text_button(text="🔽 Назад",
+                                  payload={"command": "collections"},
+                                  color=ButtonColor.SECONDARY)
+    await event.answer(message=message, keyboard=COLLECTION_KB.get_keyboard())
+
+
+async def collection_kb(user, event, message="Лера, не забудь добавить текст"):
+    COLLECTION_KB = Keyboard()
+    btn_green = False
+    for collection in collections.items():
+        collection_id = collection[0]
+        result = await check_collected_collection(user_id=user.user_id,
+                                                  collection_id=collection_id)
+        if result is True:
+            btn_green = True
+            break
+    if btn_green is True:
+        COLLECTION_KB.add_text_button(text="Собрать 🧩",
+                                      payload={"command": "to_collect"},
+                                      color=ButtonColor.POSITIVE)
+    else:
+        COLLECTION_KB.add_text_button(text="Собрать 🧩",
+                                      payload={"command": "to_collect"},
+                                      color=ButtonColor.SECONDARY)
+    COLLECTION_KB.add_row()
+    COLLECTION_KB.add_text_button(text="🔽 Назад",
+                                  payload={"command": "menu"},
+                                  color=ButtonColor.SECONDARY)
+    await event.answer(message=message, keyboard=COLLECTION_KB.get_keyboard())
+
+
+async def menu(user, event, message="Меню"):
     today = int(datetime.today().strftime("%m%d"))
     items = crud.get_user_item(user.user_id, "shop_%")
     if items:

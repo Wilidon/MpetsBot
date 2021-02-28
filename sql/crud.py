@@ -670,6 +670,10 @@ def create_gift_pair(pet_id: int, friend_id: int, present_id: int, date: int):
     db.commit()
 
 
+def get_all_pairs(pet_id: int):
+    return db.query(models.ExchangeGifts).filter_by(pet_id=pet_id).all()
+
+
 def get_pet_pair(pet_id: int, friend_id: int, date: int):
     return db.query(models.ExchangeGifts).filter_by(pet_id=pet_id,
                                                     friend_id=friend_id,
@@ -683,3 +687,57 @@ def open_all_user_htasks(date: int):
         if task.date == date:
             task.status = "waiting"
         db.commit()
+
+
+def get_user_collection(user_id: int, collection_id: int):
+    user_collection = db.query(models.Collections).filter_by(user_id=user_id,
+                                                             collection_id=collection_id).first()
+    if user_collection is None:
+        user_collection = models.Collections(user_id=user_id,
+                                             collection_id=collection_id)
+        db.add(user_collection)
+        db.commit()
+        db.refresh(user_collection)
+    return user_collection
+
+
+def update_user_collection(user_id: int, collection_id: int, type1: int,
+                           type2: int, type3: int, type4: int, type5: int):
+    user_collection = db.query(models.Collections).filter_by(user_id=user_id,
+                                                             collection_id=collection_id).first()
+    user_collection.type1 = type1
+    user_collection.type2 = type2
+    user_collection.type3 = type3
+    user_collection.type4 = type4
+    user_collection.type5 = type5
+    db.commit()
+
+
+def add_collected_collection(user_id: int, collection_id: int):
+    user_collection = models.CollectedCollections(user_id=user_id,
+                                                  collection_id=collection_id)
+    db.add(user_collection)
+    db.commit()
+
+
+def create_collection_log(user_id: int, part_id: int, collection_id: int):
+    user_collection = models.CollectionsLog(user_id=user_id,
+                                            part_id=part_id,
+                                            collection_id=collection_id)
+    db.add(user_collection)
+    db.commit()
+
+
+def get_user_task_log(user_id: int, limit: int = 3):
+    return db.query(models.UserTaskLog).filter_by(user_id=user_id).order_by(
+        models.UserTaskLog.id.desc()).limit(limit=limit).all()
+
+
+def get_club_task_log(user_id: int, limit: int = 3):
+    return db.query(models.ClubTaskLog).filter_by(user_id=user_id).order_by(
+        models.ClubTaskLog.id.desc()).limit(limit=limit).all()
+
+
+def get_collection_log(user_id: int, limit: int = 3):
+    return db.query(models.CollectionsLog).filter_by(user_id=user_id).order_by(
+        models.CollectionsLog.id.desc()).limit(limit=limit).all()
