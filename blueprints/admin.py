@@ -375,6 +375,15 @@ async def wipe(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/totalwipe"]))
+async def wipe(event: SimpleBotEvent):
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    if crud.total_wipe():
+        return "Рейтинги обнулены."
+
+@simple_bot_message_handler(admin_router,
                             TextContainsFilter(["/megatotalwipe"]))
 async def wipe(event: SimpleBotEvent):
     current_user = event["current_user"]

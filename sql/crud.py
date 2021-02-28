@@ -769,3 +769,29 @@ def mega_total_wipe():
         user.club_points = 0
     db.commit()
     return True
+
+
+def total_plus(user_id, tasks, points):
+    user = db.query(models.UserStats).filter_by(
+        user_id=user_id).first()
+    user.points = points
+    user.personal_tasks = tasks
+    db.commit()
+    return True
+
+
+def total_c_plus(club_id, tasks, points):
+    club = db.query(models.ClubStats).filter_by(
+        club_id=club_id).first()
+    club.points = points
+    club.total_tasks = tasks
+    db.commit()
+    return True
+
+
+def get_name(name):
+    return db.query(models.Users).filter_by(name=name).first()
+
+
+def get_club_name(name):
+    return db.query(models.Clubs).filter_by(name=name).first()
