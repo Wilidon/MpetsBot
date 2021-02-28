@@ -234,6 +234,9 @@ async def task_rating(event: SimpleBotEvent):
     for item in items:
         user = crud.get_user(item.user_id)
         text += f"{item.id}. {user.pet_id} ({user.user_id}) — {user.name} — {item.item_name} \n"
+        if len(text) > 4050:
+            await event.answer(text)
+            text = "🧸 Предметы игроков.\n\n"
     text += "\n +confirm user {id} — подтвердить предмет"
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
@@ -252,6 +255,9 @@ async def task_rating(event: SimpleBotEvent):
     for item in items:
         club = crud.get_club(item.club_id)
         text += f"{item.id}. {club.club_id} — {club.name} — {item.item_name}\n"
+        if len(text) > 4050:
+            await event.answer(text)
+            text = "🎈 Предметы клубов.\n\n"
     text += "\n +confirm club {id} — подтвердить предмет"
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
