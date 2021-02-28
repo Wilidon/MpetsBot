@@ -453,7 +453,7 @@ async def user_prizes(score):
     76🌼 — 20 👼 и 1 волш.⚙️
     100🌼 — 10 🏅  и 10m ❤️
     """
-    if int(score) in [15, 35, 52, 76, 100]:
+    if int(score) in [10, 25, 40, 70, 100, 125, 160, 177]:
         return True
     return False
 
@@ -462,7 +462,7 @@ async def club_prizes(score):
     """
     30 - 2 ⭐️ всем участвующим
     """
-    if int(score) in []:
+    if int(score) in [30, 70, 160, 230, 350, 510, 620, 800, 980, 1111, 1239]:
         return True
     return False
 
