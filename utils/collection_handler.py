@@ -9,7 +9,7 @@ async def check_collected_collection(user_id: int, collection_id: int):
                                                collection_id=collection_id)
     for counter_types in range(1, 6):
         amount = user_collection.__dict__['type' + str(counter_types)]
-        if amount < collections[collection_id]['required'][counter_types-1]['amount']:
+        if amount < collections[collection_id]['required'][counter_types - 1]['amount']:
             return False
     return True
 
@@ -20,7 +20,7 @@ async def collect_collection(user_id: int, collection_id: int):
     types = []
     for counter_types in range(1, 6):
         amount = user_collection.__dict__['type' + str(counter_types)]
-        types.append(amount - collections[collection_id]['required'][counter_types-1]['amount'])
+        types.append(amount - collections[collection_id]['required'][counter_types - 1]['amount'])
     crud.update_user_collection(user_id=user_id,
                                 collection_id=collection_id,
                                 type1=types[0],
@@ -64,7 +64,7 @@ async def add_collection_item(user_id: int, collection_id: int, part_id: int):
     user_collection = crud.get_user_collection(user_id=user_id,
                                                collection_id=collection_id)
     types = []
-    for counter_types in range(1, 5):
+    for counter_types in range(1, 6):
         amount = user_collection.__dict__['type' + str(counter_types)]
         if part_id == counter_types:
             types.append(amount + 1)
@@ -100,6 +100,6 @@ async def create_collection_item(user_id: int):
         part_id = random_part - 25 + 1
         collection_id = 6
     await add_collection_item(user_id=user_id,
-                             collection_id=collection_id,
-                             part_id=part_id)
+                              collection_id=collection_id,
+                              part_id=part_id)
     return {"collection_id": collection_id, "part_id": part_id}

@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timedelta
 
 import requests
+from loguru import logger
 from vkwave.bots import SimpleLongPollBot
 
 from config import get_settings, get_db
@@ -544,43 +545,49 @@ async def send_club_notice(club_id, score):
 
 
 async def add_user_points(user_id, point=True, task_name=None):
-    points = 0
-    if point:
-        points = random.randint(1, 3)
-    crud.update_user_stats(user_id, points=points, personal_tasks=1)
-    user = crud.get_user(user_id)
-    if point:
-        text = f"Пользователь {user.name} ({user_id}) заработал " \
-               f"{points} 🏮 и 1 ⭐."
-        # notice(text)
-        crud.create_user_log(user_id, task_name, points, 1, int(time.time()))
-        item_info = await create_collection_item(user_id=user_id)
-        crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
-                                   collection_id=item_info['collection_id'])
-    user_stats = crud.get_user_stats(user_id)
-    if await user_prizes(user_stats.personal_tasks):
-        await send_user_notice(user_id, user_stats.personal_tasks)
+    try:
+        points = 0
+        if point:
+            points = random.randint(1, 3)
+        crud.update_user_stats(user_id, points=points, personal_tasks=1)
+        user = crud.get_user(user_id)
+        if point:
+            text = f"Пользователь {user.name} ({user_id}) заработал " \
+                   f"{points} 🏮 и 1 ⭐."
+            # notice(text)
+            crud.create_user_log(user_id, task_name, points, 1, int(time.time()))
+            item_info = await create_collection_item(user_id=user_id)
+            crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+                                       collection_id=item_info['collection_id'])
+        user_stats = crud.get_user_stats(user_id)
+        if await user_prizes(user_stats.personal_tasks):
+            await send_user_notice(user_id, user_stats.personal_tasks)
+    except Exception as e:
+        logger.error(f"add_user_points {e}")
 
 
 async def add_club_points(user_id=None, club_id=None, point=True, task_name=None):
-    points, user_name = 0, None
-    if point:
-        points = random.randint(1, 3)
-    crud.update_club_stats(club_id, points, 1)
-    if user_id:
-        user = crud.get_user(user_id)
-        user_name = user.name
-    club = crud.get_club(club_id)
-    if point:
-        text = f"Пользователь {user_name} ({user_id}) заработал в клуб" \
-               f" {club.name} ({club_id}) {points} 🏵 и 1 🎄."
-        # notice(text)
-        crud.create_club_log(user_id, task_name, club_id, points, 1, int(time.time()))
-        item_info = await create_collection_item(user_id=user_id)
-        crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
-                                   collection_id=item_info['collection_id'])
-    if user_id:
-        crud.update_user_stats(user_id, club_tasks=1, club_points=points)
-    club_stats = crud.get_club_stats(club_id)
-    if await club_prizes(club_stats.total_tasks):
-        await send_club_notice(club_id, club_stats.total_tasks)
+    try:
+        points, user_name = 0, None
+        if point:
+            points = random.randint(1, 3)
+        crud.update_club_stats(club_id, points, 1)
+        if user_id:
+            user = crud.get_user(user_id)
+            user_name = user.name
+        club = crud.get_club(club_id)
+        if point:
+            text = f"Пользователь {user_name} ({user_id}) заработал в клуб" \
+                   f" {club.name} ({club_id}) {points} 🏵 и 1 🎄."
+            # notice(text)
+            crud.create_club_log(user_id, task_name, club_id, points, 1, int(time.time()))
+            item_info = await create_collection_item(user_id=user_id)
+            crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+                                       collection_id=item_info['collection_id'])
+        if user_id:
+            crud.update_user_stats(user_id, club_tasks=1, club_points=points)
+        club_stats = crud.get_club_stats(club_id)
+        if await club_prizes(club_stats.total_tasks):
+            await send_club_notice(club_id, club_stats.total_tasks)
+    except Exception as e:
+        logger.error(f"add_club_points {e}")
