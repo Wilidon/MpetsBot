@@ -47,6 +47,8 @@ async def logs(event: SimpleBotEvent):
         if "in_online" in task.task_name or \
                 "30online_0" in task.task_name:
             task_name = task_name.rsplit("_", maxsplit=1)[0]
+        elif "anketa_" in task.task_name:
+            task_name = task_name.split("_", maxsplit=1)[0]
         text += f"{user_task_log[task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
     text += f"\n🎈Клубные:\n"
     for task in club_log:
