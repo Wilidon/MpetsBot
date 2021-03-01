@@ -795,3 +795,7 @@ def get_name(name):
 
 def get_club_name(name):
     return db.query(models.Clubs).filter_by(name=name).first()
+
+
+def get_tasks_with_date(date: int):
+    return db.query(models.ClubsTasks).filter_by(date=date).all()

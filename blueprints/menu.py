@@ -24,7 +24,7 @@ async def report(event: SimpleBotEvent):
     user = event["current_user"]
     try:
         msg = event.object.object.message.text.split(" ", maxsplit=1)[1]
-    except:
+    except Exception as e:
         msg = "Null"
     text = f"{user.first_name} {user.last_name} ({user.user_id}) нуждается в " \
            f"психологической помощи.\n\n" \
