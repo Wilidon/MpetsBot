@@ -54,10 +54,10 @@ async def logs(event: SimpleBotEvent):
     for task in club_log:
         task_name = task.task_name
         if "send_specific_gift_any_player" in task.task_name or \
-                "get_gift_30" in task.task_name or \
-                "send_gift_any_player_0" in task.task_name or \
-                "get_random_gift_0" in task.task_name:
-            task_name = task_name.rsplit("_")[0]
+                "get_gift" in task.task_name or \
+                "send_gift_any_player" in task.task_name or \
+                "get_random_gift" in task.task_name:
+            task_name = task_name.rsplit("_", maxsplit=1)[0]
         text += f"{club_task_log[task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
     text += f"\n🧩 Коллекции: \n"
     for collection in collection_log:
