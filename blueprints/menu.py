@@ -51,8 +51,10 @@ async def logs(event: SimpleBotEvent):
     club_log = crud.get_club_task_log(user_id=user_id)
     collection_log = crud.get_collection_log(user_id=user_id)
     for task in user_log:
-        logger.debug(f"task.user_id {user_id} | task name {task.task_name}")
-        text += f"{user_task_log[task.task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
+        task_name = task.task_name
+        if "anketa" in task.task_name:
+            task_name = task_name.split("_", maxsplit=1)[0]
+        text += f"{user_task_log[task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
     text += f"\n🎈Клубные:\n"
     for task in club_log:
         task_name = task.task_name
