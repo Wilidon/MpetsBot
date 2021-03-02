@@ -14,7 +14,7 @@ from blueprints.user_tasks import user_router
 from config import get_settings, logger_config
 from middlewares import UserMiddleware
 
-__version__ = "2.1.1"
+__version__ = "2.1.5"
 
 from sql import models
 from sql.database import engine
