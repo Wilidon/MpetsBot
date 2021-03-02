@@ -872,7 +872,7 @@ async def del_club_tasks_handler(event: SimpleBotEvent):
     await add_collection_item(user_id=user_id,
                               collection_id=collection_id,
                               part_id=part_id)
-    return "Часть коллекции начислен."
+    return "Часть коллекции начислена."
 
 
 @simple_bot_message_handler(admin_router,

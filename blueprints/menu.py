@@ -38,21 +38,21 @@ async def report(event: SimpleBotEvent):
                                 ["/logs"]))
 async def logs(event: SimpleBotEvent):
     user = event["current_user"]
+    user_id = user.user_id
+    try:
+        msg = event.object.object.message.text.split()
+        if len(msg) == 2 and user.access >= 3:
+            user_id = int(msg[1])
+    except Exception as e:
+        pass
     text = "Список последних наград\n\n"
     text += f"✏️ Личные: \n"
-    user_log = crud.get_user_task_log(user_id=user.user_id)
-    club_log = crud.get_club_task_log(user_id=user.user_id)
-    collection_log = crud.get_collection_log(user_id=user.user_id)
+    user_log = crud.get_user_task_log(user_id=user_id)
+    club_log = crud.get_club_task_log(user_id=user_id)
+    collection_log = crud.get_collection_log(user_id=user_id)
     for task in user_log:
-        logger.debug(f"task.user_id {task.user_id} | task name {task.task_name}")
-        task_name = task.task_name
-        if "in_online" in task.task_name or \
-                "30online" in task.task_name:
-            task_name = task_name.rsplit("_", maxsplit=1)[0]
-        elif "anketa_" in task.task_name:
-            task_name = task_name.split("_", maxsplit=1)[0]
-        logger.debug(f"result {task_name}")
-        text += f"{user_task_log[task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
+        logger.debug(f"task.user_id {user_id} | task name {task.task_name}")
+        text += f"{user_task_log[task.task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
     text += f"\n🎈Клубные:\n"
     for task in club_log:
         task_name = task.task_name
