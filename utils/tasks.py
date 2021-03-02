@@ -671,6 +671,8 @@ async def update_charm_rating():
             if int(game_time["time"].split(":")[1]) % 10 == 0:
                 continue
             resp = await mpets.best("charm", page)
+            elapsed_time = time.time() - time0
+            logger.info(f"запрос выполнился за | {elapsed_time}")
             if resp["status"] != "ok":
                 continue
             for pet in resp["pets"]:
@@ -726,7 +728,7 @@ async def update_charm_rating():
                                             place=pet["place"],
                                             score=pet["score"])
             elapsed_time = time.time() - time0
-            if elapsed_time >= 5:
+            if elapsed_time >= 15:
                 logger.critical(f"charm | {elapsed_time} | page {page}")
             page += 1
             if page >= 668:
