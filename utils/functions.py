@@ -493,15 +493,15 @@ def notice(message):
 
 async def send_user_notice(user_id, score):
     """
-    Поздравляем! Вы набрали 50 ⭐️
+    Поздравляем! Вы набрали 50 🌼️
     Доступные товары появились в 🏪Магазине.
     """
     settings = get_settings()
-    message = f"Поздравляем! Вы набрали {score} ⭐️\n" \
+    message = f"Поздравляем! Вы набрали {score} 🌼️\n" \
               f"Вам будет зачислен приз – {prizes[score]}"
     if "shop" in prizes[score]:
         crud.add_user_item(user_id, prizes[score], score, status=prizes[score])
-        message = f"Поздравляем! Вы набрали {score} ⭐️\n" \
+        message = f"Поздравляем! Вы набрали {score} 🌼️\n" \
                   f"Доступные призы появились в 🏪 Магазине."
     else:
         crud.add_user_item(user_id, prizes[score], score)
@@ -538,7 +538,7 @@ async def send_user_notice(user_id, score):
 async def send_club_notice(club_id, score):
     users = crud.get_users_with_club(club_id)
     settings = get_settings()
-    message = f"Поздравляем! Вы набрали {score} 🎄\n" \
+    message = f"Поздравляем! Вы набрали {score} 🦋\n" \
               f"Вам будет зачислен приз – {c_prizes[score]}"
     crud.add_club_item(club_id, c_prizes[score], score)
     for user in users:
@@ -568,7 +568,7 @@ async def add_user_points(user_id, point=True, task_name=None):
         user = crud.get_user(user_id)
         if point:
             text = f"Пользователь {user.name} ({user_id}) заработал " \
-                   f"{points} 🏮 и 1 ⭐."
+                   f"{points} 🏮 и 1 🌼."
             # notice(text)
             crud.create_user_log(user_id, task_name, points, 1, int(time.time()))
             item_info = await create_collection_item(user_id=user_id)
@@ -593,7 +593,7 @@ async def add_club_points(user_id=None, club_id=None, point=True, task_name=None
         club = crud.get_club(club_id)
         if point:
             text = f"Пользователь {user_name} ({user_id}) заработал в клуб" \
-                   f" {club.name} ({club_id}) {points} 🏵 и 1 🎄."
+                   f" {club.name} ({club_id}) {points} 🏵 и 1 🦋."
             # notice(text)
             crud.create_club_log(user_id, task_name, club_id, points, 1, int(time.time()))
             item_info = await create_collection_item(user_id=user_id)
