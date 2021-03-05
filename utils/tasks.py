@@ -8,7 +8,8 @@ from config import get_settings
 from mpetsapi import MpetsApi
 from sql import crud
 from utils import functions
-from utils.constants import gifts_name, holiday_1402, holiday_2302, holiday_1402_prizes, holiday_2302_prizes
+from utils.constants import gifts_name, holiday_1402, holiday_2302, holiday_1402_prizes, holiday_2302_prizes, \
+    holiday_308, holiday_308_prizes
 
 
 async def check_task(user, user_task, progress, task_name):
@@ -826,6 +827,9 @@ async def checking_avatar_htask(mpets, user, user_task):
     elif holiday_2302[0] <= today <= holiday_2302[1]:
         prize = holiday_2302_prizes['avatar']
         avatar_ids = [6, 7]
+    elif holiday_308[0] <= today <= holiday_308[1]:
+        prize = holiday_308_prizes['avatar']
+        avatar_ids = [0, 1]
     profile = await mpets.view_profile(user.pet_id)
     if profile["status"] != "ok":
         return 0
@@ -861,6 +865,9 @@ async def checking_anketa_htask(mpets, user, user_task):
     elif holiday_2302[0] <= today <= holiday_2302[1]:
         prize = holiday_2302_prizes['anketa']
         smiles = ["⭐️", "⭐"]
+    elif holiday_308[0] <= today <= holiday_308[1]:
+        prize = holiday_308_prizes['anketa']
+        smiles = ["✿ܓ"]
     profile = await mpets.view_anketa(user.pet_id)
     if profile["status"] != "ok":
         return False
@@ -900,6 +907,10 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
         hdate = holiday_2302[2]
         prize = holiday_2302_prizes['gifts']
         gift_ids = [26, 27, 35]
+    elif holiday_308[0] <= date <= holiday_308[1]:
+        hdate = holiday_308[2]
+        prize = holiday_308_prizes['gifts']
+        gift_ids = [45, 46, 47]
     while True:
         if today is False:
             break
@@ -1013,6 +1024,8 @@ async def checking_holiday_tasks():
                 date = holiday_1402[2]
             elif holiday_2302[0] <= today <= holiday_2302[1]:
                 date = holiday_2302[2]
+            elif holiday_308[0] <= today <= holiday_308[1]:
+                date = holiday_308[2]
             else:
                 await asyncio.sleep(120)
                 continue
@@ -1025,14 +1038,14 @@ async def checking_holiday_tasks():
                     continue
                 task = asyncio.create_task(start_checking_holiday_tasks(user=user, date=date))
                 tasks.append(task)
-                '''if len(tasks) >= 10:
+                if len(tasks) >= 10:
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
                 elif i + 1 == len(users):
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
-                    tasks = []'''
+                    tasks = []
             await asyncio.gather(*tasks)
             await asyncio.sleep(1)
             tasks = []

@@ -4,12 +4,12 @@ from vkwave.bots import Keyboard, ButtonColor
 
 from sql import crud
 from utils.collection_handler import check_collected_collection
-from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections
+from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections, holiday_308
 
 
 async def get_kb(shop: bool = False, access: int = 0, holiday: int = False):
     MENU = Keyboard()
-    if holiday_1402[0] <= holiday <= holiday_1402[1] + 1:
+    if holiday_1402[0] <= holiday <= holiday_1402[1]:
         MENU.add_text_button(text="❤️День Святого Валентина",
                              payload={"command": "0214"},
                              color=ButtonColor.POSITIVE)
@@ -19,10 +19,11 @@ async def get_kb(shop: bool = False, access: int = 0, holiday: int = False):
                              payload={"command": "0223"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
-    MENU.add_text_button(text="🧩Коллекции ",
-                         payload={"command": "collections"},
-                         color=ButtonColor.POSITIVE)
-    MENU.add_row()
+    elif holiday_308[0] <= holiday <= holiday_308[1]:
+        MENU.add_text_button(text="🌹 Международный женский день",
+                             payload={"command": "0308"},
+                             color=ButtonColor.POSITIVE)
+        MENU.add_row()
     MENU.add_text_button(text="🗒 Личные задания",
                          payload={"command": "user_tasks"},
                          color=ButtonColor.SECONDARY)
@@ -43,6 +44,10 @@ async def get_kb(shop: bool = False, access: int = 0, holiday: int = False):
     MENU.add_text_button(text="🏡 Клуб",
                          payload={"command": "club"},
                          color=ButtonColor.POSITIVE)
+    MENU.add_row()
+    MENU.add_text_button(text="🧩Коллекции ",
+                         payload={"command": "collections"},
+                         color=ButtonColor.PRIMARY)
     if shop:
         MENU.add_row()
         MENU.add_text_button(text="🏪 Магазин", payload={"command": "shop"},
