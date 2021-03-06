@@ -15,7 +15,7 @@ from blueprints.user_tasks import user_router
 from config import get_settings, logger_config
 from middlewares import UserMiddleware
 
-__version__ = "2.2.0"
+__version__ = "2.3.1"
 
 from sql import models
 from sql.database import engine
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # Создаем все таблицы в базе данных
     # Подключен alembic, поэтому строчку не нужна
-    models.Base.metadata.create_all(bind=engine)
+    # models.Base.metadata.create_all(bind=engine)
 
     # Подключаем промежуточное ПО
     bot.middleware_manager.add_middleware(UserMiddleware())
