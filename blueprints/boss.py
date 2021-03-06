@@ -66,14 +66,14 @@ async def holiday_handler(event: SimpleBotEvent):
     if len(boss) == 1:
         text = f"{bosses[boss[0].boss_id]['name']}\n" \
                f"Осталось: ❤️{boss[0]   .health_points}\n\n" \
-               f"Каждый удар наносит 10 урона\n\n" \
+               f"Каждый ⚔️ наносит 10 урона\n\n" \
                f"Смена аватарки на «Дракон» +5 урона\n" \
                f"Смена анкеты на «Воюю с драконом!» +5 урона\n" \
                f"{await left_event()}"
     if len(boss) == 2:
         text = f"{bosses[boss[0].boss_id]['name']} и {bosses[boss[1].boss_id]['name']}\n" \
                f"Осталось: ❤️{boss[0].health_points} и 💙{boss[1].health_points}\n\n" \
-               f"Каждый удар наносит 10 урона\n\n" \
+               f"Каждый ⚔️ наносит 10 урона\n\n" \
                f"Смена аватарки на «Дракон» +5 урона\n" \
                f"Смена анкеты на «Воюю с драконом!» +5 урона\n" \
                f"{await left_event()}"
@@ -97,7 +97,8 @@ async def collect_collection_handler(event: SimpleBotEvent):
         await menu(user=user, event=event, message=text)
     if len(current_bosses) == 1:
         if hit_id == 1:
-            boss_id = current_bosses[0].id
+            id = current_bosses[0].id
+            boss_id = current_bosses[0].boss_id
     if len(current_bosses) == 2:
         if hit_id == 1:
             id = current_bosses[0].id
@@ -116,7 +117,7 @@ async def collect_collection_handler(event: SimpleBotEvent):
                            damage=amount_damage)
     crud.update_boss_health(boss_id=id,
                             damage=amount_damage)
-    text = f"Вы нанесли {amount_damage} урона."
+    text = f"Вы нанесли {amount_damage} ⚔️."
     await boss_kb(user=user, event=event, message=text, boss_amount=len(current_bosses))
 
 
