@@ -2,26 +2,35 @@ from datetime import datetime
 
 from vkwave.bots import Keyboard, ButtonColor
 
+from config import get_db
 from sql import crud
 from utils.collection_handler import check_collected_collection
 from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections, holiday_308
 
 
-async def get_kb(shop: bool = False, access: int = 0, holiday: int = False):
+async def get_kb(shop: bool = False, access: int = 0, today: int = False):
     MENU = Keyboard()
-    if holiday_1402[0] <= holiday <= holiday_1402[1]:
+    db = get_db()
+    boss_start = db.get("boss_start")
+    boss_end = db.get("boss_end")
+    if holiday_1402[0] <= today <= holiday_1402[1]:
         MENU.add_text_button(text="❤️День Святого Валентина",
                              payload={"command": "0214"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
-    elif holiday_2302[0] <= holiday <= holiday_2302[1]:
+    elif holiday_2302[0] <= today <= holiday_2302[1]:
         MENU.add_text_button(text="👨‍✈️День защитника Отечества",
                              payload={"command": "0223"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
-    elif holiday_308[0] <= holiday <= holiday_308[1]:
+    elif holiday_308[0] <= today <= holiday_308[1]:
         MENU.add_text_button(text="🌹 Международный женский день",
                              payload={"command": "0308"},
+                             color=ButtonColor.POSITIVE)
+        MENU.add_row()
+    if boss_start <= today <= boss_end and access >= 3:
+        MENU.add_text_button(text="🦠 Босс",
+                             payload={"command": "boss"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
     MENU.add_text_button(text="🗒 Личные задания",
@@ -202,12 +211,47 @@ async def collection_kb(user, event, message="Лера, не забудь доб
     await event.answer(message=message, keyboard=COLLECTION_KB.get_keyboard())
 
 
+async def boss_kb(user, event, message="Лера, не забудь добавить текст", boss_amount=1):
+    BOSS_KB = Keyboard()
+    if boss_amount == 1:
+        BOSS_KB.add_text_button(text="Ударить!",
+                                payload={"command": "hit1"},
+                                color=ButtonColor.POSITIVE)
+        BOSS_KB.add_row()
+    if boss_amount == 2:
+        BOSS_KB.add_text_button(text="Ударить!",
+                                payload={"command": "hit1"},
+                                color=ButtonColor.NEGATIVE)
+        BOSS_KB.add_text_button(text="Ударить!",
+                                payload={"command": "hit2"},
+                                color=ButtonColor.PRIMARY)
+        BOSS_KB.add_row()
+    '''if user.access >= 3:
+        if boss_amount == 1:
+            BOSS_KB.add_text_button(text="Убить!",
+                                    payload={"command": "kill1"},
+                                    color=ButtonColor.POSITIVE)
+            BOSS_KB.add_row()
+        if boss_amount == 2:
+            BOSS_KB.add_text_button(text="Убить!",
+                                    payload={"command": "kill1"},
+                                    color=ButtonColor.NEGATIVE)
+            BOSS_KB.add_text_button(text="Убить!",
+                                    payload={"command": "kill2"},
+                                    color=ButtonColor.PRIMARY)
+            BOSS_KB.add_row()'''
+    BOSS_KB.add_text_button(text="🔽 Назад",
+                            payload={"command": "menu"},
+                            color=ButtonColor.SECONDARY)
+    await event.answer(message=message, keyboard=BOSS_KB.get_keyboard())
+
+
 async def menu(user, event, message="Меню"):
     today = int(datetime.today().strftime("%m%d"))
     items = crud.get_user_item(user.user_id, "shop_%")
     if items:
-        keyboard = await get_kb(shop=True, access=user.access, holiday=today)
+        keyboard = await get_kb(shop=True, access=user.access, today=today)
         await event.answer(message=message, keyboard=keyboard.get_keyboard())
     else:
-        keyboard = await get_kb(access=user.access, holiday=today)
+        keyboard = await get_kb(access=user.access, today=today)
         await event.answer(message=message, keyboard=keyboard.get_keyboard())

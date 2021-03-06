@@ -627,10 +627,10 @@ async def creating_club_tasks():
 async def checking_thread():
     mpets = MpetsApi()
     await mpets.start()
-    thread_id, page = 2570403, 1
+    thread_id, page = 2573211, 1
     while True:
         try:
-            thread = await mpets.thread(2570403, page)
+            thread = await mpets.thread(thread_id, page)
             for msg in thread['messages']:
                 if crud.get_message(msg['message_id']):
                     continue
@@ -653,7 +653,7 @@ async def checking_thread():
                                          page=page)
             if len(thread['messages']) == 15:
                 page += 1
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
         except Exception:
             pass
 

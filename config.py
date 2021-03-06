@@ -46,6 +46,14 @@ def get_db():
         db.lgetall("club_tasks")
     except KeyError:
         db.lcreate("club_tasks")
+    try:
+        db.get("boss_start")
+    except KeyError:
+        db.get("boss_start")
+    try:
+        db.get("boss_end")
+    except KeyError:
+        db.get("boss_end")
     return db
 
 logger_config = {

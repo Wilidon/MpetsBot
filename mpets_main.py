@@ -4,6 +4,7 @@ from loguru import logger
 from vkwave.bots import SimpleLongPollBot
 
 from blueprints.admin import admin_router
+from blueprints.boss import boss_router
 from blueprints.club_tasks import club_router
 from blueprints.collections import collections_router
 from blueprints.holidays import holidays_router
@@ -37,7 +38,7 @@ if __name__ == "__main__":
 
     # Создаем все таблицы в базе данных
     # Подключен alembic, поэтому строчку не нужна
-    # models.Base.metadata.create_all(bind=engine)
+    models.Base.metadata.create_all(bind=engine)
 
     # Подключаем промежуточное ПО
     bot.middleware_manager.add_middleware(UserMiddleware())
@@ -49,6 +50,7 @@ if __name__ == "__main__":
     bot.dispatcher.add_router(club_router)
     bot.dispatcher.add_router(holidays_router)
     bot.dispatcher.add_router(collections_router)
+    bot.dispatcher.add_router(boss_router)
     bot.dispatcher.add_router(admin_router)
 
     bot.dispatcher.add_router(menu_router)

@@ -88,7 +88,7 @@ async def view_profile(pet_id, cookies, connector):
     try:
         club_id = club = rank_club = family_id = family_name = club_const = club_day = effect = None
         last_login = 'online'
-        club_coin = club_heart = None
+        club_coin = club_heart = about = None
         async with ClientSession(cookies=cookies,
                                  timeout=ClientTimeout(total=10),
                                  connector=connector) as session:
@@ -118,6 +118,8 @@ async def view_profile(pet_id, cookies, connector):
                     last_login = re.sub("^\s+|\n|\r|\s+$", '', last_login)
                 elif 'VIP-аккаунт' in ac.text:
                     effect = 'VIP'
+                elif 'О себе:' in ac.text:
+                    about = ac.text.split(": ", maxsplit=1)[1].split("\t", maxsplit=1)[0]
                 elif 'Премиум-аккаунт' in ac.text:
                     effect = 'premium'
                 elif 'Семья' in ac.text:
@@ -147,6 +149,7 @@ async def view_profile(pet_id, cookies, connector):
                     'ava_id': ava_id,
                     'level': int(level),
                     'last_login': last_login,
+                    'about': about,
                     'effect': effect,
                     'beauty': beauty,
                     'family_id': family_id,

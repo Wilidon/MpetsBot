@@ -244,6 +244,28 @@ class CollectionsLog(Base):
     collected_time = Column(DateTime(timezone=True), default=func.now(tz=pytz.timezone('Etc/GMT+3')))
 
 
+class Boss(Base):
+    __tablename__ = "boss"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    boss_id = Column(Integer)
+    health_points = Column(Integer)
+    status = Column(String, default="ok")
+    created_at = Column(DateTime(timezone=True), default=func.now(tz=pytz.timezone('Etc/GMT+3')))
+
+
+class BossDamage(Base):
+    __tablename__ = "damageboss"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer)
+    boss_id = Column(Integer)
+    damage = Column(Integer)
+    damage_time = Column(DateTime(timezone=True), default=func.now(tz=pytz.timezone('Etc/GMT+3')))
+
+
 class Bans(Base):
     __tablename__ = "bans"
     __table_args__ = {"schema": "public"}

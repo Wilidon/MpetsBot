@@ -383,6 +383,7 @@ async def wipe(event: SimpleBotEvent):
     if crud.total_wipe():
         return "Рейтинги обнулены."
 
+
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(["/megatotalwipe"]))
 async def wipe(event: SimpleBotEvent):
@@ -927,6 +928,41 @@ async def collection_list(event: SimpleBotEvent):
         text += f"\nНаграда за коллекцию: {reward}\n\n"
         counter += 1
     return text
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["+boss"]))
+async def del_club_tasks_handler(event: SimpleBotEvent):
+    # format +boss {boss_id} {health_points}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) != 3:
+        return "format +boss {boss_id} {health_points}"
+    boss_id = int(msg[1])
+    health_points = int(msg[2])
+    crud.create_boss(boss_id=boss_id,
+                     health_points=health_points)
+    return "Босс создан."
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/boss"]))
+async def add_club_tasks_handler(event: SimpleBotEvent):
+    # format /boss {start_date} {end_date}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) != 3:
+        return "format /boss {start_date} {end_date}"
+    boss_start = int(msg[1])
+    boss_end = int(msg[2])
+    db = get_db()
+    db.set("boss_start", boss_start)
+    db.set("boss_end", boss_end)
+    return "Даты установлены."
 
 
 @simple_bot_message_handler(admin_router,

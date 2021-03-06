@@ -803,3 +803,29 @@ def get_tasks_with_date(date: int):
 
 def delete_colletion_6():
     return db.query(models.Collections).filter_by(collection_id=6).all()
+
+
+def get_current_boss():
+    return db.query(models.Boss).filter_by(status="ok").order_by(
+        models.Boss.id.desc()).all()
+
+
+def create_boss(boss_id: int, health_points: int):
+    boss = models.Boss(boss_id=boss_id,
+                       health_points=health_points)
+    db.add(boss)
+    db.commit()
+
+
+def create_damage_log(user_id: int, boss_id: int, damage: int):
+    boss_damage = models.BossDamage(user_id=user_id,
+                                    boss_id=boss_id,
+                                    damage=damage)
+    db.add(boss_damage)
+    db.commit()
+
+
+def update_boss_health(boss_id: int, damage: int):
+    boss = db.query(models.Boss).filter_by(id=boss_id).first()
+    boss.health_points -= damage
+    db.commit()
