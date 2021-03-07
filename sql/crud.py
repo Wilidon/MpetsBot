@@ -807,8 +807,8 @@ def delete_colletion_6():
 
 
 def get_current_boss():
-    return db.query(models.Boss).filter_by(status="ok").order_by(
-        models.Boss.id.desc()).all()
+    return db.query(models.Boss).order_by(
+        models.Boss.id.desc()).first()
 
 
 def create_boss(boss_id: int, health_points: int):
@@ -840,3 +840,58 @@ def update_boss_status(boss_id: int, status: str):
     db.commit()
     db.refresh(boss)
     return boss
+
+
+def update_user_boss_reward(user_id: int, boss_id: int, reward: str):
+    boss = db.query(models.BossRewards).filter_by(user_id=user_id,
+                                                  boss_id=boss_id).first()
+    boss.reward = reward
+    db.commit()
+    db.refresh(boss)
+    return boss
+
+
+def get_users_boss_reward(boss_id: int):
+    return db.query(models.BossRewards).filter_by(boss_id=boss_id).order_by(
+        models.BossRewards.id.desc()).all()
+
+
+def update_boss_reward(user_id: int, boss_id: int, damage: int = 0):
+    boss_reward = db.query(models.BossRewards).filter_by(user_id=user_id,
+                                                         boss_id=boss_id).first()
+    if boss_reward is None:
+        boss_reward = models.BossRewards(user_id=user_id,
+                                         boss_id=boss_id)
+        db.add(boss_reward)
+        db.commit()
+        db.refresh(boss_reward)
+    boss_reward.total_damage += damage
+    db.commit()
+    db.refresh(boss_reward)
+    return boss_reward
+
+
+def update_boss_reward_status(user_id: int, boss_id: int, status: str = 'killed'):
+    boss_reward = db.query(models.BossRewards).filter_by(user_id=user_id,
+                                                         boss_id=boss_id).first()
+    if boss_reward is None:
+        boss_reward = models.BossRewards(user_id=user_id,
+                                         boss_id=boss_id,
+                                         status=status)
+        db.add(boss_reward)
+        db.commit()
+        db.refresh(boss_reward)
+    boss_reward.status = status
+    db.commit()
+    db.refresh(boss_reward)
+    return boss_reward
+
+
+def get_user_killed_boss(boss_id: int, status: str = 'killed'):
+    return db.query(models.BossRewards).filter_by(boss_id=boss_id,
+                                                  status=status).first()
+
+
+def get_user_boss(user_id: int, boss_id: int):
+    return db.query(models.BossRewards).filter_by(user_id=user_id,
+                                                  boss_id=boss_id).first()

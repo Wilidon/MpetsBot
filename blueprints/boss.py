@@ -9,7 +9,7 @@ from config import get_db
 from keyboards.kb import menu, boss_kb
 from mpetsapi import MpetsApi
 from noticed import notice
-from sql import crud
+from sql import crud, models
 from utils.constants import holiday_1402, bosses
 
 boss_router = DefaultRouter()
@@ -31,6 +31,30 @@ async def timer(sec):
         return str(sec) + 'с'
 
 
+async def boss_result(boss: models.Boss):
+    try:
+        clubs_damage = {}
+        all_users: list[models.BossRewards] = crud.get_users_boss_reward(boss_id=boss.boss_id)
+        user_text = f"Итоги по боссу {bosses[boss.boss_id]['name']}\n" \
+                    f"Всего участников: {len(all_users)}\n"
+        club_text = f"Итоги по боссу {bosses[boss.boss_id]['name']}\n"
+        for user in all_users:
+            current_user: models.Users = crud.get_user(user_id=user.user_id)
+            try:
+                clubs_damage[current_user.club_id] += user.total_damage
+            except Exception as e:
+                clubs_damage[current_user.club_id] = user.total_damage
+            user_text += f"{current_user.first_name} {current_user.last_name} — {user.total_damage} ⚔️"
+        for club_id, club_damage in clubs_damage.items():
+            club: models.Clubs = crud.get_club(club_id=club_id)
+            if club is None:
+                continue
+            club_text += f"{club.name} — {club_damage} ⚔️"
+        return {'user': user_text, 'club': club_text}
+    except:
+        raise
+
+
 async def left_event():
     # возвращает время до конца мероприятия
     db = get_db()
@@ -39,7 +63,7 @@ async def left_event():
     left_time = time.mktime(datetime.strptime(today, "%m%d%Y").timetuple())
     left_time = left_time - int(time.time())
     if left_time > 0:
-        return f"\n Окончание ивента через {await timer(int(left_time))}"
+        return f"\n 🕐 Окончание ивента через {await timer(int(left_time))}"
 
 
 async def get_user_baff(pet_id: int):
@@ -56,23 +80,42 @@ async def get_user_baff(pet_id: int):
         return {"status": False}
 
 
-async def get_boss_text(boss):
-    if not boss:
-        return "Событие завершилось!"
-    if len(boss) == 1:
-        return f"{bosses[boss[0].boss_id]['name']}\n" \
-               f"Осталось: ❤️{boss[0].health_points}\n\n" \
-               f"Каждый удар наносит 10 урона\n\n" \
-               f"Смена аватарки на «Дракон» +5 урона\n" \
-               f"Смена анкеты на «Воюю с драконом!» +5 урона\n" \
-               f"{await left_event()}"
-    if len(boss) == 2:
-        return f"{bosses[boss[0].boss_id]['name']} и {bosses[boss[1].boss_id]['name']}\n" \
-               f"Осталось: ❤️{boss[0].health_points} и 💙{boss[1].health_points}\n\n" \
-               f"Каждый удар наносит 10 урона\n\n" \
-               f"Смена аватарки на «Дракон» +5 урона\n" \
-               f"Смена анкеты на «Воюю с драконом!» +5 урона\n" \
-               f"{await left_event()}"
+async def get_boss_text(boss, user_id):
+    if boss.status == 'dead':
+        last_user: models.BossRewards = crud.get_user_killed_boss(boss_id=boss.boss_id)
+        user = crud.get_user(user_id=last_user.user_id)
+        if last_user.reward == '':
+            if user_id == last_user.user_id:
+                crud.update_user_boss_reward(user_id=user_id,
+                                             boss_id=boss.boss_id,
+                                             reward=bosses[boss.boss_id]['reward_killed'])
+            else:
+                current_user = crud.get_user_boss(user_id=user_id,
+                                                  boss_id=boss.boss_id)
+                amount = current_user.total_damage // 500
+                reward = f"{amount}🌼, {amount*2}🎖, {amount*2}🎈"
+                crud.update_user_boss_reward(user_id=user_id,
+                                             boss_id=boss.boss_id,
+                                             reward=reward)
+
+        if user_id == last_user.user_id:
+            return f"{user.name} добил {bosses[boss.boss_id]['short_name']} " \
+                   f"и получил {bosses[boss.boss_id]['reward_killed']}.\n\n" \
+                   f"💊 Вы нанесли урона: {last_user.total_damage}\n" \
+                   f"⚔ Ваша награда: {bosses[boss.boss_id]['reward_killed']}"
+        else:
+            current_user = crud.get_user_boss(user_id=user_id,
+                                              boss_id=boss.boss_id)
+            return f"{user.name} добил {bosses[boss.boss_id]['short_name']} " \
+                   f"и получил {bosses[boss.boss_id]['reward_killed']}.\n\n" \
+                   f"💊 Вы нанесли урона: {last_user.total_damage}\n" \
+                   f"⚔ Ваша награда: {current_user.reward}"
+    return f"{bosses[boss.boss_id]['name']}\n" \
+           f"💊 Осталось: {boss.health_points} ❤\n\n" \
+           f"⚔ Каждый удар наносит 10 урона\n\n" \
+           f"🐉 Смена аватарки на «Дракон» +5 урона\n" \
+           f"🏹 Смена анкеты на «Воюю с драконом!» +5 урона\n" \
+           f"{await left_event()}"
 
 
 @simple_bot_message_handler(boss_router,
@@ -80,41 +123,24 @@ async def get_boss_text(boss):
 async def holiday_handler(event: SimpleBotEvent):
     current_user = event["current_user"]
     boss = crud.get_current_boss()
-    text = await get_boss_text(boss)
-    await boss_kb(user=current_user, event=event, message=text, boss_amount=len(boss))
+    text = await get_boss_text(boss=boss, user_id=current_user.user_id)
+    await boss_kb(user=current_user, event=event, message=text)
 
 
 @simple_bot_message_handler(boss_router,
-                            PayloadFilter({"command": "hit1"}) |
-                            PayloadFilter({"command": "hit2"}))
+                            PayloadFilter({"command": "hit"}))
 async def collect_collection_handler(event: SimpleBotEvent):
     user = event["current_user"]
-    try:
-        hit_id = json.loads(event.object.object.message.payload)["command"].split("t")[1]
-        hit_id = int(hit_id)
-    except Exception:
-        return "Ошибка"
     amount_damage = 10
-    boss_name = "Синий дракон"
+    boss_name = "Монстр"
     current_bosses = crud.get_current_boss()
-    amount_bosses = (len(current_bosses))
-    if current_bosses is None:
+    if current_bosses.status == 'dead':
+        last_user = crud.get_user_killed_boss()
         text = "Событие завершено"
         await menu(user=user, event=event, message=text)
-    if amount_bosses == 1:
-        if hit_id == 1:
-            boss_name = "Красный дракон"
-            id = current_bosses[0].id
-            boss_id = current_bosses[0].boss_id
-    if amount_bosses == 2:
-        if hit_id == 1:
-            boss_name = "Красный дракон"
-            id = current_bosses[0].id
-            boss_id = current_bosses[0].boss_id
-        if hit_id == 2:
-            boss_name = "Синий дракон"
-            id = current_bosses[1].id
-            boss_id = current_bosses[1].boss_id
+    id = current_bosses.id
+    boss_id = current_bosses.boss_id
+    boss_name = bosses[boss_id]['name']
     damage = await get_user_baff(pet_id=user.pet_id)
     if damage['status'] is True:
         if int(damage['ava_id']) == bosses[boss_id]['avatar_id']:
@@ -126,20 +152,29 @@ async def collect_collection_handler(event: SimpleBotEvent):
                            damage=amount_damage)
     boss = crud.update_boss_health(boss_id=id,
                                    damage=amount_damage)
+    crud.update_boss_reward(user_id=user.user_id,
+                            boss_id=boss_id,
+                            damage=amount_damage)
     if boss.health_points <= 0:
         crud.update_boss_status(boss_id=id,
                                 status="dead")
-        text = f"{boss_name} убит! Вы нанесли {amount_damage} ⚔️.\n" \
-               f"Ваша награда: ничево"
-        notice_msg = f"Босс {boss_name} убит игроком {user.user_id}\n" \
-                     f"Его приз: ничево"
-        #notice(message=notice_msg)
-        amount_bosses -= 1
+        crud.update_boss_reward_status(user_id=user.user_id,
+                                       boss_id=boss_id)
+        text = f"{boss_name} убит! \nВы нанесли {amount_damage} ⚔️.\n" \
+               f"Ваша награда: {bosses[boss_id]['reward_killed']}"
+        notice_msg = f"Босс {boss_name} убит игроком {user.first_name} {user.last_name}\n" \
+                     f"Его приз: {bosses[boss_id]['reward_killed']}"
+        result = await boss_result(boss)
+        user_result = result['user']
+        club_result = result['club']
+        notice(message=notice_msg)
+        notice(message=user_result)
+        notice(message=club_result)
     else:
-        text = await get_boss_text(current_bosses)
-        await boss_kb(user=user, event=event, message=text, boss_amount=amount_bosses)
+        text = await get_boss_text(boss=current_bosses, user_id=user.user_id)
+        await boss_kb(user=user, event=event, message=text)
         text = f"Вы нанесли {amount_damage} ⚔️.\n"
-    await boss_kb(user=user, event=event, message=text, boss_amount=amount_bosses)
+    await boss_kb(user=user, event=event, message=text)
 
 
 @simple_bot_message_handler(boss_router,

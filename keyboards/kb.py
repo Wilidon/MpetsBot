@@ -211,21 +211,12 @@ async def collection_kb(user, event, message="Лера, не забудь доб
     await event.answer(message=message, keyboard=COLLECTION_KB.get_keyboard())
 
 
-async def boss_kb(user, event, message="Лера, не забудь добавить текст", boss_amount=1):
+async def boss_kb(user, event, message="Лера, не забудь добавить текст"):
     BOSS_KB = Keyboard()
-    if boss_amount == 1:
-        BOSS_KB.add_text_button(text="Ударить!",
-                                payload={"command": "hit1"},
-                                color=ButtonColor.POSITIVE)
-        BOSS_KB.add_row()
-    if boss_amount == 2:
-        BOSS_KB.add_text_button(text="Ударить!",
-                                payload={"command": "hit1"},
-                                color=ButtonColor.NEGATIVE)
-        BOSS_KB.add_text_button(text="Ударить!",
-                                payload={"command": "hit2"},
-                                color=ButtonColor.PRIMARY)
-        BOSS_KB.add_row()
+    BOSS_KB.add_text_button(text="Ударить!",
+                            payload={"command": "hit"},
+                            color=ButtonColor.POSITIVE)
+    BOSS_KB.add_row()
     '''if user.access >= 3:
         if boss_amount == 1:
             BOSS_KB.add_text_button(text="Убить!",

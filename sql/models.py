@@ -266,6 +266,18 @@ class BossDamage(Base):
     damage_time = Column(DateTime(timezone=True), default=func.now(tz=pytz.timezone('Etc/GMT+3')))
 
 
+class BossRewards(Base):
+    __tablename__ = "bossrewards"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer)
+    boss_id = Column(Integer)
+    reward = Column(String, default='')
+    total_damage = Column(Integer, default=0)
+    status = Column(String, default='')
+
+
 class Bans(Base):
     __tablename__ = "bans"
     __table_args__ = {"schema": "public"}
