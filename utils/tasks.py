@@ -518,7 +518,7 @@ async def checking_inOnline_task(mpets, user, user_task):
         current_date += f' {h}:{m}'
         unix_time = int(time.mktime(time.strptime(current_date, '%d %b %Y '
                                                                 '%H:%M')))
-        if unix_time - 60 <= int(time.time()) <= unix_time + 60:
+        if unix_time - 120 <= int(time.time()) <= unix_time + 120:
             crud.update_user_task(user_task.id, user_task.end, "completed")
             await functions.add_user_points(user_id=user.user_id,
                                             task_name="online")
@@ -593,11 +593,12 @@ async def checking_users_tasks():
         try:
             users = crud.get_users_with_status("ok")
             tasks, counter = [], 0
+            time0 = int(time.time())
             for i in range(0, len(users)):
                 user = users[i]
                 task = asyncio.create_task(start_verify_user(user))
                 tasks.append(task)
-                if len(tasks) >= 10:
+                if len(tasks) >= 20:
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
@@ -605,7 +606,7 @@ async def checking_users_tasks():
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
-            # logger.info(f"Закончил проверять задания за {time.time() - time0}")
+            logger.info(f"Закончил проверять задания за {time.time() - time0}")
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
