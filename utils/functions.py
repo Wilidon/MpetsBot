@@ -348,7 +348,7 @@ async def in_online_task(user_id):
     m = random.randint(0, 59)
     if m < 10:
         m = "0" + str(m)
-    if h + 2 <= 24:
+    if h + 2 < 24:
         end = h + 2
     task_name = f"in_online_{random.randint(h + 1, end)}" \
                 f":{m}"

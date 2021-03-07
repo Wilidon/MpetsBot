@@ -632,7 +632,8 @@ async def checking_thread():
         try:
             thread = await mpets.thread(thread_id, page)
             for msg in thread['messages']:
-                if crud.get_message(msg['message_id']):
+                if crud.get_message(thread_id=thread_id,
+                                    message_id=msg['message_id']):
                     continue
                 user = crud.get_user_pet_id(msg['pet_id'])
                 if user is None:
@@ -654,7 +655,7 @@ async def checking_thread():
             if len(thread['messages']) == 15:
                 page += 1
             await asyncio.sleep(3)
-        except Exception:
+        except Exception as e:
             pass
 
 

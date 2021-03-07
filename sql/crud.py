@@ -576,8 +576,9 @@ def update_user_access(user_id: int, access: int):
     return True
 
 
-def get_message(message_id: int):
-    return db.query(models.ClubGame).filter_by(message_id=message_id).first()
+def get_message(thread_id: int, message_id: int):
+    return db.query(models.ClubGame).filter_by(thread_id=thread_id,
+                                               message_id=message_id).first()
 
 
 def get_user_pet_id(pet_id: int):
@@ -829,3 +830,13 @@ def update_boss_health(boss_id: int, damage: int):
     boss = db.query(models.Boss).filter_by(id=boss_id).first()
     boss.health_points -= damage
     db.commit()
+    db.refresh(boss)
+    return boss
+
+
+def update_boss_status(boss_id: int, status: str):
+    boss = db.query(models.Boss).filter_by(id=boss_id).first()
+    boss.status = status
+    db.commit()
+    db.refresh(boss)
+    return boss
