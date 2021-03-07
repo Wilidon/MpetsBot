@@ -1,5 +1,5 @@
+import datetime
 import time
-from datetime import datetime
 
 from vkwave.bots import Keyboard, ButtonColor
 
@@ -251,7 +251,7 @@ async def boss_kb(user, event, message="Лера, не забудь добави
 
 
 async def menu(user, event, message="Меню"):
-    today = int(datetime.today().strftime("%m%d"))
+    today = int(datetime.datetime.today().strftime("%m%d"))
     items = crud.get_user_item(user.user_id, "shop_%")
     btn = True
     user_restart = crud.get_user_restart(user_id=user.user_id)
