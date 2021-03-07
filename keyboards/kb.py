@@ -29,7 +29,8 @@ async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_b
                              payload={"command": "0308"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
-    if boss_start <= today <= boss_end:
+    today = int(datetime.datetime.today().strftime("%Y%m%d"))
+    if boss_start <= today <= boss_end and (access >= 3 or today != 20210307):
         if boss_btn is True:
             MENU.add_text_button(text="🦠 Босс",
                                  payload={"command": "boss"},

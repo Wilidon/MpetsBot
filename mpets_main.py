@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # Создаем все таблицы в базе данных
     # Подключен alembic, поэтому строчку не нужна
-    models.Base.metadata.create_all(bind=engine)
+    # models.Base.metadata.create_all(bind=engine)
 
     # Подключаем промежуточное ПО
     bot.middleware_manager.add_middleware(UserMiddleware())
