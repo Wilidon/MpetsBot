@@ -278,6 +278,16 @@ class BossRewards(Base):
     status = Column(String, default='')
 
 
+class BossRestart(Base):
+    __tablename__ = "bossrestart"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer)
+    amount = Column(Integer)
+    time = Column(Integer)
+
+
 class Bans(Base):
     __tablename__ = "bans"
     __table_args__ = {"schema": "public"}

@@ -122,22 +122,32 @@ async def get_boss_text(boss, user_id):
                             PayloadFilter({"command": "boss"}))
 async def holiday_handler(event: SimpleBotEvent):
     current_user = event["current_user"]
+    btn = True
     boss = crud.get_current_boss()
+    user_restart = crud.get_user_restart(user_id=current_user.user_id)
     text = await get_boss_text(boss=boss, user_id=current_user.user_id)
-    await boss_kb(user=current_user, event=event, message=text)
+    if boss.status == 'dead':
+        await menu(user=current_user, event=event, message=text)
+        return 0
+    if user_restart.time > int(time.time()):
+        btn = False
+    await boss_kb(user=current_user, event=event, message=text, btn=btn)
 
 
 @simple_bot_message_handler(boss_router,
                             PayloadFilter({"command": "hit"}))
 async def collect_collection_handler(event: SimpleBotEvent):
     user = event["current_user"]
+    user_restart = crud.get_user_restart(user_id=user.user_id)
     amount_damage = 10
-    boss_name = "Монстр"
     current_bosses = crud.get_current_boss()
     if current_bosses.status == 'dead':
-        last_user = crud.get_user_killed_boss()
-        text = "Событие завершено"
+        text = await get_boss_text(boss=current_bosses, user_id=user.user_id)
         await menu(user=user, event=event, message=text)
+    if user_restart.time > int(time.time()):
+        text = f"Ударить можно будет через {await timer(user_restart.time - int(time.time()))}"
+        await boss_kb(user=user, event=event, message=text, btn=False)
+        return 0
     id = current_bosses.id
     boss_id = current_bosses.boss_id
     boss_name = bosses[boss_id]['name']
@@ -170,11 +180,28 @@ async def collect_collection_handler(event: SimpleBotEvent):
         notice(message=notice_msg)
         notice(message=user_result)
         notice(message=club_result)
+        await menu(user=user, event=event, message=text)
+        return 0
     else:
+        last_attack = False
+        user_restart = crud.get_user_restart(user_id=user.user_id)
+        if user_restart.amount == 4:
+            crud.update_boss_restart(user_id=user.user_id,
+                                     amount=0)
+            crud.update_boss_restart_time(user_id=user.user_id,
+                                          time=int(time.time()) + 7200)
+            last_attack = True
+        else:
+            crud.update_boss_restart(user_id=user.user_id,
+                                     amount=user_restart.amount+1)
         text = await get_boss_text(boss=current_bosses, user_id=user.user_id)
         await boss_kb(user=user, event=event, message=text)
-        text = f"Вы нанесли {amount_damage} ⚔️.\n"
-    await boss_kb(user=user, event=event, message=text)
+        if last_attack is True:
+            text = f"Вы нанесли {amount_damage} ⚔️.\n" \
+                   f"Ударить можно будет через {await timer(user_restart.time - int(time.time()))}"
+        else:
+            text = f"Вы нанесли {amount_damage} ⚔️.\n"
+        await boss_kb(user=user, event=event, message=text, btn=last_attack)
 
 
 @simple_bot_message_handler(boss_router,

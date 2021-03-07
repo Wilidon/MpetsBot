@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 from vkwave.bots import Keyboard, ButtonColor
@@ -8,7 +9,7 @@ from utils.collection_handler import check_collected_collection
 from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections, holiday_308
 
 
-async def get_kb(shop: bool = False, access: int = 0, today: int = False):
+async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_btn: bool = False):
     MENU = Keyboard()
     db = get_db()
     boss_start = db.get("boss_start")
@@ -28,11 +29,17 @@ async def get_kb(shop: bool = False, access: int = 0, today: int = False):
                              payload={"command": "0308"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
-    if boss_start <= today <= boss_end and access >= 3:
-        MENU.add_text_button(text="🦠 Босс",
-                             payload={"command": "boss"},
-                             color=ButtonColor.POSITIVE)
-        MENU.add_row()
+    if boss_start <= today <= boss_end:
+        if boss_btn is True:
+            MENU.add_text_button(text="🦠 Босс",
+                                 payload={"command": "boss"},
+                                 color=ButtonColor.POSITIVE)
+            MENU.add_row()
+        else:
+            MENU.add_text_button(text="🦠 Босс",
+                                 payload={"command": "boss"},
+                                 color=ButtonColor.SECONDARY)
+            MENU.add_row()
     MENU.add_text_button(text="🗒 Личные задания",
                          payload={"command": "user_tasks"},
                          color=ButtonColor.SECONDARY)
@@ -211,11 +218,16 @@ async def collection_kb(user, event, message="Лера, не забудь доб
     await event.answer(message=message, keyboard=COLLECTION_KB.get_keyboard())
 
 
-async def boss_kb(user, event, message="Лера, не забудь добавить текст"):
+async def boss_kb(user, event, message="Лера, не забудь добавить текст", btn=False):
     BOSS_KB = Keyboard()
-    BOSS_KB.add_text_button(text="Ударить!",
-                            payload={"command": "hit"},
-                            color=ButtonColor.POSITIVE)
+    if btn:
+        BOSS_KB.add_text_button(text="⚔️Ударить!",
+                                payload={"command": "hit"},
+                                color=ButtonColor.POSITIVE)
+    else:
+        BOSS_KB.add_text_button(text="⚔️Ударить!",
+                                payload={"command": "hit"},
+                                color=ButtonColor.SECONDARY)
     BOSS_KB.add_row()
     '''if user.access >= 3:
         if boss_amount == 1:
@@ -240,9 +252,13 @@ async def boss_kb(user, event, message="Лера, не забудь добави
 async def menu(user, event, message="Меню"):
     today = int(datetime.today().strftime("%m%d"))
     items = crud.get_user_item(user.user_id, "shop_%")
+    btn = True
+    user_restart = crud.get_user_restart(user_id=user.user_id)
+    if user_restart.time > int(time.time()):
+        btn = False
     if items:
-        keyboard = await get_kb(shop=True, access=user.access, today=today)
+        keyboard = await get_kb(shop=True, access=user.access, today=today, boss_btn=btn)
         await event.answer(message=message, keyboard=keyboard.get_keyboard())
     else:
-        keyboard = await get_kb(access=user.access, today=today)
+        keyboard = await get_kb(access=user.access, today=today, boss_btn=btn)
         await event.answer(message=message, keyboard=keyboard.get_keyboard())

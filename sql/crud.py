@@ -895,3 +895,45 @@ def get_user_killed_boss(boss_id: int, status: str = 'killed'):
 def get_user_boss(user_id: int, boss_id: int):
     return db.query(models.BossRewards).filter_by(user_id=user_id,
                                                   boss_id=boss_id).first()
+
+
+def update_boss_restart(user_id: int, amount: int):
+    boss = db.query(models.BossRestart).filter_by(user_id=user_id).first()
+    if boss is None:
+        boss = models.BossRestart(user_id=user_id,
+                                  amount=0,
+                                  time=int(time()))
+        db.add(boss)
+        db.commit()
+        db.refresh(boss)
+    boss.amount = amount
+    db.commit()
+    db.refresh(boss)
+    return boss
+
+
+def update_boss_restart_time(user_id: int, time: int):
+    boss = db.query(models.BossRestart).filter_by(user_id=user_id).first()
+    if boss is None:
+        boss = models.BossRestart(user_id=user_id,
+                                  amount=0,
+                                  time=int(time()))
+        db.add(boss)
+        db.commit()
+        db.refresh(boss)
+    boss.time = time
+    db.commit()
+    db.refresh(boss)
+    return boss
+
+
+def get_user_restart(user_id: int):
+    boss = db.query(models.BossRestart).filter_by(user_id=user_id).first()
+    if boss is None:
+        boss = models.BossRestart(user_id=user_id,
+                                  amount=0,
+                                  time=int(time()))
+        db.add(boss)
+        db.commit()
+        db.refresh(boss)
+    return boss
