@@ -8,9 +8,9 @@ from vkwave.bots import DefaultRouter, SimpleBotEvent, \
 from config import get_db
 from keyboards.kb import menu, boss_kb
 from mpetsapi import MpetsApi
-from noticed import notice
 from sql import crud, models
 from utils.constants import holiday_1402, bosses
+from utils.functions import notice
 
 boss_router = DefaultRouter()
 
