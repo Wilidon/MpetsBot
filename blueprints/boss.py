@@ -201,7 +201,7 @@ async def collect_collection_handler(event: SimpleBotEvent):
                    f"Ударить можно будет через {await timer(user_restart.time - int(time.time()))}"
         else:
             text = f"Вы нанесли {amount_damage} ⚔️.\n"
-        await boss_kb(user=user, event=event, message=text, btn=last_attack)
+        await boss_kb(user=user, event=event, message=text, btn=not last_attack)
 
 
 @simple_bot_message_handler(boss_router,
