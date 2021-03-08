@@ -799,7 +799,7 @@ def get_club_name(name):
 
 
 def get_tasks_with_date(date: int):
-    return db.query(models.ClubsTasks).filter_by(date=date).all()
+    return db.query(models.UsersTasks).filter_by(date=date).all()
 
 
 def delete_colletion_6():
