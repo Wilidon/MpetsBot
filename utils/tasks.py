@@ -825,11 +825,12 @@ async def update_races_rating():
                                             score=pet["score"])
             elapsed_time = time.time() - time0
             if elapsed_time >= 5:
-                logger.critical(f"races | {elapsed_time} | page {page}")
+                #logger.critical(f"races | {elapsed_time} | page {page}")
+                pass
             page += 1
             if page >= 668:
                 elapsed_time = time.time() - time_start
-                logger.debug(f"races | total time {elapsed_time}")
+                #logger.debug(f"races | total time {elapsed_time}")
                 time_start = time.time()
                 page = 1
         except Exception:
