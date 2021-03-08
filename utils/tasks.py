@@ -612,6 +612,10 @@ async def checking_users_tasks():
             time0 = int(time.time())
             for i in range(0, len(users)):
                 user = users[i]
+                today = int(datetime.today().strftime("%Y%m%d"))
+                user_tasks = crud.get_user_tasks(user.user_id, today)
+                if not user_tasks:
+                    continue
                 task = asyncio.create_task(start_verify_user(user))
                 tasks.append(task)
                 if len(tasks) >= 20:
