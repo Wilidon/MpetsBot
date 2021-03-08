@@ -7,7 +7,7 @@ holiday_2302 = [222, 224, 223]
 holiday_2302_prizes = {"gifts": "26 серебра",
                        "avatar": "3 серебра",
                        "anketa": "3 серебра"}
-holiday_308 = [307, 309, 308]
+holiday_308 = [307, 308, 308]
 holiday_308_prizes = {"gifts": "10 попкорна",
                       "avatar": "3 попкорна",
                       "anketa": "3 попкорна"}
