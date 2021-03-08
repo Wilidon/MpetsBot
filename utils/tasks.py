@@ -365,14 +365,30 @@ async def checking_bots():
             clubs_with_status_ok = crud.get_clubs(status="ok")
             clubs_with_status_waiting = crud.get_clubs(status="waiting")
             tasks = []
-            for club in clubs_with_status_ok:
+            for i in range(0, len(clubs_with_status_ok)):
+                club = clubs_with_status_ok[i]
                 task = asyncio.create_task(start_verify_club(club))
                 tasks.append(task)
-            for club in clubs_with_status_waiting:
+                if len(tasks) >= 20:
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(1)
+                    tasks = []
+                elif i + 1 == len(clubs_with_status_ok):
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(1)
+                    tasks = []
+            for i in range(0, len(clubs_with_status_waiting)):
+                club = clubs_with_status_waiting[i]
                 task = asyncio.create_task(start_verify_account(club))
                 tasks.append(task)
-            await asyncio.gather(*tasks)
-            await asyncio.sleep(1)
+                if len(tasks) >= 20:
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(1)
+                    tasks = []
+                elif i + 1 == len(clubs_with_status_waiting):
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(1)
+                    tasks = []
             # logger.info(f"Закончил проверять клубы за {time.time() - time0}")
         except Exception as e:
             logger.error(e)
@@ -619,7 +635,7 @@ async def creating_club_tasks():
             user_tasks = crud.get_club_tasks_all(today, "generation")
             for user_task in user_tasks:
                 await functions.creation_club_tasks(user_task)
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
         except Exception as e:
             logger.error(f"Ошибка при создании задания {e}")
             await asyncio.sleep(10)
