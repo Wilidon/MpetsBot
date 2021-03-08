@@ -2,7 +2,7 @@ from mpetsapi import authorization, main, forum, club, profile
 
 
 class MpetsApi:
-    def __init__(self, name=None, password=False, timeout=10, connector=None):
+    def __init__(self, name=None, password=False, timeout=30, connector=None):
         self.pet_id = None
         self.name = name
         self.password = password
