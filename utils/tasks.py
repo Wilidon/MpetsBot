@@ -663,6 +663,17 @@ async def checking_thread():
                                              message_id=msg['message_id'],
                                              page=page)
                     continue
+                last_msg = crud.get_message(thread_id=thread_id,
+                                            message_id=int(msg['message_id'])-1)
+                if last_msg is None:
+                    pass
+                else:
+                    if last_msg.pet_id == user.pet_id:
+                        crud.create_play_message(pet_id=msg['pet_id'],
+                                                 thread_id=thread_id,
+                                                 message_id=msg['message_id'],
+                                                 page=page)
+                        continue
                 today = int(datetime.today().strftime("%Y%m%d"))
                 user_tasks = crud.get_club_tasks(user.user_id, today, "waiting")
                 for task in user_tasks:
@@ -694,8 +705,8 @@ async def update_charm_rating():
             if int(game_time["time"].split(":")[1]) % 10 == 0:
                 continue
             resp = await mpets.best("charm", page)
-            #elapsed_time = time.time() - time0
-            #logger.info(f"запрос выполнился за | {elapsed_time}")
+            # elapsed_time = time.time() - time0
+            # logger.info(f"запрос выполнился за | {elapsed_time}")
             if resp["status"] != "ok":
                 continue
             for pet in resp["pets"]:
@@ -829,12 +840,12 @@ async def update_races_rating():
                                             score=pet["score"])
             elapsed_time = time.time() - time0
             if elapsed_time >= 5:
-                #logger.critical(f"races | {elapsed_time} | page {page}")
+                # logger.critical(f"races | {elapsed_time} | page {page}")
                 pass
             page += 1
             if page >= 668:
                 elapsed_time = time.time() - time_start
-                #logger.debug(f"races | total time {elapsed_time}")
+                # logger.debug(f"races | total time {elapsed_time}")
                 time_start = time.time()
                 page = 1
         except Exception:
