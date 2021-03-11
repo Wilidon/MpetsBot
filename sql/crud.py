@@ -89,6 +89,14 @@ def create_club(club_id: int, name: str, bot_id: int, bot_name: str,
     db.commit()
 
 
+def update_club_bot(club_id: int, bot_id: int, bot_name: str, bot_password: str):
+    club = db.query(models.Clubs).filter_by(club_id=club_id).first()
+    club.bot_id = bot_id
+    club.bot_name = bot_name
+    club.bot_password = bot_password
+    db.commit()
+
+
 def update_club_status(club_id: int, status: str):
     club = db.query(models.Clubs).filter_by(club_id=club_id).first()
     club.status = status

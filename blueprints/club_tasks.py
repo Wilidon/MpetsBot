@@ -63,6 +63,12 @@ async def profile(event: SimpleBotEvent):
         mpets = MpetsApi(current_user_club.bot_name,
                          current_user_club.bot_password)
         account = await mpets.login()
+        if account['status'] == 'error':
+            account = await mpets.start()
+            crud.update_club_bot(club_id=current_user.club_id,
+                                 bot_id=account["pet_id"],
+                                 bot_name=account["name"],
+                                 bot_password=account["password"])
         pet = await mpets.view_profile(current_user.pet_id)
         club = await mpets.club(current_user.club_id)
         if account["status"] != "ok" \
@@ -124,7 +130,7 @@ async def profile(event: SimpleBotEvent):
                 task_name = task_name = task_name.rsplit("_", maxsplit=1)[0]
             if progress >= end:
                 if present_id and int(present_id) != 0:
-                    args = [gifts_name[int(present_id)-1][1], progress, end]
+                    args = [gifts_name[int(present_id) - 1][1], progress, end]
                 else:
                     args = [progress, end]
                 text += f"{counter}. " + club_completed_tasks_list[task_name].format(*args) + \
@@ -134,7 +140,7 @@ async def profile(event: SimpleBotEvent):
                 if present_id and (
                         "send_specific_gift_any_player" in task_name or \
                         "get_gift" in task_name):
-                    args = [gifts_name[int(present_id)-1][1], progress, end]
+                    args = [gifts_name[int(present_id) - 1][1], progress, end]
                 else:
                     args = [progress, end]
                 text += f"{counter}. " + club_tasks_list[task_name].format(*args) \
@@ -171,11 +177,11 @@ async def profile(event: SimpleBotEvent):
     text = f"🏠 Профиль клуба {user_club.name}\n\n" \
            f"🦋 Набранные очки: {total_tasks} \n" \
            f"🎈 Шариков: {points} \n" \
-           f"🧸  Участников: {total_members_in_club}\n"\
-           f"————\n"\
-           f"Вы выполнили: {user_stats.club_tasks} 📋\n"\
-           f"Вы набрали: {user_stats.club_points} 🎈\n\n"\
-           f"🐾 Весенняя гонка:\n\n"\
+           f"🧸  Участников: {total_members_in_club}\n" \
+           f"————\n" \
+           f"Вы выполнили: {user_stats.club_tasks} 📋\n" \
+           f"Вы набрали: {user_stats.club_points} 🎈\n\n" \
+           f"🐾 Весенняя гонка:\n\n" \
            f"0🚩— 75🦋 — 160🦋 — 220🦋 — 301🦋 — 397🦋 — 460🦋 — 600🦋 — 741🦋 — 980🦋 — 1101🦋 — 1380🦋🏁"
     await menu(user=current_user, event=event, message=text)
 

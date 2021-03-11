@@ -20,11 +20,11 @@ __version__ = "2.3.10"
 from sql import models
 from sql.database import engine
 
-logging.basicConfig(filename="logs/vk.log",
+logging.basicConfig(filename="logs/vk5.log",
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 
 if __name__ == "__main__":
     # Настройка логгера
