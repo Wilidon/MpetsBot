@@ -958,6 +958,25 @@ async def add_club_tasks_handler(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/health"]))
+async def help(event: SimpleBotEvent):
+    # format /health
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    health = crud.health()
+    text = f"🟢 Состояние бота\n" \
+           f"♻️ Обход пользователей: {health.userinfo}с\n" \
+           f"📃 Личные задания: {health.usertasks}с\n" \
+           f"🧾 Клубные задания: {health.clubtasks}с\n" \
+           f"❄️ Снежки: {health.charm}с\n" \
+           f"🐴 Скачки: {health.races}с\n" \
+           f"\n" \
+           f"🩸 Здоровье бота: {randint(0, 100)}❤"
+    await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
                             TextContainsFilter(["/help"]))
 async def help(event: SimpleBotEvent):
     # format /help

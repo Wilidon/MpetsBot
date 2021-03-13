@@ -945,3 +945,27 @@ def get_user_restart(user_id: int):
         db.commit()
         db.refresh(boss)
     return boss
+
+
+def health(userinfo: int = False, usertasks: int = False, clubtasks: int = False,
+           charm: int = False, races: int = False, time: int = False):
+    health_record = db.query(models.Health).first()
+    if health_record is None:
+        health_record = models.Health()
+        db.add(health_record)
+        db.commit()
+    if userinfo is not False:
+        health_record.userinfo = userinfo
+    if usertasks is not False:
+        health_record.usertasks = usertasks
+    if clubtasks is not False:
+        health_record.clubtasks = clubtasks
+    if charm is not False:
+        health_record.charm = charm
+    if races is not False:
+        health_record.races = races
+    if time is not False:
+        health_record.time = time
+    db.commit()
+    db.refresh(health_record)
+    return health_record

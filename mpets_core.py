@@ -31,9 +31,7 @@ if __name__ == '__main__':
     noticed = False
     while True:
         try:
-            today = int(datetime.datetime.today().strftime("%Y%m%d"))
-            if today != 20210228:
-                asyncio.run(main())
+            asyncio.run(main())
         except Exception as e:
             logger.critical(f"MpetsCore down. {e}")
             if not noticed:

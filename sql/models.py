@@ -288,6 +288,19 @@ class BossRestart(Base):
     time = Column(Integer)
 
 
+class Health(Base):
+    __tablename__ = "health"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    userinfo = Column(Integer, default=0)
+    usertasks = Column(Integer, default=0)
+    clubtasks = Column(Integer, default=0)
+    charm = Column(Integer, default=0)
+    races = Column(Integer, default=0)
+    time = Column(Integer, default=0)
+
+
 class Bans(Base):
     __tablename__ = "bans"
     __table_args__ = {"schema": "public"}

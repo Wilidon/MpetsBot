@@ -4,7 +4,7 @@ from datetime import datetime
 
 from loguru import logger
 
-from config import get_settings
+from config import get_settings, get_db
 from mpetsapi import MpetsApi
 from sql import crud
 from utils import functions
@@ -365,6 +365,7 @@ async def checking_bots():
             clubs_with_status_ok = crud.get_clubs(status="ok")
             clubs_with_status_waiting = crud.get_clubs(status="waiting")
             tasks = []
+            time0 = time.time()
             for i in range(0, len(clubs_with_status_ok)):
                 club = clubs_with_status_ok[i]
                 task = asyncio.create_task(start_verify_club(club))
@@ -389,7 +390,8 @@ async def checking_bots():
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
-            # logger.info(f"Закончил проверять клубы за {time.time() - time0}")
+            total_time = int(time.time() - time0)
+            crud.health(clubtasks=total_time)
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
@@ -408,6 +410,7 @@ async def update_user_data():
                                    "запущена.")
     while True:
         try:
+            time0 = time.time()
             users = crud.get_users()
             for user in users:
                 if user.pet_id == 0:
@@ -436,6 +439,8 @@ async def update_user_data():
                                        f"{stats.club_points} фишек.")
                 crud.update_user_data(user.user_id, profile["pet_id"],
                                       profile["name"], profile["club_id"])
+            total_time = int(time.time() - time0)
+            crud.health(userinfo=total_time)
             await asyncio.sleep(10)
         except Exception as e:
             logger.error(e)
@@ -626,7 +631,8 @@ async def checking_users_tasks():
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
-            logger.info(f"Закончил проверять задания за {time.time() - time0}")
+            total_time = int(time.time() - time0)
+            crud.health(usertasks=total_time)
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
@@ -695,7 +701,6 @@ async def update_charm_rating():
     mpets = MpetsApi()
     await mpets.start()
     page = 1
-    time_start = time.time()
     while True:
         try:
             time0 = time.time()
@@ -761,14 +766,10 @@ async def update_charm_rating():
                     crud.update_charm_place(pet_id=pet["pet_id"],
                                             place=pet["place"],
                                             score=pet["score"])
-            elapsed_time = time.time() - time0
-            if elapsed_time >= 15:
-                logger.critical(f"charm | {elapsed_time} | page {page}")
             page += 1
             if page >= 668:
-                elapsed_time = time.time() - time_start
-                logger.debug(f"charm | total time {elapsed_time}")
-                time_start = time.time()
+                elapsed_time = int(time.time() - time0)
+                crud.health(charm=elapsed_time)
                 page = 1
         except Exception:
             pass
@@ -778,7 +779,6 @@ async def update_races_rating():
     mpets = MpetsApi()
     await mpets.start()
     page = 1
-    time_start = time.time()
     while True:
         try:
             time0 = time.time()
@@ -838,15 +838,10 @@ async def update_races_rating():
                     crud.update_charm_place(pet_id=pet["pet_id"],
                                             place=pet["place"],
                                             score=pet["score"])
-            elapsed_time = time.time() - time0
-            if elapsed_time >= 5:
-                # logger.critical(f"races | {elapsed_time} | page {page}")
-                pass
             page += 1
             if page >= 668:
-                elapsed_time = time.time() - time_start
-                # logger.debug(f"races | total time {elapsed_time}")
-                time_start = time.time()
+                elapsed_time = int(time.time() - time0)
+                crud.health(races=elapsed_time)
                 page = 1
         except Exception:
             pass
