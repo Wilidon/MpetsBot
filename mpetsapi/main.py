@@ -1,4 +1,6 @@
 import asyncio
+
+import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 from bs4 import BeautifulSoup
 
@@ -319,6 +321,8 @@ async def best(type, page, cookies, timeout, connector):
                              "score": beauty})
             return {"status": "ok",
                     "pets": pets}
+    except asyncio.exceptions.TimeoutError as e:
+        return await best(type, page, cookies, timeout, connector)
     except Exception as e:
         return {"status": "error",
                 "code": 0,
