@@ -462,7 +462,7 @@ async def ban(event: SimpleBotEvent):
     crud.update_user_access(user_id=user_id, access=access)
     await event.api_ctx.messages.send(user_id=user_id,
                                       message=f"Вас повысили "
-                                              f"до должости "
+                                              f"до должности "
                                               f"{access_name[access]}",
                                       random_id=randint(1, 99999999))
     return f"Пользователь повышен до должности {access_name[access]}."

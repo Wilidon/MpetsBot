@@ -747,6 +747,7 @@ async def checking_users_tasks():
                     tasks = []
             total_time = int(time.time() - time0)
             crud.health(usertasks=total_time)
+            await asyncio.sleep(5)
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
@@ -889,6 +890,7 @@ async def update_charm_rating():
                 crud.health(charm=elapsed_time)
                 page = 1
                 time0 = time.time()
+                await asyncio.sleep(1)
         except Exception:
             pass
 
@@ -963,6 +965,7 @@ async def update_races_rating():
                 crud.health(races=elapsed_time)
                 page = 1
                 time0 = time.time()
+                await asyncio.sleep(1)
         except Exception:
             pass
 
