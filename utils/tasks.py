@@ -360,6 +360,7 @@ async def start_verify_account(club):
 
 
 async def checking_bots():
+    logger.debug("start checking_bots")
     while True:
         try:
             clubs_with_status_ok = crud.get_clubs(status="ok")
@@ -392,12 +393,14 @@ async def checking_bots():
                     tasks = []
             total_time = int(time.time() - time0)
             crud.health(clubtasks=total_time)
+            await asyncio.sleep(1)
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(10)
 
 
 async def update_user_data():
+    logger.debug("start update_user_data")
     settings = get_settings()
     mpets = MpetsApi(settings.bot1, settings.bot_password)
     while True:
@@ -548,6 +551,113 @@ async def checking_inOnline_task(mpets, user, user_task):
         pass
 
 
+async def checking_getGift_utask(mpets, user, user_task):
+    gift_id = user_task.task_name.split("_")[-1]
+    pet_gift = False
+    if gift_id.isdigit() is False:
+        return 0
+    gifts = await mpets.view_gifts(user.pet_id)
+    if int(gift_id) == 0:
+        for gift in gifts["players"]:
+            if "сегодня" in gift["date"]:
+                pet_gift = True
+        if pet_gift:
+            crud.update_user_task(user_task.id, user_task.end, "completed")
+            await functions.add_user_points(user_id=user.user_id,
+                                            task_name="get_gift")
+    else:
+        gift_id = int(gifts_name[int(gift_id) - 1][0])
+        for gift in gifts["players"]:
+            if gift_id in [26, 27, 35]:
+                if gift["pet_id"]:
+                    try:
+                        if "сегодня" in gift["date"] and \
+                                (int(gift["present_id"]) == 36 or
+                                 int(gift["present_id"]) == 26):
+                            pet_gift = True
+                        elif "сегодня" in gift["date"] and \
+                                (int(gift["present_id"]) == 37 or
+                                 int(gift["present_id"]) == 27):
+                            pet_gift = True
+                        elif "сегодня" in gift["date"] and \
+                                (int(gift["present_id"]) == 35 or
+                                 int(gift["present_id"]) == 38):
+                            pet_gift = True
+                    except Exception:
+                        pass
+            else:
+                if gift["pet_id"]:
+                    try:
+                        if "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == int(gift_id):
+                            pet_gift = True
+                    except Exception:
+                        pass
+        if pet_gift:
+            crud.update_user_task(user_task.id, user_task.end, "completed")
+            await functions.add_user_points(user_id=user.user_id,
+                                            task_name="get_gift")
+
+
+async def checking_sendGift_utask(mpets, user, user_task, pet_id):
+    gift_id = user_task.task_name.split("_")[-1]
+    pet_gift = False
+    if gift_id.isdigit() is False:
+        return 0
+    gifts = await mpets.view_gifts(pet_id)
+    if int(gift_id) == 0:
+        for gift in gifts["players"]:
+            if gift["pet_id"]:
+                try:
+                    if user.pet_id == int(gift["pet_id"]) and \
+                            "сегодня" in gift["date"]:
+                        pet_gift = True
+                except Exception:
+                    pass
+        if pet_gift:
+            crud.update_user_task(user_task.id, user_task.end, "completed")
+            await functions.add_user_points(user_id=user.user_id,
+                                            task_name=user_task.task_name)
+            return True
+    else:
+        gift_id = int(gifts_name[int(gift_id) - 1][0])
+        for gift in gifts["players"]:
+            if gift_id in [26, 27, 35]:
+                if gift["pet_id"]:
+                    try:
+                        if "сегодня" in gift["date"] and \
+                                (int(gift["present_id"]) == 36 or
+                                 int(gift["present_id"]) == 26) and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                        elif "сегодня" in gift["date"] and \
+                                (int(gift["present_id"]) == 37 or
+                                 int(gift["present_id"]) == 27) and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                        elif "сегодня" in gift["date"] and \
+                                (int(gift["present_id"]) == 35 or
+                                 int(gift["present_id"]) == 38) and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                    except Exception:
+                        pass
+            else:
+                if gift["pet_id"]:
+                    try:
+                        if "сегодня" in gift["date"] and \
+                                int(gift["present_id"]) == gift_id and \
+                                user.pet_id == int(gift["pet_id"]):
+                            pet_gift = True
+                    except Exception:
+                        pass
+        if pet_gift:
+            crud.update_user_task(user_task.id, user_task.end, "completed")
+            await functions.add_user_points(user_id=user.user_id,
+                                            task_name=user_task.task_name)
+            return True
+
+
 async def start_verify_user(user):
     today = int(datetime.today().strftime("%Y%m%d"))
     user_tasks = crud.get_user_tasks(user.user_id, today)
@@ -603,6 +713,9 @@ async def start_verify_user(user):
                 await checking_online_task(mpets, user, user_task)
             elif "in_online" in user_task.task_name:
                 await checking_inOnline_task(mpets, user, user_task)
+            elif "get_gift" in user_task.task_name or \
+                    "get_random_gift" in user_task.task_name:
+                await checking_getGift_utask(mpets, user, user_task)
         except Exception as e:
             logger.error(f"start_verify_user {user.user_id}"
                          f"task {user_task.task_name}"
@@ -610,6 +723,7 @@ async def start_verify_user(user):
 
 
 async def checking_users_tasks():
+    logger.debug("start checking_users_tasks")
     while True:
         try:
             users = crud.get_users_with_status("ok")
@@ -639,6 +753,7 @@ async def checking_users_tasks():
 
 
 async def creating_club_tasks():
+    logger.debug("start creating_club_tasks")
     while True:
         try:
             today = int(datetime.today().strftime("%Y%m%d"))
@@ -652,6 +767,7 @@ async def creating_club_tasks():
 
 
 async def checking_thread():
+    logger.debug("start checking_thread")
     mpets = MpetsApi()
     await mpets.start()
     thread_id, page = 2573211, 1
@@ -698,12 +814,13 @@ async def checking_thread():
 
 
 async def update_charm_rating():
+    logger.debug("start update_charm_rating")
     mpets = MpetsApi()
     await mpets.start()
     page = 1
+    time0 = time.time()
     while True:
         try:
-            time0 = time.time()
             game_time = await mpets.game_time()
             if game_time["status"] != "ok":
                 continue
@@ -771,11 +888,13 @@ async def update_charm_rating():
                 elapsed_time = int(time.time() - time0)
                 crud.health(charm=elapsed_time)
                 page = 1
+                time0 = time.time()
         except Exception:
             pass
 
 
 async def update_races_rating():
+    logger.debug("start update_races_rating")
     mpets = MpetsApi()
     await mpets.start()
     page = 1
@@ -1047,6 +1166,7 @@ async def start_checking_holiday_tasks(user, date):
 
 
 async def checking_holiday_tasks():
+    logger.debug("start checking_holiday_tasks")
     while True:
         try:
             today = int(datetime.today().strftime("%m%d"))

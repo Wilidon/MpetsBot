@@ -379,6 +379,44 @@ async def races_task(user_id, pet_id):
                                    end=rating.score + 30, date=today)
 
 
+async def get_gift_utask(user_id, pet_id):
+    today = int(datetime.today().strftime("%Y%m%d"))
+    present_id = gifts_name.index(random.choice(gifts_name))
+    task_name = "get_gift_" + str(present_id)
+    crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
+                                   progress=0,
+                                   end=1, date=today)
+    return True
+
+
+async def get_random_gift_utask(user_id, pet_id):
+    today = int(datetime.today().strftime("%Y%m%d"))
+    task_name = "get_random_gift_0"
+    crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
+                                   progress=0,
+                                   end=1, date=today)
+    return True
+
+
+async def send_specific_gift_any_player_utask(user_id, pet_id):
+    today = int(datetime.today().strftime("%Y%m%d"))
+    present_id = gifts_name.index(random.choice(gifts_name))
+    task_name = "send_specific_gift_any_player_" + str(present_id)
+    crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
+                                   progress=0,
+                                   end=1, date=today)
+    return True
+
+
+async def send_gift_any_player_utask(user_id, pet_id):
+    today = int(datetime.today().strftime("%Y%m%d"))
+    task_name = "send_gift_any_player_0"
+    crud.create_user_task_for_user(user_id=user_id, task_name=task_name,
+                                   progress=0,
+                                   end=1, date=today)
+    return True
+
+
 async def creation_user_tasks(user):
     today = int(datetime.today().strftime("%Y%m%d"))
     c = 0
@@ -407,6 +445,18 @@ async def creation_user_tasks(user):
         elif local_tasks[num] == "races":
             if await races_task(user.user_id, user.pet_id) is False:
                 local_tasks.pop(num)
+                continue
+        elif local_tasks[num] == "get_gift":
+            if await get_gift_utask(user.user_id, user.pet_id) is False:
+                continue
+        elif local_tasks[num] == "get_random_gift":
+            if await get_random_gift_utask(user.user_id, user.pet_id) is False:
+                continue
+        elif local_tasks[num] == "send_specific_gift_any_player":
+            if await send_specific_gift_any_player_utask(user.user_id, user.pet_id) is False:
+                continue
+        elif local_tasks[num] == "send_gift_any_player":
+            if await send_gift_any_player_utask(user.user_id, user.pet_id) is False:
                 continue
         c += 1
         local_tasks.pop(num)

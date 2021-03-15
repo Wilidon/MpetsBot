@@ -12,7 +12,7 @@ from sql import crud
 from keyboards.kb import menu
 from utils.functions import get_limits
 from utils.constants import club_tasks_list, club_completed_tasks_list, gifts_name
-from utils.tasks import checking_sendGift_task
+from utils.tasks import checking_sendGift_task, checking_sendGift_utask
 
 club_router = DefaultRouter()
 
@@ -220,7 +220,9 @@ async def club_rating(event: SimpleBotEvent):
         pet_id = int(event.object.object.message.text.split(" ")[1])
     except:
         return "Неверно указан id."
-    current_user_tasks = crud.get_club_tasks(current_user.user_id, today)
+    not_club = False
+    current_club_tasks = crud.get_club_tasks(user_id=current_user.user_id, today=today)
+    current_user_tasks = crud.get_user_tasks(user_id=current_user.user_id, today=today)
     current_user_club = crud.get_club(current_user.club_id)
     mpets = MpetsApi(current_user_club.bot_name,
                      current_user_club.bot_password)
@@ -228,17 +230,29 @@ async def club_rating(event: SimpleBotEvent):
     profile = await mpets.view_profile(current_user.pet_id)
     if profile["status"] == "error":
         return "Игрок не найден"
-    elif int(profile["club_id"]) != current_user_club.club_id:
-        return "Вы не состоите в клубе"
-    elif not current_user_tasks:
-        return "Такого задания у Вас нет."
+    for user_task in current_club_tasks:
+        if user_task.status == 'completed':
+            continue
+        elif "send_specific_gift_any_player" in user_task.task_name or \
+                "send_gift_any_player" in user_task.task_name:
+            if int(profile["club_id"]) != current_user_club.club_id:
+                not_club = True
+                continue
+            if await checking_sendGift_task(mpets, current_user,
+                                            user_task, pet_id):
+                return "Задание выполнено"
+            else:
+                return "Подарок не найден"
     for user_task in current_user_tasks:
         if user_task.status == 'completed':
             continue
         elif "send_specific_gift_any_player" in user_task.task_name or \
                 "send_gift_any_player" in user_task.task_name:
-            if await checking_sendGift_task(mpets, current_user,
-                                            user_task, pet_id):
-                await event.answer("Задание выполнено")
+            if await checking_sendGift_utask(mpets, current_user,
+                                             user_task, pet_id):
+                return "Задание выполнено"
             else:
-                await event.answer("Подарок не найден")
+                return "Подарок не найден"
+    if not_club is True:
+        return "Вы не состоите в клубе"
+    return "А у Вас точно есть такое задание?"

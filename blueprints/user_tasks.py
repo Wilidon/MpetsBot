@@ -10,7 +10,7 @@ from vkwave.bots import (
 from sql import crud
 from utils import functions
 from keyboards.kb import menu
-from utils.constants import user_tasks_list, avatar_name, user_completed_tasks_list
+from utils.constants import user_tasks_list, avatar_name, user_completed_tasks_list, gifts_name
 
 user_router = DefaultRouter()
 
@@ -29,6 +29,10 @@ async def user_tasks(event: SimpleBotEvent):
     text = f"✏️ Список заданий для {current_user.name}.\n\n"
     counter = 1
     for task in current_user_tasks:
+        present_id = False
+        # ['avatar_14:0', 'anketa_24:2', 'in_online_24:2', 'charm', 'races', '30online_0',
+        # 'get_gift', 'get_random_gift', 'send_specific_gift_any_player',
+        # 'send_gift_any_player']
         task_name, progress, end = task.task_name, task.progress, task.end
         if "avatar" in task_name or "in_online" in task_name:
             if "avatar" in task_name:
@@ -38,6 +42,12 @@ async def user_tasks(event: SimpleBotEvent):
             else:
                 arg = task_name.split("_")[-1]
             args = [arg, progress, end]
+        elif "send_specific_gift_any_player" in task_name:
+            present_id = task_name.split("_")[-1]
+            task_name = task_name.rsplit("_", maxsplit=1)[0]
+        elif "get_gift" in task_name:
+            present_id = task_name.split("_")[-1]
+            task_name = task_name = task_name.rsplit("_", maxsplit=1)[0]
         else:
             if task_name in ["charm", "races"]:
                 if task_name in "charm":
@@ -57,6 +67,14 @@ async def user_tasks(event: SimpleBotEvent):
         if progress >= end:
             if "in_online" in task_name:
                 task_name = task_name.rsplit("_", maxsplit=1)[0]
+            elif present_id and (
+                    "send_specific_gift_any_player" in task_name or
+                    "get_gift" in task_name):
+                args = [gifts_name[int(present_id) - 1][1], progress, end]
+            elif (
+                    "send_gift_any_player" in task_name or
+                    "get_random_gift_0" in task_name):
+                task_name = task_name.rsplit("_", maxsplit=1)[0]
             else:
                 task_name = task_name.split("_", maxsplit=1)[0]
             text += f"{counter}. " + user_completed_tasks_list[
@@ -64,6 +82,14 @@ async def user_tasks(event: SimpleBotEvent):
             counter += 1
         else:
             if "in_online" in task_name:
+                task_name = task_name.rsplit("_", maxsplit=1)[0]
+            elif present_id and (
+                    "send_specific_gift_any_player" in task_name or
+                    "get_gift" in task_name):
+                args = [gifts_name[int(present_id) - 1][1], progress, end]
+            elif (
+                    "send_gift_any_player" in task_name or
+                    "get_random_gift_0" in task_name):
                 task_name = task_name.rsplit("_", maxsplit=1)[0]
             else:
                 task_name = task_name.split("_", maxsplit=1)[0]
