@@ -83,6 +83,7 @@ async def create_collection_item(user_id: int):
     random_part = random.randint(0, 24)
     part_id, collection_id = 1, 0
     if 0 <= random_part <= 4:
+        part_id = random_part
         collection_id = 1
     elif 5 <= random_part <= 9:
         part_id = random_part - 5 + 1
