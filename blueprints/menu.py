@@ -27,6 +27,10 @@ async def report(event: SimpleBotEvent):
         msg = event.object.object.message.text.split(" ", maxsplit=1)[1]
     except Exception as e:
         msg = "Null"
+        await event.answer("Расскажите о своей проблеме!\n\n"
+                           "В следующий раз не забудьте указать Вашу проблему сразу:\n"
+                           "/report «Доброго времени суток! Что такое коллекции и зачем они нужны?»\n"
+                           "Так Ваша проблема будет решена в кратчайшие сроки.")
     text = f"{user.first_name} {user.last_name} ({user.user_id}) нуждается в " \
            f"психологической помощи.\n\n" \
            f"Его сообщение: «{msg}»"
@@ -118,3 +122,7 @@ async def main(event: SimpleBotEvent):
             event.object.object.message.text.lower() in ("меню", "старт",
                                                          "начать", "початок"):
         await menu(current_user, event)
+    else:
+        text = f"{current_user.first_name} {current_user.last_name} ({current_user.user_id}) пишет.\n\n" \
+               f"Его сообщение: «{event.object.object.message.text}»"
+        notice(message=text)
