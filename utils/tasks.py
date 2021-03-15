@@ -779,9 +779,9 @@ async def update_races_rating():
     mpets = MpetsApi()
     await mpets.start()
     page = 1
+    time0 = time.time()
     while True:
         try:
-            time0 = time.time()
             game_time = await mpets.game_time()
             if game_time["status"] != "ok":
                 continue
@@ -843,6 +843,7 @@ async def update_races_rating():
                 elapsed_time = int(time.time() - time0)
                 crud.health(races=elapsed_time)
                 page = 1
+                time0 = time.time()
         except Exception:
             pass
 
