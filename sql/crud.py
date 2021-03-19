@@ -851,8 +851,6 @@ def update_boss_status(boss_id: int, status: str):
 
 
 def update_user_boss_reward(user_id: int, boss_id: int, reward: str):
-    print(user_id)
-    print(boss_id)
     boss = db.query(models.BossRewards).filter_by(user_id=user_id,
                                                   boss_id=boss_id).first()
     boss.reward = reward
