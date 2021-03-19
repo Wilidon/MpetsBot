@@ -86,17 +86,17 @@ async def create_rewards(boss):
         user = users[i]
         if user.status == 'killed':
             amount = user.total_damage // 500
-            reward = f"{bosses[boss.boss_id].get('reward_killed')} {amount}🧩, {amount * 2}🏅"
+            reward = f"\n{bosses[boss.boss_id].get('reward_killed')} {amount}🧩, {amount * 2}🏅"
             if i == 0:
-                reward = f"{bosses[boss.boss_id].get('reward_killed')} \n" \
+                reward = f"\n{bosses[boss.boss_id].get('reward_killed')} " \
                          f"{bosses[boss.boss_id].get('top1user')} " \
                          f"{amount}🧩, {amount * 2}🏅"
             elif i == 1:
-                reward = f"{bosses[boss.boss_id].get('reward_killed')} \n" \
+                reward = f"\n{bosses[boss.boss_id].get('reward_killed')} \n" \
                          f"{bosses[boss.boss_id].get('top2user')} " \
                          f"{amount}🧩, {amount * 2}🏅"
             elif i == 2:
-                reward = f"{bosses[boss.boss_id].get('reward_killed')} \n" \
+                reward = f"\n{bosses[boss.boss_id].get('reward_killed')} \n" \
                          f"{bosses[boss.boss_id].get('top3user')} " \
                          f"{amount}🧩, {amount * 2}🏅"
             crud.update_user_boss_reward(user_id=user.user_id,
@@ -104,15 +104,15 @@ async def create_rewards(boss):
                                          reward=reward)
         else:
             amount = user.total_damage // 500
-            reward = f"{amount}🧩, {amount * 2}🏅"
+            reward = f"\n{amount}🧩, {amount * 2}🏅"
             if i == 0:
-                reward = f"{bosses[boss.boss_id].get('top1user')} \n" \
+                reward = f"\n{bosses[boss.boss_id].get('top1user')} \n" \
                          f"{amount}🧩, {amount * 2}🏅"
             elif i == 1:
-                reward = f"{bosses[boss.boss_id].get('top2user')} \n" \
+                reward = f"\n{bosses[boss.boss_id].get('top2user')} \n" \
                          f"{amount}🧩, {amount * 2}🏅"
             elif i == 2:
-                reward = f"{bosses[boss.boss_id].get('top3user')} \n" \
+                reward = f"\n{bosses[boss.boss_id].get('top3user')} \n" \
                          f"{amount}🧩, {amount * 2}🏅"
             crud.update_user_boss_reward(user_id=user.user_id,
                                          boss_id=boss.id,
@@ -128,17 +128,17 @@ async def get_boss_text(boss, user_id):
         if user_id == last_user.user_id:
             return f"{user.name} добил {bosses[boss.boss_id]['short_name']} " \
                    f"и получил {bosses[boss.boss_id]['reward_killed']}\n\n" \
-                   f"💊 Вы нанесли урона: {last_user.total_damage}\n" \
+                   f"⚔ Вы нанесли урона: {last_user.total_damage}\n" \
                    f"🎁 Ваша награда: {current_user.reward}"
         else:
             if current_user is None:
                 return f"{user.name} добил {bosses[boss.boss_id]['short_name']} " \
                        f"и получил {bosses[boss.boss_id]['reward_killed']}\n\n" \
-                       f"💊 Вы нанесли урона: 0\n" \
+                       f"⚔ Вы нанесли урона: 0\n" \
                        f"🎁 Ваша награда: ничего"
             return f"{user.name} добил {bosses[boss.boss_id]['short_name']} " \
                    f"и получил {bosses[boss.boss_id]['reward_killed']}\n\n" \
-                   f"💊 Вы нанесли урона: {current_user.total_damage}\n" \
+                   f"⚔ Вы нанесли урона: {current_user.total_damage}\n" \
                    f"🎁 Ваша награда: {current_user.reward}"
     return f"{bosses[boss.boss_id]['name']}\n" \
            f"💊 Осталось: {boss.health_points} ❤\n\n" \

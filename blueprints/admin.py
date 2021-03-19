@@ -1002,11 +1002,48 @@ async def add_club_tasks_handler(event: SimpleBotEvent):
     for i in range(len(user_rewards)):
         user = user_rewards[i]
         current_user = crud.get_user(user_id=user.user_id)
-        text += f"{i+1}. {current_user.first_name} {current_user.last_name} - {user.reward} [{user.total_damage}]\n"
+        if 0 <= i <= 2:
+            text += f"{i+1}. {current_user.name} [{current_user.user_id}] ({current_user.pet_id}) - " \
+                    f"{user.reward} [{user.total_damage}]\n"
+        else:
+            text += f"{i + 1}. {current_user.name} [{current_user.user_id}] - " \
+                    f"{user.reward} [{user.total_damage}]\n"
         if len(text) > 3950:
             await event.answer(text)
             text = "Награды за босса\n\n"
     await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["+hp"]))
+async def add_club_tasks_handler(event: SimpleBotEvent):
+    # format +hp {health}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) != 2:
+        return "format +hp {health}"
+    hp = int(msg[1])
+    boss = crud.get_current_boss()
+    crud.update_boss_health(boss_id=boss.id, damage=-hp)
+    return f"Вы добавили {hp} здоровья"
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["-hp"]))
+async def add_club_tasks_handler(event: SimpleBotEvent):
+    # format -hp {health}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) != 2:
+        return "format -hp {health}"
+    hp = int(msg[1])
+    boss = crud.get_current_boss()
+    crud.update_boss_health(boss_id=boss.id, damage=hp)
+    return f"Вы сняли {hp} здоровья"
 
 
 @simple_bot_message_handler(admin_router,
