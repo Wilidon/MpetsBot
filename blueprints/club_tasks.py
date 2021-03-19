@@ -224,9 +224,8 @@ async def club_rating(event: SimpleBotEvent):
     current_club_tasks = crud.get_club_tasks(user_id=current_user.user_id, today=today)
     current_user_tasks = crud.get_user_tasks(user_id=current_user.user_id, today=today)
     current_user_club = crud.get_club(current_user.club_id)
-    mpets = MpetsApi(current_user_club.bot_name,
-                     current_user_club.bot_password)
-    await mpets.login()
+    mpets = MpetsApi()
+    await mpets.start()
     profile = await mpets.view_profile(current_user.pet_id)
     if profile["status"] == "error":
         return "Игрок не найден"
