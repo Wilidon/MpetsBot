@@ -221,6 +221,7 @@ async def club_rating(event: SimpleBotEvent):
     except:
         return "Неверно указан id."
     not_club = False
+    not_user_gift = not_club_gift = False
     current_club_tasks = crud.get_club_tasks(user_id=current_user.user_id, today=today)
     current_user_tasks = crud.get_user_tasks(user_id=current_user.user_id, today=today)
     current_user_club = crud.get_club(current_user.club_id)
@@ -229,6 +230,18 @@ async def club_rating(event: SimpleBotEvent):
     profile = await mpets.view_profile(current_user.pet_id)
     if profile["status"] == "error":
         return "Игрок не найден"
+    # нельзя использовать return, потому что может быть несколько разных заданий
+    for user_task in current_user_tasks:
+        if user_task.status == 'completed':
+            not_user_gift = True
+            continue
+        elif "send_specific_gift_any_player" in user_task.task_name or \
+                "send_gift_any_player" in user_task.task_name:
+            if await checking_sendGift_utask(mpets, current_user,
+                                             user_task, pet_id):
+                await event.answer("Задание выполнено")
+            else:
+                not_user_gift = True
     for user_task in current_club_tasks:
         if user_task.status == 'completed':
             continue
@@ -239,19 +252,10 @@ async def club_rating(event: SimpleBotEvent):
                 continue
             if await checking_sendGift_task(mpets, current_user,
                                             user_task, pet_id):
-                return "Задание выполнено"
+                await event.answer("Задание выполнено")
             else:
-                return "Подарок не найден"
-    for user_task in current_user_tasks:
-        if user_task.status == 'completed':
-            continue
-        elif "send_specific_gift_any_player" in user_task.task_name or \
-                "send_gift_any_player" in user_task.task_name:
-            if await checking_sendGift_utask(mpets, current_user,
-                                             user_task, pet_id):
-                return "Задание выполнено"
-            else:
-                return "Подарок не найден"
-    if not_club is True:
-        return "Вы не состоите в клубе"
-    return "А у Вас точно есть такое задание?"
+                not_club_gift = True
+    if not_user_gift is True or (not_user_gift is True and not_club_gift is True):
+        return "Подарок не найден"
+    if (not current_user_tasks and not_club_gift is True) or (not current_club_tasks and not_user_gift is True):
+        return "А у Вас точно есть такое задание?"
