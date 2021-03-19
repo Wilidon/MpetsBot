@@ -923,6 +923,24 @@ async def collection_list(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/boss"]))
+async def add_club_tasks_handler(event: SimpleBotEvent):
+    # format /boss {start_date} {end_date}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) != 3:
+        return "format /boss {start_date} {end_date}"
+    boss_start = int(msg[1])
+    boss_end = int(msg[2])
+    db = get_db()
+    db.set("boss_start", boss_start)
+    db.set("boss_end", boss_end)
+    return "Даты установлены."
+
+
+@simple_bot_message_handler(admin_router,
                             TextContainsFilter(["+boss"]))
 async def del_club_tasks_handler(event: SimpleBotEvent):
     # format +boss {boss_id} {health_points}
