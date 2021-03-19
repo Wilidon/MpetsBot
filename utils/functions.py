@@ -555,7 +555,8 @@ def notice(message):
     requests.get(f"https://api.telegram.org/bot"
                  f"{settings.tg_token}/sendMessage",
                  params={"chat_id": settings.chat_id,
-                         "text": message})
+                         "text": message,
+                         "parse_mode": "HTML"})
 
 
 async def send_user_notice(user_id, score):
