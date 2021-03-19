@@ -851,6 +851,8 @@ def update_boss_status(boss_id: int, status: str):
 
 
 def update_user_boss_reward(user_id: int, boss_id: int, reward: str):
+    print(user_id)
+    print(boss_id)
     boss = db.query(models.BossRewards).filter_by(user_id=user_id,
                                                   boss_id=boss_id).first()
     boss.reward = reward
@@ -861,7 +863,7 @@ def update_user_boss_reward(user_id: int, boss_id: int, reward: str):
 
 def get_users_boss_reward(boss_id: int):
     return db.query(models.BossRewards).filter_by(boss_id=boss_id).order_by(
-        models.BossRewards.id.desc()).all()
+        models.BossRewards.total_damage.desc()).all()
 
 
 def update_boss_reward(user_id: int, boss_id: int, damage: int = 0):
@@ -905,6 +907,11 @@ def get_user_boss(user_id: int, boss_id: int):
                                                   boss_id=boss_id).first()
 
 
+def get_user_with_max_damage(boss_id: int):
+    return db.query(models.BossRewards).filter_by(boss_id=boss_id).order_by(
+        models.BossRewards.total_damage.desc()).first()
+
+
 def update_boss_restart(user_id: int, amount: int):
     boss = db.query(models.BossRestart).filter_by(user_id=user_id).first()
     if boss is None:
@@ -945,6 +952,14 @@ def get_user_restart(user_id: int):
         db.commit()
         db.refresh(boss)
     return boss
+
+
+def restart_user_time():
+    users = db.query(models.BossRestart).all()
+    for user in users:
+        user.amount = 0
+        user.time = 0
+    db.commit()
 
 
 def health(userinfo: int = False, usertasks: int = False, clubtasks: int = False,

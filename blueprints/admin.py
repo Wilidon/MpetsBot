@@ -15,7 +15,7 @@ from sql import crud
 from utils import functions
 from utils.collection_handler import add_collection_item, remove_collection_item
 from utils.functions import add_user_points, add_club_points, notice
-from utils.constants import month, access_name, prizes, c_prizes, collections, numbers
+from utils.constants import month, access_name, prizes, c_prizes, collections, numbers, bosses
 
 admin_router = DefaultRouter()
 
@@ -934,27 +934,61 @@ async def del_club_tasks_handler(event: SimpleBotEvent):
         return "format +boss {boss_id} {health_points}"
     boss_id = int(msg[1])
     health_points = int(msg[2])
+    crud.restart_user_time()
     crud.create_boss(boss_id=boss_id,
                      health_points=health_points)
     return "Босс создан."
 
 
 @simple_bot_message_handler(admin_router,
-                            TextContainsFilter(["/boss"]))
+                            TextContainsFilter(["/bosses"]))
 async def add_club_tasks_handler(event: SimpleBotEvent):
-    # format /boss {start_date} {end_date}
+    # format /bosses
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    text = "Боссы\n\n"
+    for boss_id, boss in bosses.items():
+        text += f"{boss_id} | {boss.get('name')} | {boss.get('health_points')}❤\n" \
+                f"Баффы:\n" \
+                f"Аватар: {boss.get('avatar_name')}\n" \
+                f"Статус: {boss.get('about')}\n" \
+                f"\n" \
+                f"Награды:\n" \
+                f"За убийство: {boss.get('reward_killed')}\n" \
+                f"Топ 1 по урону: {boss.get('top1user')}\n" \
+                f"Топ 2 по урону: {boss.get('top2user')}\n" \
+                f"Топ 3 по урону: {boss.get('top3user')}\n" \
+                f"Каждые 500 урона: {boss.get('every500damage')}\n" \
+                f"\n" \
+                f"Топ 1 по урону: {boss.get('top1club')}\n" \
+                f"Топ 2 по урону: {boss.get('top2club')}\n" \
+                f"Топ 3 по урону: {boss.get('top3club')}\n" \
+                f"Каждые 3000 урона: {boss.get('every3000damage')}\n"
+    return text
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/rewards"]))
+async def add_club_tasks_handler(event: SimpleBotEvent):
+    # format /rewards {boss_id}
     current_user = event["current_user"]
     if current_user.access < 3:
         return False
     msg = event.object.object.message.text.split(" ")
-    if len(msg) != 3:
-        return "format /boss {start_date} {end_date}"
-    boss_start = int(msg[1])
-    boss_end = int(msg[2])
-    db = get_db()
-    db.set("boss_start", boss_start)
-    db.set("boss_end", boss_end)
-    return "Даты установлены."
+    if len(msg) != 2:
+        return "format /rewards {boss_id}"
+    boss_id = int(msg[1])
+    text = "Награды за босса\n\n"
+    user_rewards = crud.get_users_boss_reward(boss_id=boss_id)
+    for i in range(len(user_rewards)):
+        user = user_rewards[i]
+        current_user = crud.get_user(user_id=user.user_id)
+        text += f"{i+1}. {current_user.first_name} {current_user.last_name} - {user.reward} [{user.total_damage}]\n"
+        if len(text) > 3950:
+            await event.answer(text)
+            text = "Награды за босса\n\n"
+    await event.answer(text)
 
 
 @simple_bot_message_handler(admin_router,
@@ -1008,7 +1042,12 @@ async def help(event: SimpleBotEvent):
            "\n" \
            "/stats — статистика;\n" \
            "/stagestats — статистика по гонке и призам;\n" \
-           "/taskstats - статистика по заданиям ( в будущем );\n" \
+           "/taskstats — статистика по заданиям ( в будущем );\n" \
            "\n" \
-           "+collection {user_id} {collection_id} {part_id}"
+           "+collection {user_id} {collection_id} {part_id};\n" \
+           "\n" \
+           "/boss {start_date} {end_date} — даты проведения мероприятия [319 325];\n" \
+           "+boss {boss_id} {health_points} — создать босса;\n" \
+           "/bosses — список боссов (только смысл?);" \
+           ""
     await event.answer(text)
