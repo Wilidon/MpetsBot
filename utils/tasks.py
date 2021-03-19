@@ -771,7 +771,7 @@ async def checking_thread():
     logger.debug("start checking_thread")
     mpets = MpetsApi()
     await mpets.start()
-    thread_id, page = 2573211, 1
+    thread_id, page = 2600581, 1
     while True:
         try:
             thread = await mpets.thread(thread_id, page)
