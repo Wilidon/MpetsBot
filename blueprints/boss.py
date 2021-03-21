@@ -10,7 +10,7 @@ from keyboards.kb import menu, boss_kb
 from mpetsapi import MpetsApi
 from sql import crud, models
 from utils.constants import holiday_1402, bosses
-from utils.functions import notice
+from utils.functions import notice, notice2
 
 boss_router = DefaultRouter()
 
@@ -226,7 +226,7 @@ async def collect_collection_handler(event: SimpleBotEvent):
         for i in user_result:
             notice(message=i)
         for i in club_result:
-            notice(message=i)
+            notice2(message=i)
         await menu(user=user, event=event, message=text)
         return False
     else:
