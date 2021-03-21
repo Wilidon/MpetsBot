@@ -38,19 +38,30 @@ async def boss_result(boss: models.Boss):
         user_text = f"<b>Итоги по боссу</b> {bosses[boss.boss_id]['name']}\n" \
                     f"<b>Всего участников:</b> {len(all_users)}\n"
         club_text = f"<b>Итоги по боссу</b> {bosses[boss.boss_id]['name']}\n"
+        user_texts = []
+        club_texts = []
         for user in all_users:
             current_user: models.Users = crud.get_user(user_id=user.user_id)
             try:
                 clubs_damage[current_user.club_id] += user.total_damage
             except Exception as e:
+                print(current_user.club_id)
                 clubs_damage[current_user.club_id] = user.total_damage
+            if len(user_text) >= 3900:
+                user_texts.append([user_text])
+                user_text = ''
             user_text += f"<pre>{current_user.first_name} {current_user.last_name} — {user.total_damage} ⚔️</pre>\n"
+        user_texts.append(user_text)
         for club_id, club_damage in clubs_damage.items():
             club: models.Clubs = crud.get_club(club_id=club_id)
             if club is None:
                 continue
+            if len(club_text) >= 3900:
+                club_texts.append([club_text])
+                club_text = ''
             club_text += f"<pre>{club.name} — {club_damage} ⚔️</pre>\n"
-        return {'user': user_text, 'club': club_text}
+        club_texts.append(club_text)
+        return {'user': user_texts, 'club': club_texts}
     except:
         raise
 
@@ -212,8 +223,10 @@ async def collect_collection_handler(event: SimpleBotEvent):
         user_result = result['user']
         club_result = result['club']
         notice(message=notice_msg)
-        notice(message=user_result)
-        notice(message=club_result)
+        for i in user_result:
+            notice(message=i)
+        for i in club_result:
+            notice(message=i)
         await menu(user=user, event=event, message=text)
         return False
     else:
