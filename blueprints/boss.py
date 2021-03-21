@@ -1,5 +1,7 @@
 import json
+import operator
 import time
+from collections import OrderedDict
 from datetime import datetime
 
 from vkwave.bots import DefaultRouter, SimpleBotEvent, \
@@ -52,6 +54,10 @@ async def boss_result(boss: models.Boss):
                 user_text = ''
             user_text += f"<pre>{current_user.first_name} {current_user.last_name} — {user.total_damage} ⚔️</pre>\n"
         user_texts.append(user_text)
+        sorted_tuples = sorted(clubs_damage.items(), key=operator.itemgetter(1))
+        clubs_damage = OrderedDict()
+        for k, v in sorted_tuples:
+            clubs_damage[k] = v
         for club_id, club_damage in clubs_damage.items():
             club: models.Clubs = crud.get_club(club_id=club_id)
             if club is None:
@@ -59,7 +65,7 @@ async def boss_result(boss: models.Boss):
             if len(club_text) >= 3900:
                 club_texts.append([club_text])
                 club_text = ''
-            club_text += f"<pre>{club.name} — {club_damage} ⚔️</pre>\n"
+            club_text += f"{club.name} — {club_damage} ⚔️\n"
         club_texts.append(club_text)
         return {'user': user_texts, 'club': club_texts}
     except:
