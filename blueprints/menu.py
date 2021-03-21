@@ -124,7 +124,7 @@ async def main(event: SimpleBotEvent):
         await menu(current_user, event)
     else:
         black_list = [485026972, 578062764]
-        if current_user.user_id is black_list:
+        if current_user.user_id in black_list:
             pass
         else:
             text = f"{current_user.first_name} {current_user.last_name} ({current_user.user_id}) пишет.\n\n" \
