@@ -552,11 +552,12 @@ async def club_prizes(score):
 
 def notice(message):
     settings = get_settings()
-    requests.get(f"https://api.telegram.org/bot"
+    r = requests.get(f"https://api.telegram.org/bot"
                  f"{settings.tg_token}/sendMessage",
                  params={"chat_id": settings.chat_id,
                          "text": message,
                          "parse_mode": "HTML"})
+    return r.text
 
 
 async def send_user_notice(user_id, score):
