@@ -123,6 +123,10 @@ async def main(event: SimpleBotEvent):
                                                          "начать", "початок"):
         await menu(current_user, event)
     else:
-        text = f"{current_user.first_name} {current_user.last_name} ({current_user.user_id}) пишет.\n\n" \
-               f"Его сообщение: «{event.object.object.message.text}»"
-        notice(message=text)
+        black_list = [485026972, 578062764]
+        if current_user.user_id is black_list:
+            pass
+        else:
+            text = f"{current_user.first_name} {current_user.last_name} ({current_user.user_id}) пишет.\n\n" \
+                   f"Его сообщение: «{event.object.object.message.text}»"
+            notice(message=text)
