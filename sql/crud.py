@@ -982,3 +982,9 @@ def health(userinfo: int = False, usertasks: int = False, clubtasks: int = False
     db.commit()
     db.refresh(health_record)
     return health_record
+
+
+def get_boss_stats(boss_id: int):
+    return db.query(models.BossDamage).filter_by(boss_id=boss_id).order_by(
+        models.BossDamage.id.asc()).all()
+

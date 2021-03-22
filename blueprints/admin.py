@@ -1047,6 +1047,44 @@ async def add_club_tasks_handler(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/bstats"]))
+async def help(event: SimpleBotEvent):
+    # format /bstats
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) == 1:
+        boss_id = crud.get_current_boss()
+        boss_id = boss_id.id
+    else:
+        boss_id = int(msg[1])
+    text = "Статистика босса\n"
+    s = crud.get_boss_stats(boss_id=boss_id)
+    d, t, total_damage = {}, 0, 0
+    for i in s:
+        now = i.damage_time
+        timestamp = int(datetime.datetime.timestamp(now))
+        if t == 0:
+            t = timestamp + 43200
+            t_old = timestamp
+        if t < timestamp:
+            t = timestamp + 43200
+            t_old = timestamp
+        if d.get(t_old) is None:
+            d[t_old] = i.damage
+        else:
+            d[t_old] += i.damage
+    for g, h in d.items():
+        total_damage += h
+        start = datetime.datetime.fromtimestamp(g + 10800)
+        end = datetime.datetime.fromtimestamp(g + 10800 + 43200)
+        text += f"{start} - {end} | {h}\n"
+    text += f"\nВсего урона: {total_damage}"
+    await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
                             TextContainsFilter(["/health"]))
 async def help(event: SimpleBotEvent):
     # format /health
