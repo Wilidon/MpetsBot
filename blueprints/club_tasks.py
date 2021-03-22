@@ -216,17 +216,36 @@ async def club_rating(event: SimpleBotEvent):
     # Проверить подарок
     current_user = event["current_user"]
     today = int(datetime.today().strftime("%Y%m%d"))
+    mpets = MpetsApi()
+    await mpets.start()
     try:
-        pet_id = int(event.object.object.message.text.split(" ")[1])
+        pet_id = 1
+        msg = event.object.object.message.text.split(" ", maxsplit=1)[1]
+        # Если игрок отправил свой id, то ищем по id. Если по id найти неудалось,
+        # то пробуем найти еще и по нику.
+        if msg.isdigit():
+            pet = await mpets.view_profile(pet_id=msg)
+            if pet["status"] != "ok":
+                pet = await mpets.find_pet(name=msg)
+                if pet["status"] == "ok":
+                    pet_id = pet["pet_id"]
+                else:
+                    return "Игрок не найден"
+            else:
+                pet_id = msg
+        else:
+            pet = await mpets.find_pet(name=msg)
+            if pet["status"] == "ok":
+                pet_id = pet["pet_id"]
+        if pet and pet["status"] != "ok":
+            return "Аккаунт не найден. Попробуйте ещё раз!"
     except:
-        return "Неверно указан id."
+        return "Игрок не найден"
     not_club = False
     not_user_gift = not_club_gift = False
     current_club_tasks = crud.get_club_tasks(user_id=current_user.user_id, today=today)
     current_user_tasks = crud.get_user_tasks(user_id=current_user.user_id, today=today)
     current_user_club = crud.get_club(current_user.club_id)
-    mpets = MpetsApi()
-    await mpets.start()
     profile = await mpets.view_profile(current_user.pet_id)
     if profile["status"] == "error":
         return "Игрок не найден"

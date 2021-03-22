@@ -537,13 +537,13 @@ async def club_prizes(score):
     160🦋 — 2 монетки удачи каждому участнику
     220🦋 — 5🌼 каждому участнику и 10m ❤️ в копилку клуба
     301🦋 — 150k опыта в копилку клуба
-    397🦋 —
-    460🦋 —
-    600🦋 —
-    741🦋 —
-    980🦋 —
-    1101🦋 —
-    1380🦋 —
+    397🦋 — 5 🔑
+    460🦋 — 3000 монет в копилку клуба
+    600🦋 — 30 🎈
+    741🦋 — 35 🍿 каждому участнику
+    980🦋 — 200k опыта в копилку клуба
+    1101🦋 — 3 🧩 и 5 🌼 каждому участнику
+    1380🦋 — 4000 монет в копилку клуба
     """
     if int(score) in [75, 160, 220, 301, 397, 460, 600, 741, 980, 1101, 1380]:
         return True
@@ -575,16 +575,16 @@ async def send_user_notice(user_id, score):
     Доступные товары появились в 🏪Магазине.
     """
     settings = get_settings()
-    message = f"Поздравляем! Вы набрали {score} 🌼️\n" \
+    message = f"Поздравляем! Вы набрали {score} 🌼\n" \
               f"Вам будет зачислен приз – {prizes[score]}"
     if "shop" in prizes[score]:
         crud.add_user_item(user_id, prizes[score], score, status=prizes[score])
-        message = f"Поздравляем! Вы набрали {score} 🌼️\n" \
+        message = f"Поздравляем! Вы набрали {score} 🌼\n" \
                   f"Доступные призы появились в 🏪 Магазине."
     else:
         crud.add_user_item(user_id, prizes[score], score)
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
-    if int(score) in [100, 125, 177]:
+    if int(score) in [149, 187, 251]:
         try:
             keyboard = await get_kb(shop=True)
             await bot.api_context.messages.send(user_id=user_id,
@@ -608,7 +608,7 @@ async def send_user_notice(user_id, score):
             notice(text)
     user = crud.get_user(user_id)
     text = f"Игрок {user.first_name} {user.last_name} | {user.name} " \
-           f"({user.pet_id}) набрал {score} ⭐\n" \
+           f"({user.pet_id}) набрал {score} 🌼\n" \
            f"Приз – {prizes[score]}"
     notice(text)
 
@@ -632,7 +632,7 @@ async def send_club_notice(club_id, score):
                    f"Ошибка: {e}"
             notice(text)
     club = crud.get_club(club_id)
-    text = f"Клуб {club.name} ({club_id}) набрал {score} 🎄\n" \
+    text = f"Клуб {club.name} ({club_id}) набрал {score} 🦋\n" \
            f"Приз – {c_prizes[score]}"
     notice(text)
 

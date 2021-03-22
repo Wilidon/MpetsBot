@@ -923,6 +923,34 @@ async def collection_list(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/bosses"]))
+async def add_club_tasks_handler(event: SimpleBotEvent):
+    # format /bosses
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    text = "Боссы\n\n"
+    for boss_id, boss in bosses.items():
+        text += f"{boss_id} | {boss.get('name')} | {boss.get('health_points')}❤\n" \
+                f"Баффы:\n" \
+                f"Аватар: {boss.get('avatar_name')}\n" \
+                f"Статус: {boss.get('about')}\n" \
+                f"\n" \
+                f"Награды:\n" \
+                f"За убийство: {boss.get('reward_killed')}\n" \
+                f"Топ 1 по урону: {boss.get('top1user')}\n" \
+                f"Топ 2 по урону: {boss.get('top2user')}\n" \
+                f"Топ 3 по урону: {boss.get('top3user')}\n" \
+                f"Каждые 500 урона: {boss.get('every500damage')}\n" \
+                f"\n" \
+                f"Топ 1 по урону: {boss.get('top1club')}\n" \
+                f"Топ 2 по урону: {boss.get('top2club')}\n" \
+                f"Топ 3 по урону: {boss.get('top3club')}\n" \
+                f"Каждые 3000 урона: {boss.get('every3000damage')}\n\n"
+    return text
+
+
+@simple_bot_message_handler(admin_router,
                             TextContainsFilter(["/boss"]))
 async def add_club_tasks_handler(event: SimpleBotEvent):
     # format /boss {start_date} {end_date}
@@ -956,34 +984,6 @@ async def del_club_tasks_handler(event: SimpleBotEvent):
     crud.create_boss(boss_id=boss_id,
                      health_points=health_points)
     return "Босс создан."
-
-
-@simple_bot_message_handler(admin_router,
-                            TextContainsFilter(["/bosses"]))
-async def add_club_tasks_handler(event: SimpleBotEvent):
-    # format /bosses
-    current_user = event["current_user"]
-    if current_user.access < 3:
-        return False
-    text = "Боссы\n\n"
-    for boss_id, boss in bosses.items():
-        text += f"{boss_id} | {boss.get('name')} | {boss.get('health_points')}❤\n" \
-                f"Баффы:\n" \
-                f"Аватар: {boss.get('avatar_name')}\n" \
-                f"Статус: {boss.get('about')}\n" \
-                f"\n" \
-                f"Награды:\n" \
-                f"За убийство: {boss.get('reward_killed')}\n" \
-                f"Топ 1 по урону: {boss.get('top1user')}\n" \
-                f"Топ 2 по урону: {boss.get('top2user')}\n" \
-                f"Топ 3 по урону: {boss.get('top3user')}\n" \
-                f"Каждые 500 урона: {boss.get('every500damage')}\n" \
-                f"\n" \
-                f"Топ 1 по урону: {boss.get('top1club')}\n" \
-                f"Топ 2 по урону: {boss.get('top2club')}\n" \
-                f"Топ 3 по урону: {boss.get('top3club')}\n" \
-                f"Каждые 3000 урона: {boss.get('every3000damage')}\n"
-    return text
 
 
 @simple_bot_message_handler(admin_router,
