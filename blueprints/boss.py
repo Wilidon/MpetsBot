@@ -161,7 +161,7 @@ async def get_boss_text(boss, user_id):
            f"💊 Осталось: {boss.health_points} ❤\n\n" \
            f"⚔ Каждый удар наносит 10 урона\n\n" \
            f"🐉 Смена аватарки на «{bosses[boss.boss_id].get('avatar_name')}» +5 урона\n" \
-           f"🏹 Смена анкеты на «{bosses[boss.boss_id].get('about')}» +5 урона\n" \
+           f"🏹 Смена о себе на «{bosses[boss.boss_id].get('about')}» +5 урона\n" \
            f"{await left_event()}"
 
 
