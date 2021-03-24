@@ -988,3 +988,7 @@ def get_boss_stats(boss_id: int):
     return db.query(models.BossDamage).filter_by(boss_id=boss_id).order_by(
         models.BossDamage.id.asc()).all()
 
+
+def change_pet_id(user_id: int, to_user_id: int):
+    user = db.query(models.Users).filter_by(user_id=user_id).first()
+    user2 = db.query(models.Users).filter_by(user_id=to_user_id).first()
