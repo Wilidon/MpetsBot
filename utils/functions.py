@@ -659,6 +659,10 @@ async def add_user_points(user_id, point=True, task_name=None):
         logger.error(f"add_user_points {e}")
 
 
+async def add_user_points_v2(user_id, points):
+    crud.update_user_stats(user_id, points=points, personal_tasks=0)
+
+
 async def add_club_points(user_id=None, club_id=None, point=True, task_name=None):
     try:
         points, user_name = 0, None

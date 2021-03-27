@@ -11,8 +11,9 @@ from config import get_db
 from keyboards.kb import menu, boss_kb
 from mpetsapi import MpetsApi
 from sql import crud, models
+from utils.collection_handler import create_collection_item
 from utils.constants import holiday_1402, bosses
-from utils.functions import notice, notice2
+from utils.functions import notice, notice2, add_user_points_v2
 
 boss_router = DefaultRouter()
 
@@ -89,12 +90,21 @@ async def get_user_baff(pet_id: int):
     if resp['status'] == 'error':
         await mpets.start()
     resp = await mpets.view_profile(pet_id=pet_id)
-    if resp['status'] == 'ok':
+    resp2 = await mpets.view_anketa(pet_id=pet_id)
+    if resp['status'] == 'ok' and resp2['status'] == 'ok':
         return {"status": True,
                 "ava_id": resp['ava_id'],
-                "about": resp['about']}
+                "about": resp2['about']}
     else:
         return {"status": False}
+
+
+async def add_rewards(user_id, amount):
+    for i in range(amount):
+        item_info = await create_collection_item(user_id=user_id)
+        crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+                                   collection_id=item_info['collection_id'])
+        await add_user_points_v2(user_id=user_id, points=2)
 
 
 async def create_rewards(boss):
@@ -103,6 +113,7 @@ async def create_rewards(boss):
         user = users[i]
         if user.status == 'killed':
             amount = user.total_damage // 500
+            await add_rewards(user_id=user.user_id, amount=amount)
             reward = f"\n{bosses[boss.boss_id].get('reward_killed')} {amount}🧩, {amount * 2}🏅"
             if i == 0:
                 reward = f"\n{bosses[boss.boss_id].get('reward_killed')} " \
@@ -121,6 +132,7 @@ async def create_rewards(boss):
                                          reward=reward)
         else:
             amount = user.total_damage // 500
+            await add_rewards(user_id=user.user_id, amount=amount)
             reward = f"\n{amount}🧩, {amount * 2}🏅"
             if i == 0:
                 reward = f"\n{bosses[boss.boss_id].get('top1user')} \n" \
