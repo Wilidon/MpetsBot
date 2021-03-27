@@ -13,7 +13,7 @@ from vkwave.bots import (
 from config import get_db
 from sql import crud
 from utils import functions
-from utils.collection_handler import add_collection_item, remove_collection_item
+from utils.collection_handler import add_collection_item, remove_collection_item, create_collection_item
 from utils.functions import add_user_points, add_club_points, notice
 from utils.constants import month, access_name, prizes, c_prizes, collections, numbers, bosses
 
@@ -885,6 +885,23 @@ async def del_club_tasks_handler(event: SimpleBotEvent):
                                  collection_id=collection_id,
                                  part_id=part_id)
     return "Часть коллекции снята."
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["+random collection"]))
+async def del_club_tasks_handler(event: SimpleBotEvent):
+    # format +random collection {user_id}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if len(msg) != 3:
+        return "format +random collection {user_id} {collection_id} {part_id}"
+    user_id = int(msg[2])
+    item_info = await create_collection_item(user_id=user_id)
+    crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+                               collection_id=item_info['collection_id'])
+    return f"Часть {item_info['part_id']} коллекции {item_info['collection_id']} начислена."
 
 
 @simple_bot_message_handler(admin_router,

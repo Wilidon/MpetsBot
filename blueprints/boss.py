@@ -48,7 +48,6 @@ async def boss_result(boss: models.Boss):
             try:
                 clubs_damage[current_user.club_id] += user.total_damage
             except Exception as e:
-                print(current_user.club_id)
                 clubs_damage[current_user.club_id] = user.total_damage
             if len(user_text) >= 3900:
                 user_texts.append([user_text])
