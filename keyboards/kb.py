@@ -46,7 +46,7 @@ async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_b
                                  payload={"command": "boss"},
                                  color=ButtonColor.SECONDARY)
             MENU.add_row()
-    if 20210401 <= today_date <= 20210401:
+    if 20210331 <= today_date <= 20210402:
         MENU.add_text_button(text="🗒 Личные задания",
                              payload={"command": "collections"}, # коллекции user_tasks
                              color=ButtonColor.SECONDARY)
@@ -101,7 +101,7 @@ async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_b
         MENU.add_text_button(text="🏪 Магазин", payload={"command": "shop"},
                              color=ButtonColor.POSITIVE)
     if access >= 3:
-        if 20210401 <= today_date <= 20210401:
+        if 20210331 <= today_date <= 20210402:
             MENU.add_row()
             MENU.add_text_button(text="🌐 Рейтинг игроков",
                                  payload={"command": "club_items"}, # rating_user_tasks
