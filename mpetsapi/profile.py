@@ -234,7 +234,7 @@ async def view_gifts(pet_id, page, cookies, timeout, connector):
                                      params=params)
             gifts = BeautifulSoup(await resp.read(), "lxml")
             if "Вы кликаете слишком быстро." in await resp.text():
-                return await view_profile(pet_id, cookies, connector)
+                return await view_gifts(pet_id, page, cookies, timeout, connector)
             items = gifts.find_all('div', {'class': 'item'})
             for item in items:
                 name, pet_id = None, None
@@ -254,10 +254,10 @@ async def view_gifts(pet_id, page, cookies, timeout, connector):
                     'players': players}
     except asyncio.TimeoutError as e:
         return {'status': 'error', 'code': '', 'msg': e}
-    except Exception:
+    except Exception as e:
         return {'status': 'error',
                 'code': 12,
-                'msg': 'Failed to get gifts'}
+                'msg': e}
 
 
 async def post_message(pet_id, message, gift_id, cookies, connector):

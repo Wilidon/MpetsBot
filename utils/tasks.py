@@ -9,7 +9,7 @@ from mpetsapi import MpetsApi
 from sql import crud
 from utils import functions
 from utils.constants import gifts_name, holiday_1402, holiday_2302, holiday_1402_prizes, holiday_2302_prizes, \
-    holiday_308, holiday_308_prizes
+    holiday_308, holiday_308_prizes, holiday_401, holiday_401_prizes
 
 
 async def check_task(user, user_task, progress, task_name):
@@ -982,6 +982,9 @@ async def checking_avatar_htask(mpets, user, user_task):
     elif holiday_308[0] <= today <= holiday_308[1]:
         prize = holiday_308_prizes['avatar']
         avatar_ids = [0, 1]
+    elif holiday_401[0] <= today <= holiday_401[1]:
+        prize = holiday_401_prizes['avatar']
+        avatar_ids = [5, 0]
     profile = await mpets.view_profile(user.pet_id)
     if profile["status"] != "ok":
         return 0
@@ -996,7 +999,7 @@ async def checking_avatar_htask(mpets, user, user_task):
             crud.update_user_task_name(user_task.id, task_name)
         else:
             left_time = time.time() - int(start_time)
-            if left_time >= 86400:
+            if left_time >= 10800:
                 crud.update_user_task(user_task.id, user_task.end, "completed")
                 crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
             else:
@@ -1020,13 +1023,16 @@ async def checking_anketa_htask(mpets, user, user_task):
     elif holiday_308[0] <= today <= holiday_308[1]:
         prize = holiday_308_prizes['anketa']
         smiles = ["✿ܓ"]
+    elif holiday_401[0] <= today <= holiday_401[1]:
+        prize = holiday_401_prizes['anketa']
+        smiles = ["Никому не верю"]
     profile = await mpets.view_anketa(user.pet_id)
     if profile["status"] != "ok":
         return False
     task_name = user_task.task_name
     anketa_about = task_name.split("_", maxsplit=1)[-1]
     anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
-    if profile["about"] in smiles or profile["ank"] in smiles:
+    if profile["about"].lower() in smiles[0].lower() or profile["ank"].lower() in smiles[0].lower():
         ank = task_name.split("_", maxsplit=1)[-1]
         start_time = ank.rsplit(":", maxsplit=1)[1]
         if int(start_time) == 0:
@@ -1034,7 +1040,7 @@ async def checking_anketa_htask(mpets, user, user_task):
             crud.update_user_task_name(user_task.id, task_name)
         else:
             left_time = time.time() - int(start_time)
-            if left_time >= 86400:
+            if left_time >= 10800:
                 crud.update_user_task(user_task.id, user_task.end, "completed")
                 crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
             else:
@@ -1063,6 +1069,10 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
         hdate = holiday_308[2]
         prize = holiday_308_prizes['gifts']
         gift_ids = [45, 46, 47]
+    elif holiday_401[0] <= date <= holiday_401[1]:
+        hdate = holiday_401[2]
+        prize = holiday_401_prizes['gifts']
+        gift_ids = [32, 33]
     while True:
         if today is False:
             break
@@ -1106,6 +1116,7 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
     if progress < user_task.end:
         crud.update_user_task(user_task.id, progress, "waiting")
     else:
+
         crud.update_user_task(user_task.id, user_task.end, "completed")
         crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
 
@@ -1179,6 +1190,8 @@ async def checking_holiday_tasks():
                 date = holiday_2302[2]
             elif holiday_308[0] <= today <= holiday_308[1]:
                 date = holiday_308[2]
+            elif holiday_401[0] <= today <= holiday_401[1]:
+                date = holiday_401[2]
             else:
                 await asyncio.sleep(120)
                 continue

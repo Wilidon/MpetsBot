@@ -6,7 +6,7 @@ from vkwave.bots import Keyboard, ButtonColor
 from config import get_db
 from sql import crud
 from utils.collection_handler import check_collected_collection
-from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections, holiday_308
+from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections, holiday_308, holiday_401
 
 
 async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_btn: bool = False):
@@ -27,6 +27,11 @@ async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_b
     elif holiday_308[0] <= today <= holiday_308[1]:
         MENU.add_text_button(text="🌹 Международный женский день",
                              payload={"command": "0308"},
+                             color=ButtonColor.POSITIVE)
+        MENU.add_row()
+    elif holiday_401[0] <= today <= holiday_401[1]:
+        MENU.add_text_button(text="❗ Удалить игру",
+                             payload={"command": "0401"},
                              color=ButtonColor.POSITIVE)
         MENU.add_row()
     today_date = int(datetime.datetime.today().strftime("%Y%m%d"))

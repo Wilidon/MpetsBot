@@ -513,6 +513,23 @@ async def creation_womenDay_tasks(user, date):
     return True
 
 
+async def creation_firstApril_tasks(user, date):
+    crud.close_all_user_htasks(user_id=user.user_id, date=date[2])
+    all_tasks = crud.get_user_tasks(user.user_id, date[2])
+    if all_tasks:
+        return False
+    task_name = f"avatar_1:0"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=3, date=date[2])
+    task_name = "anketa_1:0"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=3, date=date[2])
+    task_name = "gifts"
+    crud.create_user_task_for_user(user_id=user.user_id, task_name=task_name,
+                                   progress=0, end=10, date=date[2])
+    return True
+
+
 async def user_prizes(score):
     """
     15🌼 — 20 🍿 и 1 ⚙️
