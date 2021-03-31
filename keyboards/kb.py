@@ -46,49 +46,91 @@ async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_b
                                  payload={"command": "boss"},
                                  color=ButtonColor.SECONDARY)
             MENU.add_row()
-    MENU.add_text_button(text="🗒 Личные задания",
-                         payload={"command": "user_tasks"},
-                         color=ButtonColor.SECONDARY)
-    MENU.add_text_button(text="🧾 Клубные задания",
-                         payload={"command": "club_tasks"},
-                         color=ButtonColor.SECONDARY)
-    MENU.add_row()
-    MENU.add_text_button(text="🏅 Рейтинг",
-                         payload={"command": "user_rating"},
-                         color=ButtonColor.SECONDARY)
-    MENU.add_text_button(text="🎈 Рейтинг",
-                         payload={"command": "club_rating"},
-                         color=ButtonColor.SECONDARY)
-    MENU.add_row()
-    MENU.add_text_button(text="🧸 Профиль",
-                         payload={"command": "profile"},
-                         color=ButtonColor.POSITIVE)
-    MENU.add_text_button(text="🏡 Клуб",
-                         payload={"command": "club"},
-                         color=ButtonColor.POSITIVE)
-    MENU.add_row()
-    MENU.add_text_button(text="🧩Коллекции ",
-                         payload={"command": "collections"},
-                         color=ButtonColor.PRIMARY)
+    if 20210401 <= today_date <= 20210401:
+        MENU.add_text_button(text="🗒 Личные задания",
+                             payload={"command": "collections"}, # коллекции user_tasks
+                             color=ButtonColor.SECONDARY)
+        MENU.add_text_button(text="🧾 Клубные задания",
+                             payload={"command": "profile"},
+                             color=ButtonColor.SECONDARY)
+        MENU.add_row()
+        MENU.add_text_button(text="🏅 Рейтинг",
+                             payload={"command": "club_rating"},
+                             color=ButtonColor.SECONDARY)
+        MENU.add_text_button(text="🎈 Рейтинг",
+                             payload={"command": "club_tasks"},
+                             color=ButtonColor.SECONDARY)
+        MENU.add_row()
+        MENU.add_text_button(text="🧸 Профиль",
+                             payload={"command": "user_rating"}, # личный рейтинг
+                             color=ButtonColor.POSITIVE)
+        MENU.add_text_button(text="🏡 Клуб",
+                             payload={"command": "user_tasks"}, # личные задания club
+                             color=ButtonColor.POSITIVE)
+        MENU.add_row()
+        MENU.add_text_button(text="🧩Коллекции ",
+                             payload={"command": "club"}, # клуб
+                             color=ButtonColor.PRIMARY)
+    else:
+        MENU.add_text_button(text="🗒 Личные задания",
+                             payload={"command": "user_tasks"},
+                             color=ButtonColor.SECONDARY)
+        MENU.add_text_button(text="🧾 Клубные задания",
+                             payload={"command": "club_tasks"},
+                             color=ButtonColor.SECONDARY)
+        MENU.add_row()
+        MENU.add_text_button(text="🏅 Рейтинг",
+                             payload={"command": "user_rating"},
+                             color=ButtonColor.SECONDARY)
+        MENU.add_text_button(text="🎈 Рейтинг",
+                             payload={"command": "club_rating"},
+                             color=ButtonColor.SECONDARY)
+        MENU.add_row()
+        MENU.add_text_button(text="🧸 Профиль",
+                             payload={"command": "profile"},
+                             color=ButtonColor.POSITIVE)
+        MENU.add_text_button(text="🏡 Клуб",
+                             payload={"command": "club"},
+                             color=ButtonColor.POSITIVE)
+        MENU.add_row()
+        MENU.add_text_button(text="🧩Коллекции ",
+                             payload={"command": "collections"},
+                             color=ButtonColor.PRIMARY)
     if shop:
         MENU.add_row()
         MENU.add_text_button(text="🏪 Магазин", payload={"command": "shop"},
                              color=ButtonColor.POSITIVE)
     if access >= 3:
-        MENU.add_row()
-        MENU.add_text_button(text="🌐 Рейтинг игроков",
-                             payload={"command": "rating_user_tasks"},
-                             color=ButtonColor.POSITIVE)
-        MENU.add_text_button(text="🌐 Рейтинг клубов",
-                             payload={"command": "rating_club_tasks"},
-                             color=ButtonColor.POSITIVE)
-        MENU.add_row()
-        MENU.add_text_button(text="🌐 Призы игроков",
-                             payload={"command": "user_items"},
-                             color=ButtonColor.POSITIVE)
-        MENU.add_text_button(text="🌐 Призы клубов",
-                             payload={"command": "club_items"},
-                             color=ButtonColor.POSITIVE)
+        if 20210401 <= today_date <= 20210401:
+            MENU.add_row()
+            MENU.add_text_button(text="🌐 Рейтинг игроков",
+                                 payload={"command": "club_items"}, # rating_user_tasks
+                                 color=ButtonColor.POSITIVE)
+            MENU.add_text_button(text="🌐 Рейтинг клубов",
+                                 payload={"command": "rating_user_tasks"}, # rating_club_tasks
+                                 color=ButtonColor.POSITIVE)
+            MENU.add_row()
+            MENU.add_text_button(text="🌐 Призы игроков",
+                                 payload={"command": "rating_club_tasks"}, # user_items
+                                 color=ButtonColor.POSITIVE)
+            MENU.add_text_button(text="🌐 Призы клубов",
+                                 payload={"command": "user_items"}, # club_items
+                                 color=ButtonColor.POSITIVE)
+        else:
+            MENU.add_row()
+            MENU.add_text_button(text="🌐 Рейтинг игроков",
+                                 payload={"command": "rating_user_tasks"},
+                                 color=ButtonColor.POSITIVE)
+            MENU.add_text_button(text="🌐 Рейтинг клубов",
+                                 payload={"command": "rating_club_tasks"},
+                                 color=ButtonColor.POSITIVE)
+            MENU.add_row()
+            MENU.add_text_button(text="🌐 Призы игроков",
+                                 payload={"command": "user_items"},
+                                 color=ButtonColor.POSITIVE)
+            MENU.add_text_button(text="🌐 Призы клубов",
+                                 payload={"command": "club_items"},
+                                 color=ButtonColor.POSITIVE)
     return MENU
 
 
