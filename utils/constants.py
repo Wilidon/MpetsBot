@@ -12,7 +12,7 @@ holiday_308_prizes = {"gifts": "10 попкорна",
                       "avatar": "3 попкорна",
                       "anketa": "3 попкорна"}
 
-holiday_401 = [331, 401, 402]
+holiday_401 = [331, 402, 401]
 holiday_401_prizes = {"gifts": "3 плюса",
                       "avatar": "1 плюс",
                       "anketa": "1 плюс"}
