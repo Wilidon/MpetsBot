@@ -308,6 +308,8 @@ def close_all_user_tasks(user_id: int):
             continue
         if task.date == 308:
             continue
+        if task.date == 401:
+            continue
         task.status = "timeout"
         db.commit()
 
