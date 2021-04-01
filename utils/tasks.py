@@ -1012,45 +1012,48 @@ async def checking_avatar_htask(mpets, user, user_task):
 
 
 async def checking_anketa_htask(mpets, user, user_task):
-    today = int(datetime.today().strftime("%m%d"))
-    smiles = []
-    if holiday_1402[0] <= today <= holiday_1402[1]:
-        prize = holiday_1402_prizes['anketa']
-        smiles = ["❤", "❤️", "♥️"]
-    elif holiday_2302[0] <= today <= holiday_2302[1]:
-        prize = holiday_2302_prizes['anketa']
-        smiles = ["⭐️", "⭐"]
-    elif holiday_308[0] <= today <= holiday_308[1]:
-        prize = holiday_308_prizes['anketa']
-        smiles = ["✿ܓ"]
-    elif holiday_401[0] <= today <= holiday_401[1]:
-        prize = holiday_401_prizes['anketa']
-        smiles = ["Никому не верю"]
-    profile = await mpets.view_anketa(user.pet_id)
-    if profile["status"] != "ok":
-        return False
-    task_name = user_task.task_name
-    anketa_about = task_name.split("_", maxsplit=1)[-1]
-    anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
-    if smiles[0] in profile["about"] or smiles[0] in profile["ank"]:
-        ank = task_name.split("_", maxsplit=1)[-1]
-        start_time = ank.rsplit(":", maxsplit=1)[1]
-        if int(start_time) == 0:
-            task_name = f"anketa_{anketa_about}:{int(time.time())}"
-            crud.update_user_task_name(user_task.id, task_name)
-        else:
-            left_time = time.time() - int(start_time)
-            if left_time >= 43200:
-                crud.update_user_task(user_task.id, user_task.end, "completed")
-                crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
+    try:
+        today = int(datetime.today().strftime("%m%d"))
+        smiles = []
+        if holiday_1402[0] <= today <= holiday_1402[1]:
+            prize = holiday_1402_prizes['anketa']
+            smiles = ["❤", "❤️", "♥️"]
+        elif holiday_2302[0] <= today <= holiday_2302[1]:
+            prize = holiday_2302_prizes['anketa']
+            smiles = ["⭐️", "⭐"]
+        elif holiday_308[0] <= today <= holiday_308[1]:
+            prize = holiday_308_prizes['anketa']
+            smiles = ["✿ܓ"]
+        elif holiday_401[0] <= today <= holiday_401[1]:
+            prize = holiday_401_prizes['anketa']
+            smiles = ["Никому не верю"]
+        profile = await mpets.view_anketa(user.pet_id)
+        if profile["status"] != "ok":
+            return False
+        task_name = user_task.task_name
+        anketa_about = task_name.split("_", maxsplit=1)[-1]
+        anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
+        if smiles[0] in profile["about"] or smiles[0] in profile["ank"]:
+            ank = task_name.split("_", maxsplit=1)[-1]
+            start_time = ank.rsplit(":", maxsplit=1)[1]
+            if int(start_time) == 0:
+                task_name = f"anketa_{anketa_about}:{int(time.time())}"
+                crud.update_user_task_name(user_task.id, task_name)
             else:
-                left_time = int(left_time // 60 // 60)
-                crud.update_user_task(user_task.id, left_time, "waiting")
-    else:
-        task_name = f"anketa_{anketa_about}:0"
-        crud.update_user_task(user_task.id, 0, "waiting")
-        crud.update_user_task_name(user_task.id, task_name)
-
+                left_time = time.time() - int(start_time)
+                if left_time >= 43200:
+                    crud.update_user_task(user_task.id, user_task.end, "completed")
+                    crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
+                else:
+                    left_time = int(left_time // 60 // 60)
+                    crud.update_user_task(user_task.id, left_time, "waiting")
+        else:
+            task_name = f"anketa_{anketa_about}:0"
+            crud.update_user_task(user_task.id, 0, "waiting")
+            crud.update_user_task_name(user_task.id, task_name)
+    except Exception as e:
+        logger.error(f"checking_anketa_htask {user.user_id} "
+                     f"error {e}")
 
 async def checking_exchangeGifts_htask(mpets, user, user_task, date):
     progress = user_task.progress
@@ -1174,7 +1177,7 @@ async def start_checking_holiday_tasks(user, date):
             elif "gifts" in user_task.task_name:
                 await checking_exchangeGifts_htask(mpets, user, user_task, date)
         except Exception as e:
-            logger.error(f"start_verify_user {user.user_id} "
+            logger.error(f"start_checking_holiday_tasks {user.user_id} "
                          f"task {user_task.task_name} "
                          f"error {e}")
 
