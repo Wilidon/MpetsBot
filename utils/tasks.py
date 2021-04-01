@@ -1033,7 +1033,7 @@ async def checking_anketa_htask(mpets, user, user_task):
         task_name = user_task.task_name
         anketa_about = task_name.split("_", maxsplit=1)[-1]
         anketa_about = anketa_about.rsplit(":", maxsplit=1)[0]
-        if smiles[0] in profile["about"] or smiles[0] in profile["ank"]:
+        if smiles in profile["about"] or smiles in profile["ank"]:
             ank = task_name.split("_", maxsplit=1)[-1]
             start_time = ank.rsplit(":", maxsplit=1)[1]
             if int(start_time) == 0:
@@ -1054,6 +1054,7 @@ async def checking_anketa_htask(mpets, user, user_task):
     except Exception as e:
         logger.error(f"checking_anketa_htask {user.user_id} "
                      f"error {e}")
+
 
 async def checking_exchangeGifts_htask(mpets, user, user_task, date):
     progress = user_task.progress
