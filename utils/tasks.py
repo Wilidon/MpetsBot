@@ -1041,6 +1041,7 @@ async def checking_anketa_htask(mpets, user, user_task):
                 crud.update_user_task_name(user_task.id, task_name)
             else:
                 left_time = time.time() - int(start_time)
+                logger.debug(f"left_time {left_time}")
                 if left_time >= 43200:
                     crud.update_user_task(user_task.id, user_task.end, "completed")
                     crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
