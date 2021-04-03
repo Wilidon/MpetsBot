@@ -152,7 +152,7 @@ async def task_rating(event: SimpleBotEvent):
         return "❗ Рейтинг пуст."
     for user_stats in top_users_stats:
         top_user = crud.get_user(user_stats.user_id)
-        text += f"{counter}. {top_user.name} — " \
+        text += f"{counter}. {top_user.name} ({top_user.user_id}) [{top_user.pet_id}] — " \
                 f"{user_stats.personal_tasks} 🌼/" \
                 f"{user_stats.points}🏅\n"
         counter += 1
