@@ -168,6 +168,18 @@ async def get_boss_text(boss, user_id):
                    f"и получил {bosses[boss.boss_id]['reward_killed']}\n\n" \
                    f"⚔ Вы нанесли урона: {current_user.total_damage}\n" \
                    f"🎁 Ваша награда: {current_user.reward}"
+    elif boss.status == 'freeze':
+        current_user = crud.get_user_boss(user_id=user_id,
+                                          boss_id=boss.id)
+        if current_user.reward == '':
+            return f"🐉 ЗЛОВЕЩИЙ МОНСТР остался жив\n" \
+                   f"💊 Осталось: {boss.health_points} ❤\n\n" \
+                   f"⚔ Вы нанесли урона: {current_user.total_damage}\n" \
+                   f"🎁 Ваша награда: ничего"
+        return f"🐉 ЗЛОВЕЩИЙ МОНСТР остался жив\n" \
+               f"💊 Осталось: {boss.health_points} ❤\n\n" \
+               f"⚔ Вы нанесли урона: {current_user.total_damage}\n" \
+               f"🎁 Ваша награда: {current_user.reward}"
     return f"{bosses[boss.boss_id]['name']}\n" \
            f"💊 Осталось: {boss.health_points} ❤\n\n" \
            f"⚔ Каждый удар наносит 10 урона\n\n" \
@@ -188,7 +200,10 @@ async def holiday_handler(event: SimpleBotEvent):
     text = await get_boss_text(boss=boss, user_id=current_user.user_id)
     if boss.status == 'dead':
         await menu(user=current_user, event=event, message=text)
-        return 0
+        return False
+    elif boss.status == 'freeze':
+        await menu(user=current_user, event=event, message=text)
+        return False
     if user_restart.time > int(time.time()):
         btn_green_color = False
     await boss_kb(user=current_user, event=event, message=text, btn=btn_green_color)
@@ -202,6 +217,10 @@ async def collect_collection_handler(event: SimpleBotEvent):
     amount_damage = 10
     current_bosses = crud.get_current_boss()
     if current_bosses.status == 'dead':
+        text = await get_boss_text(boss=current_bosses, user_id=user.user_id)
+        await menu(user=user, event=event, message=text)
+        return False
+    elif current_bosses.status == 'freeze':
         text = await get_boss_text(boss=current_bosses, user_id=user.user_id)
         await menu(user=user, event=event, message=text)
         return False
