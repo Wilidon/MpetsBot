@@ -145,10 +145,10 @@ SHOP_1 = Keyboard()
 SHOP_1.add_text_button(text=shop1["item1"],
                        payload={"command": "item1"},
                        color=ButtonColor.POSITIVE)
-SHOP_1.add_text_button(text=shop1["item1"],
+SHOP_1.add_text_button(text=shop1["item2"],
                        payload={"command": "item2"},
                        color=ButtonColor.POSITIVE)
-SHOP_1.add_text_button(text=shop1["item1"],
+SHOP_1.add_text_button(text=shop1["item3"],
                        payload={"command": "item3"},
                        color=ButtonColor.POSITIVE)
 SHOP_1.add_row()
