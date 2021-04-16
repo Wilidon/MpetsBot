@@ -30,7 +30,7 @@ async def choose_item(event: SimpleBotEvent):
         return "Ошибка"
     items = crud.get_user_item(user.user_id, "shop_%")
     for item in items:
-        if int(item.score) == 100:
+        if int(item.score) == 149:
             crud.update_user_itemname(item.id, shop1[item_id],
                                       "В процессе")
             await menu(user=user,
@@ -41,7 +41,7 @@ async def choose_item(event: SimpleBotEvent):
                    f"{shop1[item_id]}"
             notice(text)
             break
-        elif int(item.score) == 125:
+        elif int(item.score) == 187:
             if item.status == "shop_2":
                 shop_id = item_id.split("m")[1]
                 crud.update_user_itemname(item.id, shop2[item_id],
@@ -74,7 +74,7 @@ async def choose_item(event: SimpleBotEvent):
                 await menu(user, event, "Награда будет начислена в течение "
                                         "недели.")
             break
-        elif int(item.score) == 177:
+        elif int(item.score) == 251:
             ids = item.status.split("_3")[1].split(".")[1:]
             ids = [int(i) for i in ids]
             shop_id = item_id.split("m")[1]
