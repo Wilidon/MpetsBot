@@ -105,12 +105,12 @@ async def shop(event: SimpleBotEvent):
     current_user = event["current_user"]
     items = crud.get_user_item(current_user.user_id, "shop%")
     for item in items:
-        if int(item.score) == 100:
+        if int(item.score) == 149:
             await event.answer(message=f"🏪 Магазин за {item.score} очков\n"
                                        f"Выберите один приз на выбор",
                                keyboard=SHOP_1.get_keyboard())
             break
-        elif int(item.score) == 125:
+        elif int(item.score) == 187:
             if item.status == "shop_2":
                 await event.answer(
                     message=f"🏪 Магазин за {item.score} очков\n"
@@ -129,7 +129,7 @@ async def shop(event: SimpleBotEvent):
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
                                    keyboard=get_shop_2([4]).get_keyboard())
             break
-        elif int(item.score) == 177:
+        elif int(item.score) == 251:
             ids = item.status.split("_3")[1].split(".")[1:]
             ids = [int(i) for i in ids]
             if item.status == "shop_3":

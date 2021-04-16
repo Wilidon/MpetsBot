@@ -6,7 +6,7 @@ from vkwave.bots import Keyboard, ButtonColor
 from config import get_db
 from sql import crud
 from utils.collection_handler import check_collected_collection
-from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections, holiday_308, holiday_401
+from utils.constants import shop2, shop3, holiday_1402, holiday_2302, collections, holiday_308, holiday_401, shop1
 
 
 async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_btn: bool = False):
@@ -140,14 +140,15 @@ CONFIRMATION.add_text_button(text="Да!", payload={"command": "yes"},
 CONFIRMATION.add_text_button(text="Нет!", payload={"command": "not"},
                              color=ButtonColor.NEGATIVE)
 
+
 SHOP_1 = Keyboard()
-SHOP_1.add_text_button(text="300 монет",
+SHOP_1.add_text_button(text=shop1["item1"],
                        payload={"command": "item1"},
                        color=ButtonColor.POSITIVE)
-SHOP_1.add_text_button(text="2⚙️(волш.)",
+SHOP_1.add_text_button(text=shop1["item1"],
                        payload={"command": "item2"},
                        color=ButtonColor.POSITIVE)
-SHOP_1.add_text_button(text="20 ангелов",
+SHOP_1.add_text_button(text=shop1["item1"],
                        payload={"command": "item3"},
                        color=ButtonColor.POSITIVE)
 SHOP_1.add_row()
