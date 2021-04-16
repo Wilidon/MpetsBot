@@ -171,6 +171,11 @@ async def get_boss_text(boss, user_id):
     elif boss.status == 'freeze':
         current_user = crud.get_user_boss(user_id=user_id,
                                           boss_id=boss.id)
+        if current_user is None:
+            return f"🐉 ЗЛОВЕЩИЙ МОНСТР остался жив\n" \
+                   f"💊 Осталось: {boss.health_points} ❤\n\n" \
+                   f"⚔ Вы нанесли урона: 0\n" \
+                   f"🎁 Ваша награда: ничего"
         if current_user.reward == '':
             return f"🐉 ЗЛОВЕЩИЙ МОНСТР остался жив\n" \
                    f"💊 Осталось: {boss.health_points} ❤\n\n" \
