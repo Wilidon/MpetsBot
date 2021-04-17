@@ -1193,7 +1193,8 @@ async def help(event: SimpleBotEvent):
            "/stagestats — ( не работает );\n" \
            "/taskstats — статистика по заданиям ( в будущем );\n" \
            "\n" \
-           "+collection {user_id} {collection_id} {part_id} {count} — default: 1;\n" \
+           "+collection {user_id} {collection_id} {part_id} \n" \
+           "+random collection {user_id} {count} — default: 1;" \
            "\n" \
            "/boss {start_date} {end_date} — даты проведения мероприятия [319 325];\n" \
            "+boss {boss_id} {health_points} — создать босса;\n" \
