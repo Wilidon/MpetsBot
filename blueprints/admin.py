@@ -284,6 +284,37 @@ async def club_member(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            TextContainsFilter("/club collection"))
+async def club_member(event: SimpleBotEvent):
+    # format /club collection {club_id} {count}
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    msg = event.object.object.message.text.split(" ")
+    if msg[2].isdigit() is False:
+        return "❗ Клуб не найден."
+    text = "Части коллекций () \n\n"
+    club_id = int(msg[2])
+    try:
+        count = int(msg[3])
+    except:
+        count = 1
+    club_members = crud.get_users_with_club(club_id)
+    if not club_members:
+        return "❗ Клуб не найден."
+    for member in club_members:
+        user_id = member.user_id
+        user = crud.get_user(user_id=user_id)
+        for i in range(count):
+            item_info = await create_collection_item(user_id=user_id)
+            crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+                                       collection_id=item_info['collection_id'])
+            text += f"{user.first_name} {user.last_name} получил {item_info['part_id']} часть " \
+                    f"{item_info['collection_id']} коллекции.\n"
+    await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
                             TextContainsFilter(["+tasks club members"]))
 async def club_member(event: SimpleBotEvent):
     current_user = event["current_user"]
@@ -890,18 +921,25 @@ async def del_club_tasks_handler(event: SimpleBotEvent):
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(["+random collection"]))
 async def del_club_tasks_handler(event: SimpleBotEvent):
-    # format +random collection {user_id}
+    # format +random collection {user_id} {count}
     current_user = event["current_user"]
     if current_user.access < 3:
         return False
     msg = event.object.object.message.text.split(" ")
-    if len(msg) != 3:
-        return "format +random collection {user_id} {collection_id} {part_id}"
+    if len(msg) < 3:
+        return "format +random collection {user_id} {collection_id} {part_id} {count}"
+    try:
+        count = int(msg[3])
+    except:
+        count = 1
     user_id = int(msg[2])
-    item_info = await create_collection_item(user_id=user_id)
-    crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
-                               collection_id=item_info['collection_id'])
-    return f"Часть {item_info['part_id']} коллекции {item_info['collection_id']} начислена."
+    text = ""
+    for i in range(count):
+        item_info = await create_collection_item(user_id=user_id)
+        crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+                                   collection_id=item_info['collection_id'])
+        text += f"Часть {item_info['part_id']} коллекции {item_info['collection_id']} начислена.\n"
+    return text
 
 
 @simple_bot_message_handler(admin_router,
@@ -1128,10 +1166,10 @@ async def help(event: SimpleBotEvent):
     if current_user.access < 3:
         return False
     text = "Помощь\n" \
-           "+points club {club_id} {points} — добавить фишки (рейтинг);\n" \
-           "+tasks club {club_id} {points} — добавить елки (гонка);\n" \
-           "+points user {user_id} {points} — добавить баллы (рейтинг);\n" \
-           "+tasks user {user_id} {points} — добавить звездочки (гонка);\n" \
+           "+points club {club_id} {points} — рейтинг;\n" \
+           "+tasks club {club_id} {points} — гонка;\n" \
+           "+points user {user_id} {points} — рейтинг;\n" \
+           "+tasks user {user_id} {points} — гонка;\n" \
            "\n" \
            "/user tasks — первые 100 пользователей рейтинга;\n" \
            "/user club — первые 100 клубов рейтинга;\n" \
@@ -1142,7 +1180,8 @@ async def help(event: SimpleBotEvent):
            "\n" \
            "/club members {club_id} — посмотреть список участников клуба;\n" \
            "+tasks club members {club_id} {points} — начислить всем " \
-           "участникам клуба звездочки;\n" \
+           "участникам клуба гоночную награду;\n" \
+           "/club collection {club_id} {count} — default: 1  \n" \
            "\n" \
            "/ban {user_id} {hours} {reason} — забанить пользователя;\n" \
            "/unban {user_id} {hours} {reason} — разбанить пользователя;\n" \
@@ -1151,10 +1190,10 @@ async def help(event: SimpleBotEvent):
            "/unop {user_id} {access} — понизить пользователя;\n" \
            "\n" \
            "/stats — статистика;\n" \
-           "/stagestats — статистика по гонке и призам;\n" \
+           "/stagestats — ( не работает );\n" \
            "/taskstats — статистика по заданиям ( в будущем );\n" \
            "\n" \
-           "+collection {user_id} {collection_id} {part_id};\n" \
+           "+collection {user_id} {collection_id} {part_id} {count} — default: 1;\n" \
            "\n" \
            "/boss {start_date} {end_date} — даты проведения мероприятия [319 325];\n" \
            "+boss {boss_id} {health_points} — создать босса;\n" \

@@ -1,4 +1,5 @@
 from time import time
+from typing import List
 
 from sql.database import Session
 from . import models
@@ -7,7 +8,7 @@ from sqlalchemy import or_
 db = Session()
 
 
-def get_user(user_id: int):
+def get_user(user_id: int) -> models.Users:
     return db.query(models.Users).filter_by(user_id=user_id).first()
 
 
@@ -107,7 +108,7 @@ def get_clubs(status: str):
     return db.query(models.Clubs).filter_by(status=status).all()
 
 
-def get_users_with_club(club_id: int):
+def get_users_with_club(club_id: int) -> List[models.Users]:
     return db.query(models.Users).filter_by(club_id=club_id).all()
 
 
