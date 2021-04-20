@@ -342,7 +342,7 @@ async def start_verify_club(club):
                               f"ошибка {e}")
     except Exception as e:
         log = logger.bind(context=e)
-        log.error(f"Не удалось проверить клуб({club.club_id})\n task {user_task}")
+        log.error(f"Не удалось проверить клуб({club.club_id})\n")
 
 
 async def start_verify_account(club):
