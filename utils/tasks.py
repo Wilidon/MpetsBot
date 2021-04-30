@@ -1003,7 +1003,7 @@ async def checking_avatar_htask(mpets, user, user_task):
             left_time = time.time() - int(start_time)
             if left_time >= 86400:
                 crud.update_user_task(user_task.id, user_task.end, "completed")
-                crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
+                crud.add_rewards(user_id=user.user_id, points=2, personal_tasks=1, club_tasks=1)
             else:
                 left_time = int(left_time // 60 // 60)
                 crud.update_user_task(user_task.id, left_time, "waiting")
@@ -1046,10 +1046,10 @@ async def checking_anketa_htask(mpets, user, user_task):
                 crud.update_user_task_name(user_task.id, task_name)
             else:
                 left_time = time.time() - int(start_time)
-                logger.debug(f"left_time {left_time}")
+                #logger.debug(f"left_time {left_time}")
                 if left_time >= 86400:
                     crud.update_user_task(user_task.id, user_task.end, "completed")
-                    crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
+                    crud.add_rewards(user_id=user.user_id, points=2, personal_tasks=1, club_tasks=1)
                 else:
                     left_time = int(left_time // 60 // 60)
                     crud.update_user_task(user_task.id, left_time, "waiting")
@@ -1130,9 +1130,8 @@ async def checking_exchangeGifts_htask(mpets, user, user_task, date):
     if progress < user_task.end:
         crud.update_user_task(user_task.id, progress, "waiting")
     else:
-
         crud.update_user_task(user_task.id, user_task.end, "completed")
-        crud.add_user_item(user_id=user.user_id, item_name=prize, score=1)
+        crud.add_rewards(user_id=user.user_id, points=2, personal_tasks=1, club_tasks=1)
 
 
 async def start_checking_holiday_tasks(user, date):

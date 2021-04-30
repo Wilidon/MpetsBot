@@ -997,3 +997,29 @@ def get_boss_stats(boss_id: int):
 def change_pet_id(user_id: int, to_user_id: int):
     user = db.query(models.Users).filter_by(user_id=user_id).first()
     user2 = db.query(models.Users).filter_by(user_id=to_user_id).first()
+
+
+def add_rewards(user_id: int, points: int = 0, personal_tasks: int = 0,
+                club_points: int = 0, club_tasks: int = 0):
+    if points != 0:
+        user = db.query(models.UserStats).filter_by(user_id=user_id).first()
+        user.points += points
+    if personal_tasks != 0:
+        user = db.query(models.UserStats).filter_by(user_id=user_id).first()
+        user.personal_tasks += personal_tasks
+    if club_points != 0:
+        user = db.query(models.Users).filter_by(user_id=user_id).first()
+        if user.club_id != 0:
+            club = db.query(models.ClubStats).filter_by(club_id=user.club_id).first()
+            if club is None:
+                pass
+            club.points += club_points
+    if club_tasks != 0:
+        user = db.query(models.Users).filter_by(user_id=user_id).first()
+        if user.club_id != 0:
+            club = db.query(models.ClubStats).filter_by(club_id=user.club_id).first()
+            if club is None:
+                pass
+            club.total_tasks += club_tasks
+    db.commit()
+    return True
