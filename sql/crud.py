@@ -193,7 +193,7 @@ def get_chat_message(club_id: int, pet_id: int, message: str, today: int):
                                                date=today).first()
 
 
-def create_chat_message(club_id: int, pet_id: str, message: int, date: int):
+def create_chat_message(club_id: int, pet_id: int, message: str, date: int):
     chat_msg = models.ClubChat(club_id=club_id,
                                pet_id=pet_id,
                                message=message,
@@ -269,7 +269,7 @@ def get_last_page_thread(thread_id: int):
 
 
 def create_thread_message(club_id: int, pet_id: int, thread_id: int,
-                          message: str, page: int, post_date: int):
+                          message: str, page: int, post_date: str):
     thread_msg = models.ThreadsMessages(club_id=club_id,
                                         pet_id=pet_id,
                                         thread_id=thread_id,
@@ -310,6 +310,8 @@ def close_all_user_tasks(user_id: int):
         if task.date == 308:
             continue
         if task.date == 401:
+            continue
+        if task.date == 501:
             continue
         task.status = "timeout"
         db.commit()
