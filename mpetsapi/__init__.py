@@ -10,6 +10,9 @@ class MpetsApi:
         self.timeout = timeout
         self.connector = connector
 
+    async def get_cookie(self):
+        return self.cookies
+
     async def start(self, name="standard", password=False, type=1):
         """ Регистрация питомца
 

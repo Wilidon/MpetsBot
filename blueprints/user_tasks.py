@@ -9,8 +9,9 @@ from vkwave.bots import (
 
 from sql import crud
 from utils import functions
-from keyboards.kb import menu
+from keyboards.kb import menu, profile_kb
 from utils.constants import user_tasks_list, avatar_name, user_completed_tasks_list, gifts_name
+from utils.currency import get_currency
 
 user_router = DefaultRouter()
 
@@ -155,4 +156,12 @@ async def profile(event: SimpleBotEvent):
                f"🐾 Весенняя гонка:\n\n" \
                f"0🚩— 15🌼 — 35🌼 — 52🌼 — 76🌼 — 100🌼 — 149🌼 — 187🌼 — 203🌼 — 251🌼 — 276🌼🏁"
 
-    await menu(user=current_user, event=event, message=text)
+    await profile_kb(event=event, message=text)
+
+
+@simple_bot_message_handler(user_router,
+                            PayloadFilter({"command": "currency"}))
+async def currency(event: SimpleBotEvent):
+    # Профиль пользователя
+    current_user = event["current_user"]
+    await get_currency(user=current_user, event=event)

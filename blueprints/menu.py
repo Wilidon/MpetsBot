@@ -6,6 +6,7 @@ from mpetsapi import MpetsApi
 from sql import crud
 from keyboards.kb import CONFIRMATION, menu
 from utils.constants import user_task_log, club_task_log, collections
+from utils.currency import get_currency
 from utils.functions import notice
 
 menu_router = DefaultRouter()
@@ -114,14 +115,17 @@ async def main(event: SimpleBotEvent):
         text = "🙋‍♂️ Привет! Для начала работы с ботом привяжите свой " \
                "аккаунт, отправив нам ID или ник питомца. \n👉 Пример: " \
                "8988812 или Monster\n\n" \
-               "❗ Бот находится в стадии бета-тестирования. В процессе " \
-               "работы могут возникнуть ошибки. Если Вы обнаружили ошибку, " \
+               "❗ Если Вы обнаружили ошибку, " \
                "то вызовите администрацию в чат командой /report."
         await event.answer(message=text)
     elif current_user.status == 'ok' and \
             event.object.object.message.text.lower() in ("меню", "старт",
                                                          "начать", "початок"):
         await menu(current_user, event)
+    elif current_user.status == 'ok' and \
+            event.object.object.message.text.lower() in "валюта" and \
+            current_user.access == 3:
+        await get_currency(current_user, event)
     else:
         black_list = [485026972, 578062764]
         if current_user.user_id in black_list:
