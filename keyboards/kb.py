@@ -314,11 +314,13 @@ async def menu(user, event, message="Меню"):
         await event.answer(message=message, keyboard=keyboard.get_keyboard())
 
 
-async def profile_kb(event, message="Лера, не забудь добавить текст"):
+async def profile_kb(user, event, message="Лера, не забудь добавить текст"):
     KB = Keyboard()
-    KB.add_text_button(text="💎 Список валюты",
-                       payload={"command": "currency"},
-                       color=ButtonColor.PRIMARY)
+
+    if user.access == 3:
+        KB.add_text_button(text="💎 Список валюты",
+                           payload={"command": "currency"},
+                           color=ButtonColor.PRIMARY)
     KB.add_text_button(text="🧩Коллекции ",
                        payload={"command": "collections"},
                        color=ButtonColor.PRIMARY)

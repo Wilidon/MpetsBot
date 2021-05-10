@@ -156,7 +156,7 @@ async def profile(event: SimpleBotEvent):
                f"🐾 Весенняя гонка:\n\n" \
                f"0🚩— 15🌼 — 35🌼 — 52🌼 — 76🌼 — 100🌼 — 149🌼 — 187🌼 — 203🌼 — 251🌼 — 276🌼🏁"
 
-    await profile_kb(event=event, message=text)
+    await profile_kb(user=user, event=event, message=text)
 
 
 @simple_bot_message_handler(user_router,
