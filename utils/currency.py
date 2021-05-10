@@ -1,6 +1,7 @@
 import bs4
 from aiohttp import ClientTimeout, ClientSession
 from bs4 import BeautifulSoup
+from loguru import logger
 
 from mpetsapi import MpetsApi
 
@@ -21,7 +22,6 @@ async def thread_popcorn(thread_id, page, cookies):
             users = resp.find("div", {"class": "thread_content"})
             users = users.find("span", {"style": "color: #4b1a0a;"}).descendants
             players = []
-            i = 0
             for user in users:
                 if isinstance(user, bs4.element.NavigableString):
                     try:
@@ -46,6 +46,7 @@ async def thread_popcorn(thread_id, page, cookies):
 async def parce_popcorn(pet_id, thread_id, mpets):
     cookie = await mpets.get_cookie()
     users = await thread_popcorn(thread_id=thread_id, page=1, cookies=cookie)
+    logger.debug(f"Response parce_popcorn {users}")
     if users['status'] == 'error':
         return False
     for user in users['users']:
@@ -93,6 +94,7 @@ async def thread_plus(thread_id, page, cookies):
 async def parce_plus(pet_id, thread_id, mpets):
     cookie = await mpets.get_cookie()
     users = await thread_plus(thread_id=thread_id, page=1, cookies=cookie)
+    logger.debug(f"Response parce_plus {users}")
     if users['status'] == 'error':
         return False
     for user in users['users']:
@@ -143,6 +145,7 @@ async def thread_silver(thread_id, page, cookies):
 async def parce_silver(pet_id, thread_id, mpets):
     cookie = await mpets.get_cookie()
     users = await thread_silver(thread_id=thread_id, page=1, cookies=cookie)
+    logger.debug(f"Response parce_silver {users}")
     if users['status'] == 'error':
         return False
     for user in users['users']:
@@ -185,6 +188,7 @@ async def thread_feather(thread_id, page, cookies):
 async def parce_feather(name, thread_id, mpets):
     cookie = await mpets.get_cookie()
     users = await thread_feather(thread_id=thread_id, page=1, cookies=cookie)
+    logger.debug(f"Response parce_feather {users}")
     if users['status'] == 'error':
         return False
     for user in users['users']:
@@ -231,6 +235,7 @@ async def thread_key(thread_id, page, cookies):
 async def parce_key(club_id, thread_id, mpets):
     cookie = await mpets.get_cookie()
     users = await thread_key(thread_id=thread_id, page=1, cookies=cookie)
+    logger.debug(f"Response parce_key {users}")
     if users['status'] == 'error':
         return False
     for user in users['users']:
@@ -281,6 +286,7 @@ async def parce_angel(pet_id, thread_ids, mpets):
     players = []
     for thread_id in thread_ids:
         users = await thread_angel(players=players, thread_id=thread_id, page=1, cookies=cookie)
+    logger.debug(f"Response parce_angel {users}")
     if users['status'] == 'error':
         return False
     for user in users['users']:
@@ -302,7 +308,8 @@ async def get_currency(user, event):
     name = user.name
     club_id = user.club_id
     mpets = MpetsApi()
-    await mpets.start()
+    r = await mpets.start()
+    logger.debug(f"Аккаунт зарегистрировал {r}")
 
     # ПОПКОРН
     user = await parce_popcorn(pet_id=pet_id,
@@ -312,6 +319,7 @@ async def get_currency(user, event):
         popcorn = 0
     else:
         popcorn = user[1]
+    logger.debug("Собрал ПОПКОРН")
 
     # ПЛЮСЫ
     user = await parce_plus(pet_id=pet_id,
@@ -321,6 +329,7 @@ async def get_currency(user, event):
         plus = 0
     else:
         plus = user[1]
+    logger.debug("Собрал ПЛЮСЫ")
 
     # СЕРЕБРО
 
@@ -331,6 +340,7 @@ async def get_currency(user, event):
         silver = 0
     else:
         silver = user[1]
+    logger.debug("Собрал СЕРЕБРО")
 
     # ЗОЛОТЫЕ ПЕРЬЯ
 
@@ -341,6 +351,7 @@ async def get_currency(user, event):
         feather = 0
     else:
         feather = user[1]
+    logger.debug("Собрал ЗОЛОТЫЕ ПЕРЬЯ")
 
     # СВЯЗКА КЛЮЧЕЙ
 
@@ -351,6 +362,7 @@ async def get_currency(user, event):
         key = 0
     else:
         key = user[1]
+    logger.debug("Собрал СВЯЗКА КЛЮЧЕЙ")
 
     # АНГЕЛЫ
 
@@ -361,6 +373,8 @@ async def get_currency(user, event):
         angel = 0
     else:
         angel = user[1]
+
+    logger.debug("Собрал АНГЕЛЫ")
 
     # ШЕСТЕРНИ
     
