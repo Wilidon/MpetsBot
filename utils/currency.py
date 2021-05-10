@@ -337,6 +337,8 @@ async def get_currency(user, event):
     logger.debug(f"Аккаунт зарегистрировал {r}")
 
     # ПОПКОРН
+    r = await mpets.thread(thread_id=2557447)
+    logger.debug(r)
     user = await parce_popcorn(pet_id=pet_id,
                                thread_id=thread_ids.get("popcorn"),
                                mpets=mpets)
