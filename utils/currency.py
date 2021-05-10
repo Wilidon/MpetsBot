@@ -1,3 +1,5 @@
+import asyncio
+
 import bs4
 from aiohttp import ClientTimeout, ClientSession
 from bs4 import BeautifulSoup
@@ -8,7 +10,7 @@ from mpetsapi import MpetsApi
 
 async def thread_popcorn(thread_id, page, cookies):
     try:
-        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=10)) as session:
+        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=20)) as session:
             resp = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             await session.close()
             resp_text = await resp.text()
@@ -39,6 +41,8 @@ async def thread_popcorn(thread_id, page, cookies):
                     players[-1][1] = user
             return {'status': 'ok',
                     'users': players}
+    except asyncio.TimeoutError as e:
+        return await thread_popcorn(thread_id, page, cookies)
     except Exception as e:
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
@@ -57,7 +61,7 @@ async def parce_popcorn(pet_id, thread_id, mpets):
 
 async def thread_plus(thread_id, page, cookies):
     try:
-        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=10)) as session:
+        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=20)) as session:
             resp = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             await session.close()
             resp_text = await resp.text()
@@ -87,6 +91,8 @@ async def thread_plus(thread_id, page, cookies):
                         pass
             return {'status': 'ok',
                     'users': players}
+    except asyncio.TimeoutError as e:
+        return await thread_plus(thread_id, page, cookies)
     except Exception as e:
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
@@ -106,7 +112,7 @@ async def parce_plus(pet_id, thread_id, mpets):
 
 async def thread_silver(thread_id, page, cookies):
     try:
-        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=10)) as session:
+        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=20)) as session:
             resp = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             await session.close()
             resp_text = await resp.text()
@@ -139,6 +145,8 @@ async def thread_silver(thread_id, page, cookies):
                         pass
             return {'status': 'ok',
                     'users': players}
+    except asyncio.TimeoutError as e:
+        return await thread_silver(thread_id, page, cookies)
     except Exception as e:
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
@@ -157,7 +165,7 @@ async def parce_silver(pet_id, thread_id, mpets):
 
 async def thread_feather(thread_id, page, cookies):
     try:
-        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=10)) as session:
+        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=20)) as session:
             resp = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             await session.close()
             resp_text = await resp.text()
@@ -182,6 +190,8 @@ async def thread_feather(thread_id, page, cookies):
                         pass
             return {'status': 'ok',
                     'users': players}
+    except asyncio.TimeoutError as e:
+        return await thread_feather(thread_id, page, cookies)
     except Exception as e:
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
@@ -200,7 +210,7 @@ async def parce_feather(name, thread_id, mpets):
 
 async def thread_key(thread_id, page, cookies):
     try:
-        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=10)) as session:
+        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=20)) as session:
             resp = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             await session.close()
             resp_text = await resp.text()
@@ -229,6 +239,8 @@ async def thread_key(thread_id, page, cookies):
                         pass
             return {'status': 'ok',
                     'users': players}
+    except asyncio.TimeoutError as e:
+        return await thread_key(thread_id, page, cookies)
     except Exception as e:
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
@@ -247,7 +259,7 @@ async def parce_key(club_id, thread_id, mpets):
 
 async def thread_angel(players, thread_id, page, cookies):
     try:
-        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=10)) as session:
+        async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=20)) as session:
             resp = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             await session.close()
             resp_text = await resp.text()
@@ -278,6 +290,8 @@ async def thread_angel(players, thread_id, page, cookies):
                             pass
             return {'status': 'ok',
                     'users': players}
+    except asyncio.TimeoutError as e:
+        return await thread_angel(thread_id, page, cookies)
     except Exception as e:
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
