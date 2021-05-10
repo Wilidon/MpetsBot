@@ -12,6 +12,7 @@ async def thread_popcorn(thread_id, page, cookies):
     try:
         async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=20)) as session:
             resp = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
+            logger.debug("resp yes")
             await session.close()
             resp_text = await resp.text()
             resp = BeautifulSoup(await resp.read(), "lxml")
@@ -25,6 +26,7 @@ async def thread_popcorn(thread_id, page, cookies):
             users = users.find("span", {"style": "color: #4b1a0a;"}).descendants
             players = []
             for user in users:
+                logger.debug(f"{user}")
                 if isinstance(user, bs4.element.NavigableString):
                     try:
                         user = int(user)
