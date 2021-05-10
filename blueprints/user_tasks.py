@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from vkwave.bots import (
@@ -165,4 +166,5 @@ async def currency(event: SimpleBotEvent):
     # Профиль пользователя
     current_user = event["current_user"]
     await event.answer("Идет сбор валют...")
-    await get_currency(user=current_user, event=event)
+    task = asyncio.create_task(get_currency(user=current_user, event=event))
+    await asyncio.gather(task)
