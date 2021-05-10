@@ -97,6 +97,7 @@ async def parce_plus(pet_id, thread_id, mpets):
     logger.debug(f"Response parce_plus {users}")
     if users['status'] == 'error':
         return False
+    logger.debug(f"len {len(users['users'])}")
     for user in users['users']:
         if user[0] == pet_id:
             return user
