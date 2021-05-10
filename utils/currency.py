@@ -16,7 +16,7 @@ async def thread_popcorn(thread_id, page, cookies):
             await session.close()
             logger.debug("session close")
             logger.debug("resp text")
-            resp = BeautifulSoup(await resp.read(), "lxml")
+            resp = BeautifulSoup(await resp.read(), "html.parser")
             logger.debug("resp lxml")
             if "Вы кликаете слишком быстро." in await resp.read():
                 logger.debug("fast click")
