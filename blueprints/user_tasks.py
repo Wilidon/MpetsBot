@@ -164,4 +164,5 @@ async def profile(event: SimpleBotEvent):
 async def currency(event: SimpleBotEvent):
     # Профиль пользователя
     current_user = event["current_user"]
+    await event.answer("Идет сбор валют...")
     await get_currency(user=current_user, event=event)

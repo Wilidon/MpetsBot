@@ -296,7 +296,8 @@ async def get_currency(user, event):
                   "feather": 2603855,
                   "key": 2570823,
                   "angel": [2501851, 2501843, 2501844, 2501845, 2501846, 2501849,
-                            2501856, 2501855, 2501854, 2501853, 2501852, 2531821]}
+                            2501856, 2501855, 2501854, 2501853, 2501852, 2531821],
+                  "gear": [2531790]}
     pet_id = user.pet_id
     name = user.name
     club_id = user.club_id
@@ -361,7 +362,17 @@ async def get_currency(user, event):
     else:
         angel = user[1]
 
-    text = "🪶 Ваша валюта.\n" \
+    # ШЕСТЕРНИ
+    
+    '''user = await parce_angel(pet_id=pet_id,
+                             thread_ids=thread_ids.get("angel"),
+                             mpets=mpets)
+    if user is None or user is False:
+        angel = 0
+    else:
+        angel = user[1]'''
+
+    text = "💎 Ваша валюта.\n\n" \
            f"Попкорн: {popcorn} 🍿\n" \
            f"Плюсы: {plus} ➕\n" \
            f"Серебро: {silver} 🔘\n" \

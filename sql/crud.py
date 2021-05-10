@@ -417,7 +417,8 @@ def get_user_item(user_id: int, status="В процессе"):
 
 
 def get_user_items():
-    return db.query(models.UserItems).filter_by(status="В процессе").all()
+    return db.query(models.UserItems).filter_by(status="В процессе").order_by(
+        models.UserItems.id.asc()).all()
 
 
 def get_all_user_items():

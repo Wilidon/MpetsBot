@@ -98,10 +98,6 @@ async def get_kb(shop: bool = False, access: int = 0, today: int = False, boss_b
         MENU.add_text_button(text="🏡 Клуб",
                              payload={"command": "club"},
                              color=ButtonColor.POSITIVE)
-        MENU.add_row()
-        MENU.add_text_button(text="🧩Коллекции ",
-                             payload={"command": "collections"},
-                             color=ButtonColor.PRIMARY)
     if shop:
         MENU.add_row()
         MENU.add_text_button(text="🏪 Магазин", payload={"command": "shop"},
@@ -322,9 +318,12 @@ async def profile_kb(event, message="Лера, не забудь добавит�
     KB = Keyboard()
     KB.add_text_button(text="💎 Список валюты",
                        payload={"command": "currency"},
-                       color=ButtonColor.SECONDARY)
+                       color=ButtonColor.PRIMARY)
+    KB.add_text_button(text="🧩Коллекции ",
+                       payload={"command": "collections"},
+                       color=ButtonColor.PRIMARY)
     KB.add_row()
     KB.add_text_button(text="🔽 Назад",
-                            payload={"command": "menu"},
-                            color=ButtonColor.PRIMARY)
+                       payload={"command": "menu"},
+                       color=ButtonColor.PRIMARY)
     await event.answer(message=message, keyboard=KB.get_keyboard())
