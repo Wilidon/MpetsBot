@@ -40,7 +40,7 @@ async def thread_popcorn(thread_id, page, cookies):
             return {'status': 'ok',
                     'users': players}
     except Exception as e:
-        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': 'Failed to get thread'}
+        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
 
 async def parce_popcorn(pet_id, thread_id, mpets):
@@ -88,7 +88,7 @@ async def thread_plus(thread_id, page, cookies):
             return {'status': 'ok',
                     'users': players}
     except Exception as e:
-        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': 'Failed to get thread'}
+        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
 
 async def parce_plus(pet_id, thread_id, mpets):
@@ -139,7 +139,7 @@ async def thread_silver(thread_id, page, cookies):
             return {'status': 'ok',
                     'users': players}
     except Exception as e:
-        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': 'Failed to get thread'}
+        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
 
 async def parce_silver(pet_id, thread_id, mpets):
@@ -182,7 +182,7 @@ async def thread_feather(thread_id, page, cookies):
             return {'status': 'ok',
                     'users': players}
     except Exception as e:
-        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': 'Failed to get thread'}
+        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
 
 async def parce_feather(name, thread_id, mpets):
@@ -229,7 +229,7 @@ async def thread_key(thread_id, page, cookies):
             return {'status': 'ok',
                     'users': players}
     except Exception as e:
-        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': 'Failed to get thread'}
+        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
 
 async def parce_key(club_id, thread_id, mpets):
@@ -278,7 +278,7 @@ async def thread_angel(players, thread_id, page, cookies):
             return {'status': 'ok',
                     'users': players}
     except Exception as e:
-        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': 'Failed to get thread'}
+        return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
 
 async def parce_angel(pet_id, thread_ids, mpets):
