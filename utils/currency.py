@@ -15,17 +15,16 @@ async def thread_popcorn(thread_id, page, cookies):
             logger.debug("resp yes")
             await session.close()
             logger.debug("session close")
-            resp_text = await resp.text()
             logger.debug("resp text")
             resp = BeautifulSoup(await resp.read(), "lxml")
             logger.debug("resp lxml")
-            if "Вы кликаете слишком быстро." in resp_text:
+            if "Вы кликаете слишком быстро." in await resp.read():
                 logger.debug("fast click")
                 return await thread_popcorn(thread_id, page, cookies)
-            elif "Сообщений нет" in resp_text:
+            elif "Сообщений нет" in await resp.read():
                 logger.debug("not msg")
                 return {'status': 'error', 'code': 1, 'msg': 'Messages not.'}
-            elif "Форум/Топик не найден или был удален" in resp_text:
+            elif "Форум/Топик не найден или был удален" in await resp.read():
                 logger.debug("Топик msg")
                 return {'status': 'error', 'code': 2, 'msg': 'Thread not exist'}
             logger.debug("2")
