@@ -42,6 +42,7 @@ async def thread_popcorn(thread_id, page, cookies):
             return {'status': 'ok',
                     'users': players}
     except asyncio.TimeoutError as e:
+        logger.debug("timeout popcorn")
         return await thread_popcorn(thread_id, page, cookies)
     except Exception as e:
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
