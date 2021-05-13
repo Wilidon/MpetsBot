@@ -494,7 +494,7 @@ def reset_user_stats(user_id: int):
 
 
 def confirm_user_item(item_id: int):
-    if db.query(models.UserItems).filter_by(id=item_id).first():
+    if db.query(models.UserItems).filter_by(id=item_id, status="В процессе").first():
         item = db.query(models.UserItems).filter_by(id=item_id).first()
         item.status = "completed"
         db.commit()
