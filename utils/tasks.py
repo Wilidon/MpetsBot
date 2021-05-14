@@ -418,8 +418,6 @@ async def update_user_data():
             for user in users:
                 if user.pet_id == 0:
                     continue
-                if user.pet_id == 30_000_000:
-                    await get_currency_core(user=user)
                 profile = await mpets.view_profile(user.pet_id)
                 if profile['status'] != 'ok':
                     log = logger.bind(context=profile)
