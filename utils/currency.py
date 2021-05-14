@@ -11,20 +11,20 @@ from mpetsapi import MpetsApi
 async def thread_popcorn(thread_id, page, cookies):
     try:
         async with ClientSession(cookies=cookies, timeout=ClientTimeout(total=20)) as session:
-            resp = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
+            resp_r = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             logger.debug("resp yes")
             await session.close()
             logger.debug("session close")
             logger.debug("resp text")
-            resp = BeautifulSoup(await resp.read(), "html.parser")
+            resp = BeautifulSoup(await resp_r.read(), "lxml")
             logger.debug("resp lxml")
-            if "Вы кликаете слишком быстро." in await resp.read():
+            if "Вы кликаете слишком быстро." in await resp_r.text():
                 logger.debug("fast click")
                 return await thread_popcorn(thread_id, page, cookies)
-            elif "Сообщений нет" in await resp.read():
+            elif "Сообщений нет" in await resp_r.text():
                 logger.debug("not msg")
                 return {'status': 'error', 'code': 1, 'msg': 'Messages not.'}
-            elif "Форум/Топик не найден или был удален" in await resp.read():
+            elif "Форум/Топик не найден или был удален" in await resp_r.text():
                 logger.debug("Топик msg")
                 return {'status': 'error', 'code': 2, 'msg': 'Thread not exist'}
             logger.debug("2")
@@ -54,6 +54,7 @@ async def thread_popcorn(thread_id, page, cookies):
         logger.debug("timeout popcorn")
         return await thread_popcorn(thread_id, page, cookies)
     except Exception as e:
+        raise
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': e}
 
 

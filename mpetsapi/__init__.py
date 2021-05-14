@@ -232,7 +232,7 @@ class MpetsApi:
                                    cookies=self.cookies,
                                    connector=self.connector)
 
-    async def thread(self, thread_id, page):
+    async def thread(self, thread_id, page=1):
         """ Получить содержимое топа
 
             Args:

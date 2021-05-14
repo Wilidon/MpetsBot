@@ -36,6 +36,7 @@ async def thread(thread_id, page, cookies, connector):
             resp_text = await resp.text()
             resp = BeautifulSoup(await resp.read(), "lxml")
             if "Вы кликаете слишком быстро." in resp_text:
+                print("fast?")
                 return await thread(thread_id, page, cookies, connector)
             elif "Сообщений нет" in resp_text:
                 # TODO
@@ -76,7 +77,6 @@ async def thread(thread_id, page, cookies, connector):
                     'moderator_name': moderator_name
                     }
     except Exception as e:
-        # TODO
         return {'status': 'error', 'code': 0, 'thread_id': thread_id, 'msg': 'Failed to get thread'}
 
 
