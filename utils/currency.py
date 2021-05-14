@@ -338,7 +338,7 @@ async def get_currency(user, event):
     r = await mpets.start()
     logger.debug(f"Аккаунт зарегистрировал {r}")
 
-    r = await mpets.thread(2605126, 1)
+    r = await mpets.thread(2572662, 1)
     logger.debug(r)
 
     popcorn = 0
@@ -359,7 +359,7 @@ async def get_currency(user, event):
         popcorn = user[1]
     logger.debug("Собрал ПОПКОРН")'''
 
-    '''# ПЛЮСЫ
+    # ПЛЮСЫ
     user = await parce_plus(pet_id=pet_id,
                             thread_id=thread_ids.get("plus"),
                             mpets=mpets)
@@ -368,7 +368,7 @@ async def get_currency(user, event):
     else:
         plus = user[1]
     logger.debug("Собрал ПЛЮСЫ")
-
+    '''
     # СЕРЕБРО
 
     user = await parce_silver(pet_id=pet_id,
