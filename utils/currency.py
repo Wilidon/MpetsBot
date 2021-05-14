@@ -350,14 +350,14 @@ async def get_currency(user, event):
     gear = 0
 
     # ПОПКОРН
-    user = await parce_popcorn(pet_id=pet_id,
+    '''user = await parce_popcorn(pet_id=pet_id,
                                thread_id=thread_ids.get("popcorn"),
                                mpets=mpets)
     if user is None or user is False:
         popcorn = 0
     else:
         popcorn = user[1]
-    logger.debug("Собрал ПОПКОРН")
+    logger.debug("Собрал ПОПКОРН")'''
 
     '''# ПЛЮСЫ
     user = await parce_plus(pet_id=pet_id,
