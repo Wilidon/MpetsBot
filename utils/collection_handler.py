@@ -80,7 +80,7 @@ async def add_collection_item(user_id: int, collection_id: int, part_id: int):
 
 
 async def create_collection_item(user_id: int):
-    random_part = random.randint(0, 24)
+    random_part = random.randint(0, 19)
     part_id, collection_id = 1, 0
     if 0 <= random_part <= 4:
         part_id = random_part
@@ -93,13 +93,13 @@ async def create_collection_item(user_id: int):
         collection_id = 3
     elif 15 <= random_part <= 19:
         part_id = random_part - 15 + 1
-        collection_id = 4
-    elif 20 <= random_part <= 24:
-        part_id = random_part - 20 + 1
         collection_id = 5
-    elif 25 <= random_part <= 29:
+    '''elif 20 <= random_part <= 24:
+        part_id = random_part - 20 + 1
+        collection_id = 5'''
+    '''elif 25 <= random_part <= 29:
         part_id = random_part - 25 + 1
-        collection_id = 6
+        collection_id = 6'''
     await add_collection_item(user_id=user_id,
                               collection_id=collection_id,
                               part_id=part_id)

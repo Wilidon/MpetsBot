@@ -524,7 +524,7 @@ def create_user_log(user_id: int, task_name: int, points: int,
     db.commit()
 
 
-def create_club_log(user_id: int, task_name: int, club_id: int,
+def create_club_log(user_id: int, task_name: str, club_id: int,
                     points: int, tasks: int, date: int):
     log = models.ClubTaskLog(user_id=user_id,
                              task_name=task_name,

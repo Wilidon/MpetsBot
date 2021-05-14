@@ -712,9 +712,9 @@ async def add_club_points(user_id=None, club_id=None, point=True, task_name=None
                    f" {club.name} ({club_id}) {points} 🏵 и 1 🦋."
             # notice(text)
             crud.create_club_log(user_id, task_name, club_id, points, 1, int(time.time()))
-            item_info = await create_collection_item(user_id=user_id)
-            crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
-                                       collection_id=item_info['collection_id'])
+            # item_info = await create_collection_item(user_id=user_id)
+            # crud.create_collection_log(user_id=user_id, part_id=item_info['part_id'],
+            #                          collection_id=item_info['collection_id'])
         if user_id:
             crud.update_user_stats(user_id, club_tasks=1, club_points=points)
         club_stats = crud.get_club_stats(club_id)
