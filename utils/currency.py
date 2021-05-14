@@ -390,7 +390,6 @@ async def get_currency(user, event):
     else:
         feather = user[1]
     logger.debug("Собрал ЗОЛОТЫЕ ПЕРЬЯ")
-    '''
     # СВЯЗКА КЛЮЧЕЙ
 
     user = await parce_key(club_id=club_id,
