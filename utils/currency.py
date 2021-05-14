@@ -326,7 +326,7 @@ async def get_currency(user, event):
     thread_ids = {"popcorn": 2557447,
                   "plus": 2572662,
                   "silver": 2573189,
-                  "feather": 2603855,
+                  "feather": 2604937,
                   "key": 2570823,
                   "angel": [2501851, 2501843, 2501844, 2501845, 2501846, 2501849,
                             2501856, 2501855, 2501854, 2501853, 2501852, 2531821],
@@ -368,7 +368,7 @@ async def get_currency(user, event):
     else:
         plus = user[1]
     logger.debug("Собрал ПЛЮСЫ")
-    '''
+
     # СЕРЕБРО
 
     user = await parce_silver(pet_id=pet_id,
@@ -390,7 +390,7 @@ async def get_currency(user, event):
     else:
         feather = user[1]
     logger.debug("Собрал ЗОЛОТЫЕ ПЕРЬЯ")
-
+    '''
     # СВЯЗКА КЛЮЧЕЙ
 
     user = await parce_key(club_id=club_id,
