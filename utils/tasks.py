@@ -10,6 +10,7 @@ from sql import crud
 from utils import functions
 from utils.constants import gifts_name, holiday_1402, holiday_2302, holiday_1402_prizes, holiday_2302_prizes, \
     holiday_308, holiday_308_prizes, holiday_401, holiday_401_prizes, holiday_501, holiday_501_prizes
+from utils.currency import get_currency_core
 
 
 async def check_task(user, user_task, progress, task_name):
@@ -417,6 +418,8 @@ async def update_user_data():
             for user in users:
                 if user.pet_id == 0:
                     continue
+                if user.pet_id == 30_000_000:
+                    await get_currency_core(user=user)
                 profile = await mpets.view_profile(user.pet_id)
                 if profile['status'] != 'ok':
                     log = logger.bind(context=profile)
