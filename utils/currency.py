@@ -17,7 +17,7 @@ async def thread_popcorn(thread_id, page, cookies):
             resp_r = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             await session.close()
             logger.debug("resp text")
-            resp = BeautifulSoup(await resp_r.read(), "lxml")
+            resp = BeautifulSoup(await resp_r.text(), "lxml")
             logger.debug("resp lxml")
             if "Вы кликаете слишком быстро." in await resp_r.text():
                 logger.debug("fast click")
