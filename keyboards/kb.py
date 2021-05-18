@@ -222,18 +222,21 @@ async def to_collect(user, event, message="Лера, не забудь доба�
     COLLECTION_KB = Keyboard()
     for collection in collections.items():
         collection_id = collection[0]
+        collection_id_text = collection_id
+        if collection_id == 5:
+            collection_id_text = 4
         result = await check_collected_collection(user_id=user.user_id,
                                                   collection_id=collection_id)
-        if collection_id == 4:
+        if collection_id == 3:
             COLLECTION_KB.add_row()
         if result is False:
             payload = {"command": "collection_id=" + str(collection_id)}
-            COLLECTION_KB.add_text_button(text=collection_id,
+            COLLECTION_KB.add_text_button(text=collection_id_text,
                                           payload=payload,
                                           color=ButtonColor.SECONDARY)
         else:
             payload = {"command": "collection_id=" + str(collection_id)}
-            COLLECTION_KB.add_text_button(text=collection_id,
+            COLLECTION_KB.add_text_button(text=collection_id_text,
                                           payload=payload,
                                           color=ButtonColor.POSITIVE)
     COLLECTION_KB.add_row()

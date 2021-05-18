@@ -402,7 +402,7 @@ async def get_currency(user, event):
     logger.debug("Собрал СВЯЗКА КЛЮЧЕЙ")
 
     # АНГЕЛЫ
-
+    '''
     user = await parce_angel(pet_id=pet_id,
                              thread_ids=thread_ids.get("angel"),
                              mpets=mpets)
