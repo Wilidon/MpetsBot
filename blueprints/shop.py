@@ -74,7 +74,7 @@ async def choose_item(event: SimpleBotEvent):
                 await menu(user, event, "Награда будет начислена в течение "
                                         "недели.")
             break
-        elif int(item.score) == 251:
+        elif int(item.score) == 2:
             ids = item.status.split("_3")[1].split(".")[1:]
             ids = [int(i) for i in ids]
             shop_id = item_id.split("m")[1]
@@ -129,7 +129,7 @@ async def shop(event: SimpleBotEvent):
                 await event.answer(message=f"🏪 Магазин за {item.score} очков",
                                    keyboard=get_shop_2([4]).get_keyboard())
             break
-        elif int(item.score) == 251:
+        elif int(item.score) == 2:
             ids = item.status.split("_3")[1].split(".")[1:]
             ids = [int(i) for i in ids]
             if item.status == "shop_3":
