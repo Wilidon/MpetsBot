@@ -5,6 +5,7 @@ import bs4
 from aiohttp import ClientTimeout, ClientSession
 from bs4 import BeautifulSoup
 from loguru import logger
+from lxml import html
 from vkwave.bots import SimpleLongPollBot
 
 from config import get_settings
@@ -17,7 +18,8 @@ async def thread_popcorn(thread_id, page, cookies):
             resp_r = await session.get("http://mpets.mobi/thread", params={'id': thread_id, 'page': page})
             await session.close()
             logger.debug("resp text")
-            resp = BeautifulSoup(await resp_r.text(), "html.parser")
+            # resp = BeautifulSoup(await resp_r.text(), "lxml")
+            resp = html.fromstring(await resp_r.text())
             logger.debug("resp lxml")
             if "Вы кликаете слишком быстро." in await resp_r.text():
                 logger.debug("fast click")
@@ -29,11 +31,12 @@ async def thread_popcorn(thread_id, page, cookies):
                 logger.debug("Топик msg")
                 return {'status': 'error', 'code': 2, 'msg': 'Thread not exist'}
             logger.debug("2")
-            users = resp.find("div", {"class": "thread_content"})
-            users = users.find("span", {"style": "color: #4b1a0a;"})
+            #a = resp.xpath('/html/body/div[6]/div/div/div/div/div/div/div/div[2]/span[1]/div/span[2]')
+            a = resp.iterlinks()
             players = []
             logger.debug("4")
-            for user in users:
+            for user in a:
+                print(user)
                 if isinstance(user, bs4.element.NavigableString):
                     try:
                         user = int(user)
