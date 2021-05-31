@@ -175,14 +175,14 @@ async def profile(event: SimpleBotEvent):
         points = user_club_stats.points
     total_members_in_club = len(crud.get_users_with_club(current_user.club_id))
     text = f"🏠 Профиль клуба {user_club.name}\n\n" \
-           f"🦋 Набранные очки: {total_tasks} \n" \
+           f"⛱ Набранные очки: {total_tasks} \n" \
            f"🎈 Шариков: {points} \n" \
            f"🧸  Участников: {total_members_in_club}\n" \
            f"————\n" \
            f"Вы выполнили: {user_stats.club_tasks} 📋\n" \
            f"Вы набрали: {user_stats.club_points} 🎈\n\n" \
            f"🐾 Весенняя гонка:\n\n" \
-           f"0🚩— 75🦋 — 160🦋 — 220🦋 — 301🦋 — 397🦋 — 460🦋 — 600🦋 — 741🦋 — 980🦋 — 1101🦋 — 1380🦋🏁"
+           f"0🚩— 70⛱ — 140⛱ — 250⛱ — 300⛱ — 370⛱ — 450⛱🏁"
     await menu(user=current_user, event=event, message=text)
 
 

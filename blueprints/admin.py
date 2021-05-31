@@ -22,83 +22,34 @@ admin_router = DefaultRouter()
 
 @simple_bot_message_handler(admin_router,
                             TextContainsFilter(
-                                ["+points user", "+points club",
-                                 "-points user", "-points club"]),
-                            MessageArgsFilter(args_count=2, command_length=2))
+                                ["+user", "+club"]))
 async def points(event: SimpleBotEvent):
-    # format +points user {user_id} {points}
+    # format +user {user_id} {score} {points}
     current_user = event["current_user"]
     if current_user.access < 3:
         return False
     msg = event.object.object.message.text.split()
+    if len(msg) != 4:
+        return "Шаблон: +user {user_id} {score} {points}"
+    obj_id = int(msg[1]) # id пользователя / клуба
+    score = int(msg[2]) # Количество очков рейтинга
+    points = int(msg[3]) # Количесто очков гонки
     if msg[1] == "user":
-        if msg[0] == "+points":
-            if crud.get_user(int(msg[2])):
-                crud.update_user_stats(int(msg[2]), points=int(msg[3]))
-                return "✅ Баллы начислены."
-            else:
-                return "❗ Игрок не найден."
-        elif msg[0] == "-points":
-            if crud.get_user(int(msg[2])):
-                crud.update_user_stats(int(msg[2]), points=-int(msg[3]))
-                return "✅ Баллы списаны."
-            else:
-                return "❗ Игрок не найден."
+        if crud.get_user(user_id=obj_id):
+            crud.update_user_stats(user_id=obj_id,
+                                   points=score,
+                                   personal_tasks=points)
+            return "✅ Операция прошла успешно."
+        else:
+            return "❗ Игрок не найден."
     if msg[1] == "club":
-        if msg[0] == "+points":
-            if crud.get_club(int(msg[2])):
-                crud.update_club_stats(int(msg[2]), points=int(msg[3]))
-                return "✅ Баллы начислены."
-            else:
-                return "❗ Игрок не найден."
-        elif msg[0] == "-points":
-            if crud.get_club(int(msg[2])):
-                crud.update_club_stats(int(msg[2]), points=-int(msg[3]))
-                return "✅ Баллы списаны."
-            else:
-                return "❗ Игрок не найден."
-
-
-@simple_bot_message_handler(admin_router,
-                            TextContainsFilter(
-                                ["+tasks user", "+tasks club",
-                                 "-tasks user", "-tasks club"]),
-                            MessageArgsFilter(args_count=2, command_length=2))
-async def personal_tasks(event: SimpleBotEvent):
-    # format +tasks user {user_id} {points}
-    current_user = event["current_user"]
-    if current_user.access < 3:
-        return False
-    msg = event.object.object.message.text.split()
-    if msg[1] == "user":
-        if msg[0] == "+tasks":
-            if crud.get_user(int(msg[2])):
-                for i in range(int(msg[3])):
-                    await add_user_points(user_id=int(msg[2]), point=False)
-                return "✅ 🌼 начислены."
-            else:
-                return "❗ Игрок не найден."
-        elif msg[0] == "-tasks":
-            if crud.get_user(int(msg[2])):
-                crud.update_user_stats(int(msg[2]), personal_tasks=-int(msg[
-                                                                            3]))
-                return "✅ 🌼 списаны."
-            else:
-                return "❗ Игрок не найден."
-    if msg[1] == "club":
-        if msg[0] == "+tasks":
-            if crud.get_club(int(msg[2])):
-                for i in range(int(msg[3])):
-                    await add_club_points(club_id=int(msg[2]), point=False)
-                return "✅ 🦋 начислены."
-            else:
-                return "❗ Клуб не найден."
-        elif msg[0] == "-tasks":
-            if crud.get_club(int(msg[2])):
-                crud.update_club_stats(int(msg[2]), total_tasks=-int(msg[3]))
-                return "✅ 🦋 списаны."
-            else:
-                return "❗ Клуб не найден."
+        if crud.get_club(club_id=obj_id):
+            crud.update_club_stats(club_id=obj_id,
+                                   points=score,
+                                   total_tasks=points)
+            return "✅ Операция прошла успешно."
+        else:
+            return "❗ Клуб не найден."
 
 
 @simple_bot_message_handler(admin_router,
@@ -153,7 +104,7 @@ async def task_rating(event: SimpleBotEvent):
     for user_stats in top_users_stats:
         top_user = crud.get_user(user_stats.user_id)
         text += f"{counter}. {top_user.name} ({top_user.user_id}) [{top_user.pet_id}] — " \
-                f"{user_stats.personal_tasks} 🌼/" \
+                f"{user_stats.personal_tasks} ☀️/" \
                 f"{user_stats.points}🏅\n"
         counter += 1
         if len(text) > 4050:
@@ -172,7 +123,7 @@ async def task_rating(event: SimpleBotEvent):
         return "❗ Рейтинг пуст."
     for club_stats in clubs:
         club = crud.get_club(club_stats.club_id)
-        text += f"{counter}. {club.name} — {club_stats.total_tasks} 🦋/" \
+        text += f"{counter}. {club.name} — {club_stats.total_tasks} ⛱/" \
                 f"{club_stats.points}🎈\n"
         counter += 1
         if len(text) > 4050:
@@ -274,7 +225,7 @@ async def club_member(event: SimpleBotEvent):
     for member in club_members:
         user_stats = crud.get_user_stats(member.user_id)
         text += f"{counter}. {member.name} ({member.pet_id}) --" \
-                f"{user_stats.personal_tasks}🦋/{user_stats.points}🎈\n"
+                f"{user_stats.personal_tasks}⛱/{user_stats.points}🎈\n"
         counter += 1
     if len(text) > 4050:
         await event.answer("Сообщение слишком длинное. Для решение "
@@ -1166,13 +1117,40 @@ async def help(event: SimpleBotEvent):
     if current_user.access < 3:
         return False
     text = "Помощь\n" \
-           "+points club {club_id} {points} — рейтинг;\n" \
-           "+tasks club {club_id} {points} — гонка;\n" \
-           "+points user {user_id} {points} — рейтинг;\n" \
-           "+tasks user {user_id} {points} — гонка;\n" \
+           "+user {user_id} {score} {points} — рейтинг, гонка;\n" \
            "\n" \
-           "/user tasks — первые 100 пользователей рейтинга;\n" \
-           "/user club — первые 100 клубов рейтинга;\n" \
+           "+collection {user_id} {collection_id} {part_id} — добавить коллекцию;\n" \
+           "+random collection {user_id} {count} — default: 1 — добавить случайнуюк коллекцию;" \
+           "\n" \
+           "/club members {club_id} — посмотреть список участников клуба;\n" \
+           "+tasks club members {club_id} {points} — начислить всем " \
+           "участникам клуба гоночную награду;\n" \
+           "/club collection {club_id} {count} — default: 1 — начислить всем " \
+           "участникам клуба случайное количество частей коллекции;\n" \
+           "\n" \
+           "/stats — статистика;\n" \
+           "/stagestats — ( не работает );\n" \
+           "/taskstats — статистика по заданиям ( в будущем );\n" \
+           "\n" \
+           "/boss {start_date} {end_date} — даты проведения мероприятия [319 325];\n" \
+           "+boss {boss_id} {health_points} — создать босса;\n" \
+           "/bosses — список боссов (только смысл?);" \
+           ""
+    await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
+                            TextContainsFilter(["/ildarhelp"]))
+async def help(event: SimpleBotEvent):
+    # format /help
+    current_user = event["current_user"]
+    if current_user.access < 3:
+        return False
+    text = "Помощь\n" \
+           "/user [club] rating — первые 100;\n" \
+           "\n" \
+           "+collection {user_id} {collection_id} {part_id} — добавить коллекцию;\n" \
+           "+random collection {user_id} {count} — default: 1 — добавить случайнуюк коллекцию;" \
            "\n" \
            "/notice user {user_id} {message} — отправить сообщение игроку;\n" \
            "/notice club {club_id} {message} — отправить всему клубу " \
@@ -1181,7 +1159,8 @@ async def help(event: SimpleBotEvent):
            "/club members {club_id} — посмотреть список участников клуба;\n" \
            "+tasks club members {club_id} {points} — начислить всем " \
            "участникам клуба гоночную награду;\n" \
-           "/club collection {club_id} {count} — default: 1  \n" \
+           "/club collection {club_id} {count} — default: 1 — начислить всем " \
+           "участникам клуба случайное количество частей коллекции;\n" \
            "\n" \
            "/ban {user_id} {hours} {reason} — забанить пользователя;\n" \
            "/unban {user_id} {hours} {reason} — разбанить пользователя;\n" \
@@ -1192,9 +1171,6 @@ async def help(event: SimpleBotEvent):
            "/stats — статистика;\n" \
            "/stagestats — ( не работает );\n" \
            "/taskstats — статистика по заданиям ( в будущем );\n" \
-           "\n" \
-           "+collection {user_id} {collection_id} {part_id} \n" \
-           "+random collection {user_id} {count} — default: 1;" \
            "\n" \
            "/boss {start_date} {end_date} — даты проведения мероприятия [319 325];\n" \
            "+boss {boss_id} {health_points} — создать босса;\n" \
