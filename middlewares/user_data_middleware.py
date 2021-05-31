@@ -53,7 +53,7 @@ class UserMiddleware(BaseMiddleware):
         if user.access > 0:
             return MiddlewareResult(True)
         today = int(datetime.datetime.today().strftime("%Y%m%d"))
-        if today == 20210228:
+        if today == 20210531:
             await event.api_ctx.messages.send(user_id=user_id,
                                               message=f"Идет подготовка к новому сезону.\n"
                                                       f"Бот будет доступен в 0:00 по МСК!",
