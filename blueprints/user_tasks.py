@@ -166,6 +166,7 @@ async def currency(event: SimpleBotEvent):
     # Профиль пользователя
     current_user = event["current_user"]
     await event.answer("Идет сбор валют...")
-    await get_currency(user=current_user, event=event)
-    # task = asyncio.create_task(get_currency(user=current_user, event=event))
-    # await asyncio.gather(task)
+    text = await get_currency(pet_id=current_user.pet_id,
+                              name=current_user.name,
+                              club_id=current_user.club_id)
+    await event.answer(message=text)

@@ -33,9 +33,7 @@ async def thread_popcorn(thread_id, page, cookies):
             users = users.find("span", {"style": "color: #4b1a0a;"})
             players = []
             logger.debug("4")
-            logger.debug(users)
             for user in users:
-                logger.debug(user)
                 if isinstance(user, bs4.element.NavigableString):
                     try:
                         user = int(user)
@@ -322,7 +320,7 @@ async def parce_angel(pet_id, thread_ids, mpets):
     return None
 
 
-async def get_currency(user, event):
+async def get_currency(pet_id, name, club_id):
     thread_ids = {"popcorn": 2557447,
                   "plus": 2572662,
                   "silver": 2573189,
@@ -331,33 +329,30 @@ async def get_currency(user, event):
                   "angel": [2501851, 2501843, 2501844, 2501845, 2501846, 2501849,
                             2501856, 2501855, 2501854, 2501853, 2501852, 2531821],
                   "gear": [2531790]}
-    pet_id = user.pet_id
-    name = user.name
-    club_id = user.club_id
     mpets = MpetsApi()
     r = await mpets.start()
     logger.debug(f"Аккаунт зарегистрировал {r}")
 
-    r = await mpets.thread(2572662, 1)
-    logger.debug(r)
+    #r = await mpets.thread(2572662, 1)
+    #logger.debug(r)
 
-    popcorn = 0
+    '''popcorn = 0
     plus = 0
     silver = 0
     feather = 0
     key = 0
     angel = 0
-    gear = 0
+    gear = 0'''
 
     # ПОПКОРН
-    '''user = await parce_popcorn(pet_id=pet_id,
+    user = await parce_popcorn(pet_id=pet_id,
                                thread_id=thread_ids.get("popcorn"),
                                mpets=mpets)
     if user is None or user is False:
         popcorn = 0
     else:
         popcorn = user[1]
-    logger.debug("Собрал ПОПКОРН")'''
+    logger.debug("Собрал ПОПКОРН")
 
     # ПЛЮСЫ
     user = await parce_plus(pet_id=pet_id,
@@ -402,7 +397,6 @@ async def get_currency(user, event):
     logger.debug("Собрал СВЯЗКА КЛЮЧЕЙ")
 
     # АНГЕЛЫ
-    '''
     user = await parce_angel(pet_id=pet_id,
                              thread_ids=thread_ids.get("angel"),
                              mpets=mpets)
@@ -413,7 +407,7 @@ async def get_currency(user, event):
 
     logger.debug("Собрал АНГЕЛЫ")
 
-    # ШЕСТЕРНИ'''
+    # ШЕСТЕРНИ
 
     '''user = await parce_angel(pet_id=pet_id,
                              thread_ids=thread_ids.get("angel"),
@@ -430,7 +424,7 @@ async def get_currency(user, event):
            f"Золотые перья: {feather}\n" \
            f"Связка ключей: {key} 🗝\n" \
            f"Ангелы: {angel} 👼"
-    await event.answer(message=text)
+    return text
 
 
 async def get_currency_core(user):
