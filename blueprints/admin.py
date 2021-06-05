@@ -191,6 +191,28 @@ async def task_rating(event: SimpleBotEvent):
 
 
 @simple_bot_message_handler(admin_router,
+                            TextContainsFilter(
+                                ["/user items"]))
+async def task_rating(event: SimpleBotEvent):
+    try:
+        score = msg = event.object.object.message.text.split(" ")[2]
+    except:
+        score = 0
+    items = crud.get_user_items(score=score)
+    text = "🧸 Предметы игроков.\n\n"
+    if not items:
+        return "❗ Предметов нет"
+    for item in items:
+        user = crud.get_user(item.user_id)
+        text += f"{item.id}. {user.pet_id} ({user.user_id}) — {user.name} — {item.item_name} \n"
+        if len(text) > 3950:
+            await event.answer(text)
+            text = "🧸 Предметы игроков.\n\n"
+    text += "\n +confirm user {id} — подтвердить предмет"
+    await event.answer(text)
+
+
+@simple_bot_message_handler(admin_router,
                             PayloadFilter({"command": "club_items"}))
 async def task_rating(event: SimpleBotEvent):
     items = crud.get_club_items()

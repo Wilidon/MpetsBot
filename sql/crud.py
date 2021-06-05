@@ -416,9 +416,13 @@ def get_user_item(user_id: int, status="В процессе"):
         models.UserItems.id.asc()).all()
 
 
-def get_user_items():
-    return db.query(models.UserItems).filter_by(status="В процессе").order_by(
-        models.UserItems.id.asc()).all()
+def get_user_items(score=0):
+    if score == 0:
+        return db.query(models.UserItems).filter_by(status="В процессе").order_by(
+            models.UserItems.id.asc()).all()
+    else:
+        return db.query(models.UserItems).filter_by(status="В процессе", score=score).order_by(
+            models.UserItems.id.asc()).all()
 
 
 def get_all_user_items():
