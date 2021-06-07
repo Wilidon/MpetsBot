@@ -600,16 +600,16 @@ async def send_user_notice(user_id, score):
     Доступные товары появились в 🏪Магазине.
     """
     settings = get_settings()
-    message = f"Поздравляем! Вы набрали {score} 🌼\n" \
+    message = f"Поздравляем! Вы набрали {score} ☀️\n" \
               f"Вам будет зачислен приз – {prizes[score]}"
     if "shop" in prizes[score]:
         crud.add_user_item(user_id, prizes[score], score, status=prizes[score])
-        message = f"Поздравляем! Вы набрали {score} 🌼\n" \
+        message = f"Поздравляем! Вы набрали {score} ☀️\n" \
                   f"Доступные призы появились в 🏪 Магазине."
     else:
         crud.add_user_item(user_id, prizes[score], score)
     bot = SimpleLongPollBot(tokens=settings.token, group_id=settings.group_id)
-    if int(score) in [149, 187, 251]:
+    if int(score) in [9999]:
         try:
             keyboard = await get_kb(shop=True)
             await bot.api_context.messages.send(user_id=user_id,
@@ -633,7 +633,7 @@ async def send_user_notice(user_id, score):
             notice(text)
     user = crud.get_user(user_id)
     text = f"Игрок {user.first_name} {user.last_name} | {user.name} " \
-           f"({user.pet_id}) набрал {score} 🌼\n" \
+           f"({user.pet_id}) набрал {score} ☀️\n" \
            f"Приз – {prizes[score]}"
     notice(text)
 
@@ -641,7 +641,7 @@ async def send_user_notice(user_id, score):
 async def send_club_notice(club_id, score):
     users = crud.get_users_with_club(club_id)
     settings = get_settings()
-    message = f"Поздравляем! Вы набрали {score} 🦋\n" \
+    message = f"Поздравляем! Вы набрали {score} ⛱\n" \
               f"Вам будет зачислен приз – {c_prizes[score]}"
     crud.add_club_item(club_id, c_prizes[score], score)
     for user in users:
@@ -657,7 +657,7 @@ async def send_club_notice(club_id, score):
                    f"Ошибка: {e}"
             notice(text)
     club = crud.get_club(club_id)
-    text = f"Клуб {club.name} ({club_id}) набрал {score} 🦋\n" \
+    text = f"Клуб {club.name} ({club_id}) набрал {score} ⛱\n" \
            f"Приз – {c_prizes[score]}"
     notice(text)
 
