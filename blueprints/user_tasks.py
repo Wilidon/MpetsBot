@@ -128,15 +128,22 @@ async def user_rating(event: SimpleBotEvent):
                             PayloadFilter({"command": "profile"}))
 async def profile(event: SimpleBotEvent):
     # Профиль пользователя
+
+    local_icon = {298712015: "🐒", 485026972: "🐒"}
+
     current_user = event["current_user"]
     club_name = False
     current_user_stats = crud.get_user_stats(current_user.user_id)
     current_user_club = crud.get_club(current_user.club_id)
+
+    default_icon = "👨🏼‍💼"
+    if local_icon.get(current_user.user_id) is not None:
+        default_icon = local_icon.get(current_user.user_id)
     if current_user_club:
         club_name = current_user_club.name
         text = f"🧸 Ваш профиль:\n" \
                f"🧩 ID: {current_user.id} / {current_user.pet_id}\n" \
-               f"👨🏼‍💼 Имя: {current_user.name}\n" \
+               f"{default_icon} Имя: {current_user.name}\n" \
                f"🏠 Клуб: {club_name}\n" \
                f"🏅 Медалей: {current_user_stats.points}\n" \
                f"☀ Набрано: {current_user_stats.personal_tasks}\n" \
@@ -148,7 +155,7 @@ async def profile(event: SimpleBotEvent):
     else:
         text = f"🧸 Ваш профиль:\n" \
                f"🧩 ID: {current_user.id} / {current_user.pet_id}\n" \
-               f"👨🏼‍💼 Имя: {current_user.name}\n" \
+               f"{default_icon} Имя: {current_user.name}\n" \
                f"🏅 Медалей: {current_user_stats.points}\n" \
                f"☀ Набрано: {current_user_stats.personal_tasks}\n" \
                f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
