@@ -31,10 +31,10 @@ async def points(event: SimpleBotEvent):
     msg = event.object.object.message.text.split()
     if len(msg) != 4:
         return "Шаблон: +user {user_id} {score} {points}"
-    obj_id = int(msg[1]) # id пользователя / клуба
-    score = int(msg[2]) # Количество очков рейтинга
-    points = int(msg[3]) # Количесто очков гонки
-    if msg[1] == "user":
+    obj_id = int(msg[1])  # id пользователя / клуба
+    score = int(msg[2])  # Количество очков рейтинга
+    points = int(msg[3])  # Количесто очков гонки
+    if msg[1] == "+user":
         if crud.get_user(user_id=obj_id):
             crud.update_user_stats(user_id=obj_id,
                                    points=score,
@@ -42,7 +42,7 @@ async def points(event: SimpleBotEvent):
             return "✅ Операция прошла успешно."
         else:
             return "❗ Игрок не найден."
-    if msg[1] == "club":
+    if msg[1] == "+club":
         if crud.get_club(club_id=obj_id):
             crud.update_club_stats(club_id=obj_id,
                                    points=score,
@@ -1031,7 +1031,7 @@ async def add_club_tasks_handler(event: SimpleBotEvent):
         user = user_rewards[i]
         current_user = crud.get_user(user_id=user.user_id)
         if 0 <= i <= 2:
-            text += f"{i+1}. {current_user.name} [{current_user.user_id}] ({current_user.pet_id}) - " \
+            text += f"{i + 1}. {current_user.name} [{current_user.user_id}] ({current_user.pet_id}) - " \
                     f"{user.reward} [{user.total_damage}]\n"
         else:
             text += f"{i + 1}. {current_user.name} [{current_user.user_id}] - " \
