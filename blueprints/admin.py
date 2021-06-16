@@ -34,7 +34,7 @@ async def points(event: SimpleBotEvent):
     obj_id = int(msg[1])  # id пользователя / клуба
     score = int(msg[2])  # Количество очков рейтинга
     points = int(msg[3])  # Количесто очков гонки
-    if msg[1] == "+user":
+    if msg[0] == "+user":
         if crud.get_user(user_id=obj_id):
             crud.update_user_stats(user_id=obj_id,
                                    points=score,
@@ -42,7 +42,7 @@ async def points(event: SimpleBotEvent):
             return "✅ Операция прошла успешно."
         else:
             return "❗ Игрок не найден."
-    if msg[1] == "+club":
+    if msg[0] == "+club":
         if crud.get_club(club_id=obj_id):
             crud.update_club_stats(club_id=obj_id,
                                    points=score,
