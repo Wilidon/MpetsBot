@@ -150,7 +150,7 @@ async def profile(event: SimpleBotEvent):
                f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
                f"{datetime.fromtimestamp(current_user.created_at)}\n\n" \
-               f"🐾 Весенняя гонка:\n\n" \
+               f"🐾 Летняя гонка:\n\n" \
                f"0🚩— 25☀️ — 70☀️ — 145☀️ — 200☀️ — 250☀️ — 270☀️🏁"
     else:
         text = f"🧸 Ваш профиль:\n" \
@@ -161,7 +161,7 @@ async def profile(event: SimpleBotEvent):
                f"📈 Выполнено личных заданий: {current_user_stats.personal_tasks}\n" \
                f"🕛 Дата регистрации: " \
                f"{datetime.fromtimestamp(current_user.created_at)}\n\n" \
-               f"🐾 Весенняя гонка:\n\n" \
+               f"🐾 Летняя гонка:\n\n" \
                f"0🚩— 25☀️ — 70☀️ — 145☀️ — 200☀️ — 250☀️ — 270☀️🏁"
 
     await profile_kb(user=current_user, event=event, message=text)

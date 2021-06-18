@@ -181,7 +181,7 @@ async def profile(event: SimpleBotEvent):
            f"————\n" \
            f"Вы выполнили: {user_stats.club_tasks} 📋\n" \
            f"Вы набрали: {user_stats.club_points} 🎈\n\n" \
-           f"🐾 Весенняя гонка:\n\n" \
+           f"🐾 Летняя гонка:\n\n" \
            f"0🚩— 70⛱ — 140⛱ — 250⛱ — 300⛱ — 370⛱ — 450⛱🏁"
     await menu(user=current_user, event=event, message=text)
 
