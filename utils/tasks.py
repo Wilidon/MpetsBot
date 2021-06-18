@@ -737,7 +737,7 @@ async def checking_users_tasks():
                     continue
                 task = asyncio.create_task(start_verify_user(user))
                 tasks.append(task)
-                if len(tasks) >= 20:
+                if len(tasks) >= 5:
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
@@ -824,8 +824,10 @@ async def update_charm_rating():
         try:
             game_time = await mpets.game_time()
             if game_time["status"] != "ok":
+                await asyncio.sleep(5)
                 continue
             if int(game_time["time"].split(":")[1]) % 10 == 0:
+                await asyncio.sleep(5)
                 continue
             resp = await mpets.best("charm", page)
             # elapsed_time = time.time() - time0
