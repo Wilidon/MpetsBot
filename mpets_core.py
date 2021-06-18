@@ -11,8 +11,9 @@ from utils.tasks import checking_bots, update_user_data, checking_users_tasks, \
 
 
 async def main():
-    methods = [update_user_data()]
+    methods = [creating_club_tasks()]
     tasks = []
+    # update_user_data()
     # checking_thread(),
     # , checking_holiday_tasks()
     # creating_club_tasks(),
