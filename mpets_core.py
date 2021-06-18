@@ -11,13 +11,14 @@ from utils.tasks import checking_bots, update_user_data, checking_users_tasks, \
 
 
 async def main():
-    methods = [update_user_data(), checking_bots(), checking_users_tasks(),
-                update_charm_rating(),
-               update_races_rating()]
+    methods = [update_user_data(),]
     tasks = []
     # checking_thread(),
     # , checking_holiday_tasks()
     # creating_club_tasks(),
+    # update_charm_rating(),
+           # update_races_rating()
+    # , checking_bots(), checking_users_tasks()
     for method in methods:
         task = asyncio.create_task(method)
         tasks.append(task)
