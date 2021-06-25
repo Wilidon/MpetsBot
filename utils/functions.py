@@ -51,7 +51,7 @@ async def coin_task(task, pet_id, club_id):
         today = int(datetime.today().strftime("%Y%m%d"))
         club = crud.get_club(club_id)
         mpets = MpetsApi(club.bot_name, club.bot_password)
-        resp = await mpets.login()
+        resp = await mpets.start()
         if resp["status"] == "error":
             # logging
             return False
@@ -75,7 +75,7 @@ async def heart_task(task, pet_id, club_id):
         today = int(datetime.today().strftime("%Y%m%d"))
         club = crud.get_club(club_id)
         mpets = MpetsApi(club.bot_name, club.bot_password)
-        resp = await mpets.login()
+        resp = await mpets.start()
         if resp["status"] == "error":
             # logging
             return False
@@ -110,7 +110,7 @@ async def exp_task(task, pet_id, club_id):
         today = int(datetime.today().strftime("%Y%m%d"))
         club = crud.get_club(club_id)
         mpets = MpetsApi(club.bot_name, club.bot_password)
-        resp = await mpets.login()
+        resp = await mpets.start()
         if resp["status"] == "error":
             # logging
             return False

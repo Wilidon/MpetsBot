@@ -2,11 +2,11 @@ from mpetsapi import authorization, main, forum, club, profile
 
 
 class MpetsApi:
-    def __init__(self, name=None, password=False, timeout=30, connector=None):
+    def __init__(self, name=None, password=False, cookies=None, timeout=30, connector=None):
         self.pet_id = None
         self.name = name
         self.password = password
-        self.cookies = None
+        self.cookies = cookies
         self.timeout = timeout
         self.connector = connector
 
@@ -34,10 +34,15 @@ class MpetsApi:
                                          connector=self.connector)
         if resp['status'] == 'ok':
             self.cookies = resp['cookies']
-            self.pet_id = resp['pet_id']
         return resp
 
-    async def login(self):
+    async def get_captcha(self):
+        resp = await authorization.get_captcha()
+        if resp['status'] == 'ok':
+            self.cookies = resp['cookies']
+        return resp
+
+    async def login(self, captcha):
         """ Авторизация
 
             Resp:
@@ -45,11 +50,12 @@ class MpetsApi:
         """
         resp = await authorization.login(name=self.name,
                                          password=self.password,
+                                         captcha=captcha,
+                                         cookies=self.cookies,
                                          timeout=self.timeout,
                                          connector=self.connector)
         if resp['status'] == 'ok':
             self.cookies = resp['cookies']
-            self.pet_id = resp['pet_id']
         return resp
 
     async def actions(self):
@@ -619,7 +625,7 @@ class MpetsApi:
         return await club.leave(cookies=cookies)
 
     async def profile(self):
-        return await profile.profile(self.pet_id, self.cookies, self.timeout,
+        return await profile.profile(self.cookies, self.timeout,
                                      self.connector)
 
     async def view_profile(self, pet_id):
@@ -633,8 +639,8 @@ class MpetsApi:
         pass
 
     async def view_gifts(self, pet_id, page=1):
-        return await profile.view_gifts(pet_id, page, self.cookies, \
-                                                     self.timeout,
+        return await profile.view_gifts(pet_id, page, self.cookies,
+                                        self.timeout,
                                         self.connector)
 
     async def post_message(self, pet_id, message, gift_id=None):

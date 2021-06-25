@@ -11,8 +11,8 @@ from utils.tasks import checking_bots, update_user_data, checking_users_tasks, \
 
 
 async def main():
-    methods = [creating_club_tasks(), checking_bots(), update_races_rating(), checking_users_tasks(),
-               update_charm_rating(),]
+    methods = [creating_club_tasks(), update_races_rating(), checking_users_tasks(),
+               update_charm_rating(), update_user_data()]
     tasks = []
     # update_user_data()
     # checking_thread(),
@@ -39,6 +39,7 @@ if __name__ == '__main__':
         try:
             asyncio.run(main())
         except Exception as e:
+            raise
             logger.critical(f"MpetsCore down. {e}")
             if not noticed:
                 text = "MpetsCore down. \n"\

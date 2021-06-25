@@ -21,6 +21,7 @@ club_router = DefaultRouter()
                             PayloadFilter({"command": "club_tasks"}))
 async def profile(event: SimpleBotEvent):
     # Список заданий игрока для клуба
+    return "Задания временно недоступны."
     current_user = event["current_user"]
     if current_user.club_id == 0:
         return "Вы не состоите в клубе."

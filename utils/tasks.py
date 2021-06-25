@@ -1,4 +1,5 @@
 import asyncio
+import random
 import time
 from datetime import datetime
 
@@ -404,7 +405,8 @@ async def update_user_data():
     settings = get_settings()
     mpets = MpetsApi(settings.bot1, settings.bot_password)
     while True:
-        r = await mpets.login()
+        r = await mpets.start()
+        print(r)
         if r["status"] == "ok":
             break
         logger.bind(context=r).critical("Не удалось авторизоваться.")
@@ -658,10 +660,11 @@ async def checking_sendGift_utask(mpets, user, user_task, pet_id):
             return True
 
 
-async def start_verify_user(user):
+async def start_verify_user(user, cookies):
     today = int(datetime.today().strftime("%Y%m%d"))
     user_tasks = crud.get_user_tasks(user.user_id, today)
-    user_bot = crud.get_bot(user.user_id)
+    print(f"cookies {cookies}")
+    '''user_bot = crud.get_bot(user.user_id)
     if user_bot is None:
         mpets = MpetsApi()
         resp = await mpets.start()
@@ -698,7 +701,9 @@ async def start_verify_user(user):
         log.warning(f"Ошибка при авторизации бота. Пользователь:"
                     f" {user.user_id}")
         mpets = MpetsApi()
-        await mpets.start()
+        await mpets.start()'''
+    mpets = MpetsApi(cookies=cookies)
+    #await mpets.start()
     for user_task in user_tasks:
         try:
             if user_task.status == "completed":
@@ -724,6 +729,13 @@ async def start_verify_user(user):
 
 async def checking_users_tasks():
     logger.debug("start checking_users_tasks")
+    mpets_sessions = []
+    for i in range(8):
+        mpets = MpetsApi()
+        r = await mpets.start()
+        if r['status'] == 'ok':
+            mpets_sessions.append(r['cookies'])
+    print(f"sessions ready {len(mpets_sessions)}")
     while True:
         try:
             users = crud.get_users_with_status("ok")
@@ -735,7 +747,8 @@ async def checking_users_tasks():
                 user_tasks = crud.get_user_tasks(user.user_id, today)
                 if not user_tasks:
                     continue
-                task = asyncio.create_task(start_verify_user(user))
+                task = asyncio.create_task(start_verify_user(user,
+                                                             mpets_sessions[random.randint(0, len(mpets_sessions)-1)]))
                 tasks.append(task)
                 if len(tasks) >= 5:
                     await asyncio.gather(*tasks)
