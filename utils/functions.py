@@ -46,15 +46,11 @@ def get_next_utc_unix_00_00():
     return next_utc
 
 
-async def coin_task(task, pet_id, club_id):
+async def coin_task(task, pet_id, club_id, cookies):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
         club = crud.get_club(club_id)
-        mpets = MpetsApi(club.bot_name, club.bot_password)
-        resp = await mpets.start()
-        if resp["status"] == "error":
-            # logging
-            return False
+        mpets = MpetsApi(cookies=cookies)
         pet = await mpets.view_profile(pet_id)
         if pet["status"] == "error":
             # loggin
@@ -70,15 +66,11 @@ async def coin_task(task, pet_id, club_id):
         return False
 
 
-async def heart_task(task, pet_id, club_id):
+async def heart_task(task, pet_id, club_id, cookies):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
         club = crud.get_club(club_id)
-        mpets = MpetsApi(club.bot_name, club.bot_password)
-        resp = await mpets.start()
-        if resp["status"] == "error":
-            # logging
-            return False
+        mpets = MpetsApi(cookies=cookies)
         page, progress, step, counter = 1, 0, True, 0
         while step:
             try:
@@ -105,15 +97,11 @@ async def heart_task(task, pet_id, club_id):
         return False
 
 
-async def exp_task(task, pet_id, club_id):
+async def exp_task(task, pet_id, club_id, cookies):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
         club = crud.get_club(club_id)
-        mpets = MpetsApi(club.bot_name, club.bot_password)
-        resp = await mpets.start()
-        if resp["status"] == "error":
-            # logging
-            return False
+        mpets = MpetsApi(cookies=cookies)
         page, progress, step, counter = 1, 0, True, 0
         while step:
             try:
@@ -231,7 +219,7 @@ async def get_task_name(task_name):
         return task_name
 
 
-async def creation_club_tasks(user_task):
+async def creation_club_tasks(user_task, cookies):
     c = 0
     db = get_db()
     local_tasks = db.lgetall("club_tasks")
@@ -249,15 +237,15 @@ async def creation_club_tasks(user_task):
         num = random.randint(0, len(local_tasks) - 1)
         if local_tasks[num] == "coin":
             if await coin_task(user_task,
-                               user.pet_id, user.club_id) is False:
+                               user.pet_id, user.club_id, cookies) is False:
                 continue
         elif local_tasks[num] == "heart":
             if await heart_task(user_task,
-                                user.pet_id, user.club_id) is False:
+                                user.pet_id, user.club_id, cookies) is False:
                 continue
         elif local_tasks[num] == "exp":
             if await exp_task(user_task,
-                              user.pet_id, user.club_id) is False:
+                              user.pet_id, user.club_id, cookies) is False:
                 continue
         elif local_tasks[num] == "get_gift":
             if await get_gift_task(user_task) is False:

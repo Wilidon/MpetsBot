@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from python_rucaptcha import ImageCaptcha
 from vkwave.bots import (
     DefaultRouter,
     SimpleBotEvent,
@@ -21,7 +22,9 @@ club_router = DefaultRouter()
                             PayloadFilter({"command": "club_tasks"}))
 async def profile(event: SimpleBotEvent):
     # Список заданий игрока для клуба
-    return "Задания временно недоступны."
+    # return "Задания временно недоступны."
+    mpets_session = {}
+    RUCAPTCHA_KEY = "1d9f5652f8d6db2ecb47729cc3038100"
     current_user = event["current_user"]
     if current_user.club_id == 0:
         return "Вы не состоите в клубе."
@@ -58,16 +61,34 @@ async def profile(event: SimpleBotEvent):
                            f"{current_user_club.bot_name} в клуб.")
         mpets = MpetsApi(current_user_club.bot_name,
                          current_user_club.bot_password)
-        await mpets.login()
+        await mpets.get_captcha()
+        user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
+            captcha_file="./1.jpg")
+        if not user_answer['error']:
+            # решение капчи
+            code = user_answer['captchaSolve']
+            r = await mpets.login(captcha=code)
+            if r['status'] == 'error':
+                account = await mpets.start()
+                crud.update_club_bot(club_id=current_user.club_id,
+                                     bot_id=0,
+                                     bot_name=account["name"],
+                                     bot_password=account["password"])
         await mpets.enter_club(current_user_club.club_id)
     elif current_user_club.status == "excluded":
         mpets = MpetsApi(current_user_club.bot_name,
                          current_user_club.bot_password)
-        account = await mpets.login()
+        await mpets.get_captcha()
+        user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
+            captcha_file="./1.jpg")
+        if not user_answer['error']:
+            # решение капчи
+            code = user_answer['captchaSolve']
+            account = await mpets.login(captcha=code)
         if account['status'] == 'error':
             account = await mpets.start()
             crud.update_club_bot(club_id=current_user.club_id,
-                                 bot_id=account["pet_id"],
+                                 bot_id=0,
                                  bot_name=account["name"],
                                  bot_password=account["password"])
         pet = await mpets.view_profile(current_user.pet_id)

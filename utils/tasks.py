@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 
 from loguru import logger
+from python_rucaptcha import ImageCaptcha
 
 from config import get_settings, get_db
 from mpetsapi import MpetsApi
@@ -296,11 +297,10 @@ async def checking_acceptPlayer_task(mpets, user, user_task):
     await check_task(user, user_task, progress, user_task.task_name)
 
 
-async def start_verify_club(club):
+async def start_verify_club(club, cookies):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
-        mpets = MpetsApi(club.bot_name, club.bot_password)
-        await mpets.login()
+        mpets = MpetsApi(cookies=cookies)
         profile = await mpets.profile()
         if profile["club"] is None:
             logger.info(f"{club.bot_name} исключен из клуба ({club.club_id}).")
@@ -347,9 +347,8 @@ async def start_verify_club(club):
         log.error(f"Не удалось проверить клуб({club.club_id})\n")
 
 
-async def start_verify_account(club):
-    mpets = MpetsApi(club.bot_name, club.bot_password)
-    await mpets.login()
+async def start_verify_account(club, cookies):
+    mpets = MpetsApi(cookies=cookies)
     profile = await mpets.profile()
     if profile and profile["status"] != "ok":
         log = logger.bind(context=profile)
@@ -362,6 +361,8 @@ async def start_verify_account(club):
 
 async def checking_bots():
     logger.debug("start checking_bots")
+    RUCAPTCHA_KEY = "1d9f5652f8d6db2ecb47729cc3038100"
+    mpets_session = {}
     while True:
         try:
             clubs_with_status_ok = crud.get_clubs(status="ok")
@@ -369,8 +370,21 @@ async def checking_bots():
             tasks = []
             time0 = time.time()
             for i in range(0, len(clubs_with_status_ok)):
+
                 club = clubs_with_status_ok[i]
-                task = asyncio.create_task(start_verify_club(club))
+                if mpets_session.get(club.club_id) is None:
+                    mpets = MpetsApi(club.bot_name, club.bot_password)
+                    await mpets.get_captcha()
+                    user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
+                        captcha_file="./1.jpg")
+                    if not user_answer['error']:
+                        # решение капчи
+                        code = user_answer['captchaSolve']
+                        r = await mpets.login(captcha=code)
+                        if r['status'] == 'ok':
+                            mpets_session[club.club_id] = r['cookies']
+                task = asyncio.create_task(start_verify_club(club,
+                                                             mpets_session[club.club_id]))
                 tasks.append(task)
                 if len(tasks) >= 20:
                     await asyncio.gather(*tasks)
@@ -382,7 +396,24 @@ async def checking_bots():
                     tasks = []
             for i in range(0, len(clubs_with_status_waiting)):
                 club = clubs_with_status_waiting[i]
-                task = asyncio.create_task(start_verify_account(club))
+                if mpets_session.get(club.club_id) is None:
+                    mpets = MpetsApi(club.bot_name, club.bot_password)
+                    await mpets.get_captcha()
+                    user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
+                        captcha_file="./1.jpg")
+                    if not user_answer['error']:
+                        # решение капчи
+                        code = user_answer['captchaSolve']
+                        r = await mpets.login(captcha=code)
+                        if r['status'] == 'ok':
+                            mpets_session[club.club_id] = r['cookies']
+                        else:
+                            account = await mpets.start()
+                            crud.update_club_bot(club_id=current_user.club_id,
+                                                 bot_id=account["pet_id"],
+                                                 bot_name=account["name"],
+                                                 bot_password=account["password"])
+                task = asyncio.create_task(start_verify_account(club, mpets_session[club.club_id]))
                 tasks.append(task)
                 if len(tasks) >= 20:
                     await asyncio.gather(*tasks)
@@ -396,6 +427,7 @@ async def checking_bots():
             crud.health(clubtasks=total_time)
             await asyncio.sleep(1)
         except Exception as e:
+            # raise
             logger.error(e)
             await asyncio.sleep(10)
 
@@ -406,7 +438,6 @@ async def update_user_data():
     mpets = MpetsApi(settings.bot1, settings.bot_password)
     while True:
         r = await mpets.start()
-        print(r)
         if r["status"] == "ok":
             break
         logger.bind(context=r).critical("Не удалось авторизоваться.")
@@ -663,7 +694,6 @@ async def checking_sendGift_utask(mpets, user, user_task, pet_id):
 async def start_verify_user(user, cookies):
     today = int(datetime.today().strftime("%Y%m%d"))
     user_tasks = crud.get_user_tasks(user.user_id, today)
-    print(f"cookies {cookies}")
     '''user_bot = crud.get_bot(user.user_id)
     if user_bot is None:
         mpets = MpetsApi()
@@ -735,7 +765,6 @@ async def checking_users_tasks():
         r = await mpets.start()
         if r['status'] == 'ok':
             mpets_sessions.append(r['cookies'])
-    print(f"sessions ready {len(mpets_sessions)}")
     while True:
         try:
             users = crud.get_users_with_status("ok")
@@ -768,14 +797,30 @@ async def checking_users_tasks():
 
 async def creating_club_tasks():
     logger.debug("start creating_club_tasks")
+    mpets_session = {}
+    RUCAPTCHA_KEY = "1d9f5652f8d6db2ecb47729cc3038100"
     while True:
         try:
             today = int(datetime.today().strftime("%Y%m%d"))
             user_tasks = crud.get_club_tasks_all(today, "generation")
             for user_task in user_tasks:
-                await functions.creation_club_tasks(user_task)
+                user = crud.get_user(user_id=user_task.user_id)
+                club = crud.get_club(club_id=user.club_id)
+                if mpets_session.get(club.club_id) is None:
+                    mpets = MpetsApi(club.bot_name, club.bot_password)
+                    await mpets.get_captcha()
+                    user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
+                        captcha_file="./1.jpg")
+                    if not user_answer['error']:
+                        # решение капчи
+                        code = user_answer['captchaSolve']
+                        r = await mpets.login(captcha=code)
+                        if r['status'] == 'ok':
+                            mpets_session[club.club_id] = r['cookies']
+                await functions.creation_club_tasks(user_task, mpets_session[club.club_id])
             await asyncio.sleep(3)
         except Exception as e:
+            # raise
             logger.error(f"Ошибка при создании задания {e}")
             await asyncio.sleep(10)
 

@@ -19,10 +19,21 @@ async def start(name, password, type, timeout, connector):
             # print(resp.text)
             if "Магазин" in resp.text:
                 cookies = {"PHPSESSID": s.cookies.values()[0]}
+                if password:
+                    resp = await change_pw(password, cookies,
+                                           timeout, connector)
+                else:
+                    password = ("".join(
+                        random.sample(string.ascii_lowercase, k=10)))
+                    resp = await change_pw(password, cookies,
+                                           timeout, connector)
+                if resp["status"] != "ok":
+                    return resp
                 resp = await profile(cookies, timeout, connector)
                 if resp["status"] != "ok":
                     return resp
                 return {"status": "ok",
+                        "pet_id": 0,
                         "name": resp['name'],
                         "password": password,
                         "cookies": cookies}
