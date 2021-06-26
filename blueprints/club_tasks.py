@@ -138,7 +138,13 @@ async def profile(event: SimpleBotEvent):
             if task_name in ("exp", "coin", "heart"):
                 mpets = MpetsApi(current_user_club.bot_name,
                                  current_user_club.bot_password)
-                await mpets.login()
+                await mpets.get_captcha()
+                user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
+                    captcha_file="./1.jpg")
+                if not user_answer['error']:
+                    # решение капчи
+                    code = user_answer['captchaSolve']
+                    await mpets.login(captcha=code)
                 pet = await mpets.view_profile(current_user.pet_id)
                 limits = await get_limits(pet["level"])
                 progress = abs((task.end - limits[task_name]) -
