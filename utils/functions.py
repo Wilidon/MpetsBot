@@ -4,16 +4,15 @@ from datetime import datetime, timedelta
 
 import requests
 from loguru import logger
+from mpets import MpetsApi
+from tzlocal import get_localzone
 from vkwave.bots import SimpleLongPollBot
 
 from config import get_settings, get_db
-from mpetsapi import MpetsApi
-from sql import crud
-from tzlocal import get_localzone
-
 from keyboards.kb import get_kb
+from sql import crud
 from utils.collection_handler import create_collection_item
-from utils.constants import prizes, c_prizes, gifts_name, avatar_name, holiday_1402, holiday_2302
+from utils.constants import prizes, c_prizes, gifts_name, avatar_name
 
 
 async def get_limits(level):
@@ -52,7 +51,7 @@ async def coin_task(task, pet_id, club_id, cookies):
         club = crud.get_club(club_id)
         mpets = MpetsApi(cookies=cookies)
         pet = await mpets.view_profile(pet_id)
-        if pet["status"] == "error":
+        if not pet["status"]:
             # loggin
             return False
         progress = pet["club_coin"]
@@ -69,7 +68,6 @@ async def coin_task(task, pet_id, club_id, cookies):
 async def heart_task(task, pet_id, club_id, cookies):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
-        club = crud.get_club(club_id)
         mpets = MpetsApi(cookies=cookies)
         page, progress, step, counter = 1, 0, True, 0
         while step:
@@ -100,7 +98,6 @@ async def heart_task(task, pet_id, club_id, cookies):
 async def exp_task(task, pet_id, club_id, cookies):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
-        club = crud.get_club(club_id)
         mpets = MpetsApi(cookies=cookies)
         page, progress, step, counter = 1, 0, True, 0
         while step:
@@ -270,7 +267,7 @@ async def creation_club_tasks(user_task, cookies):
                 continue
         elif local_tasks[num] == "upRank":
             profile = await check_level_pet(user.pet_id)
-            if profile["status"] == "ok" and \
+            if profile["status"] and \
                     profile["rank"] in ['Активист', 'Куратор',
                                         'Зам. Директора', 'Директор']:
                 if await upRank_task(user_task) is False:
@@ -279,7 +276,7 @@ async def creation_club_tasks(user_task, cookies):
                 continue
         elif local_tasks[num] == "downRank":
             profile = await check_level_pet(user.pet_id)
-            if profile["status"] == "ok" and \
+            if profile["status"] and \
                     profile["rank"] in ['Активист', 'Куратор',
                                         'Зам. Директора', 'Директор']:
                 if await downRank_task(user_task) is False:
@@ -288,7 +285,7 @@ async def creation_club_tasks(user_task, cookies):
                 continue
         elif local_tasks[num] == "acceptPlayer":
             profile = await check_level_pet(user.pet_id)
-            if profile["status"] == "ok" and \
+            if profile["status"] and \
                     profile["rank"] in ['Куратор',
                                         'Зам. Директора', 'Директор']:
                 if await acceptPlayer_task(user_task) is False:
@@ -311,7 +308,7 @@ async def anketa_task(user_id, pet_id):
     mpets = MpetsApi()
     await mpets.start()
     profile = await mpets.view_anketa(pet_id)
-    if profile["status"] != "ok":
+    if not profile["status"]:
         return False
     task_name = f"anketa_{profile['about']}:0"
     crud.create_user_task_for_user(user_id=user_id, task_name=task_name,

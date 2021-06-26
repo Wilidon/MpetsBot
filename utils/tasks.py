@@ -7,7 +7,7 @@ from loguru import logger
 from python_rucaptcha import ImageCaptcha
 
 from config import get_settings, get_db
-from mpetsapi import MpetsApi
+from mpets import MpetsApi
 from sql import crud
 from utils import functions
 from utils.constants import gifts_name, holiday_1402, holiday_2302, holiday_1402_prizes, holiday_2302_prizes, \
@@ -29,7 +29,7 @@ async def check_task(user, user_task, progress, task_name):
 
 async def checking_coin_task(mpets, user, user_task):
     pet = await mpets.view_profile(user.pet_id)
-    if pet["status"] == "error":
+    if not pet["status"]:
         # logging
         return 0
     if pet["club_coin"] is None:
@@ -255,7 +255,7 @@ async def checking_thread_task(mpets, user, user_task):
 async def checking_upRank_task(mpets, user, user_task):
     history = await mpets.club_history(user.club_id)
     today = datetime.today().strftime("%d.%m")
-    if history["status"] == "error":
+    if not history["status"]:
         # logging
         return False
     progress = user_task.progress
@@ -270,7 +270,7 @@ async def checking_upRank_task(mpets, user, user_task):
 async def checking_downRank_task(mpets, user, user_task):
     history = await mpets.club_history(user.club_id)
     today = datetime.today().strftime("%d.%m")
-    if history["status"] == "error":
+    if not history["status"]:
         # logging
         return False
     progress = user_task.progress
@@ -285,7 +285,7 @@ async def checking_downRank_task(mpets, user, user_task):
 async def checking_acceptPlayer_task(mpets, user, user_task):
     history = await mpets.club_history(user.club_id)
     today = datetime.today().strftime("%d.%m")
-    if history["status"] == "error":
+    if not history["status"]:
         # logging
         return 0
     progress = user_task.progress
@@ -350,7 +350,7 @@ async def start_verify_club(club, cookies):
 async def start_verify_account(club, cookies):
     mpets = MpetsApi(cookies=cookies)
     profile = await mpets.profile()
-    if profile and profile["status"] != "ok":
+    if profile and not profile["status"]:
         log = logger.bind(context=profile)
         log.warning("Не удалось получить профиль.")
         return False
@@ -361,7 +361,7 @@ async def start_verify_account(club, cookies):
 
 async def checking_bots():
     logger.debug("start checking_bots")
-    RUCAPTCHA_KEY = "1d9f5652f8d6db2ecb47729cc3038100"
+    settings = get_settings()
     mpets_session = {}
     while True:
         try:
@@ -373,16 +373,12 @@ async def checking_bots():
 
                 club = clubs_with_status_ok[i]
                 if mpets_session.get(club.club_id) is None:
-                    mpets = MpetsApi(club.bot_name, club.bot_password)
-                    await mpets.get_captcha()
-                    user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
-                        captcha_file="./1.jpg")
-                    if not user_answer['error']:
-                        # решение капчи
-                        code = user_answer['captchaSolve']
-                        r = await mpets.login(captcha=code)
-                        if r['status'] == 'ok':
-                            mpets_session[club.club_id] = r['cookies']
+                    mpets = MpetsApi(name=club.bot_name,
+                                     password=club.bot_password,
+                                     rucaptcha_api=settings.api_key)
+                    resp = await mpets.login()
+                    if resp['status']:
+                        mpets_session[club.club_id] = resp['cookies']
                 task = asyncio.create_task(start_verify_club(club,
                                                              mpets_session[club.club_id]))
                 tasks.append(task)
@@ -397,22 +393,18 @@ async def checking_bots():
             for i in range(0, len(clubs_with_status_waiting)):
                 club = clubs_with_status_waiting[i]
                 if mpets_session.get(club.club_id) is None:
-                    mpets = MpetsApi(club.bot_name, club.bot_password)
-                    await mpets.get_captcha()
-                    user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
-                        captcha_file="./1.jpg")
-                    if not user_answer['error']:
-                        # решение капчи
-                        code = user_answer['captchaSolve']
-                        r = await mpets.login(captcha=code)
-                        if r['status'] == 'ok':
-                            mpets_session[club.club_id] = r['cookies']
-                        else:
-                            account = await mpets.start()
-                            crud.update_club_bot(club_id=current_user.club_id,
-                                                 bot_id=account["pet_id"],
-                                                 bot_name=account["name"],
-                                                 bot_password=account["password"])
+                    mpets = MpetsApi(name=club.bot_name,
+                                     password=club.bot_password,
+                                     rucaptcha_api=settings.api_key)
+                    resp = await mpets.login()
+                    if resp['status']:
+                        mpets_session[club.club_id] = resp['cookies']
+                    else:
+                        account = await mpets.start()
+                        crud.update_club_bot(club_id=club.club_id,
+                                             bot_id=account["pet_id"],
+                                             bot_name=account["name"],
+                                             bot_password=account["password"])
                 task = asyncio.create_task(start_verify_account(club, mpets_session[club.club_id]))
                 tasks.append(task)
                 if len(tasks) >= 20:
@@ -435,13 +427,10 @@ async def checking_bots():
 async def update_user_data():
     logger.debug("start update_user_data")
     settings = get_settings()
-    mpets = MpetsApi(settings.bot1, settings.bot_password)
-    while True:
-        r = await mpets.start()
-        if r["status"] == "ok":
-            break
-        logger.bind(context=r).critical("Не удалось авторизоваться.")
-        await asyncio.sleep(10)
+    mpets = MpetsApi(name=settings.bot1,
+                     password=settings.bot_password,
+                     rucaptcha_api=settings.api_key)
+    r = await mpets.login()
     logger.bind(context=r).success("Функция обновления данных пользователей "
                                    "запущена.")
     while True:
@@ -452,7 +441,7 @@ async def update_user_data():
                 if user.pet_id == 0:
                     continue
                 profile = await mpets.view_profile(user.pet_id)
-                if profile['status'] != 'ok':
+                if not profile['status']:
                     log = logger.bind(context=profile)
                     log.warning(f"Не удалось обновить информацию "
                                 f"пользователя {user.user_id}")
@@ -477,7 +466,7 @@ async def update_user_data():
                                       profile["name"], profile["club_id"])
             total_time = int(time.time() - time0)
             crud.health(userinfo=total_time)
-            await asyncio.sleep(10)
+            await asyncio.sleep(3600)
         except Exception as e:
             logger.error(e)
             await asyncio.sleep(3)
@@ -485,7 +474,7 @@ async def update_user_data():
 
 async def checking_avatar_task(mpets, user, user_task):
     profile = await mpets.view_profile(user.pet_id)
-    if profile["status"] != "ok":
+    if not profile["status"]:
         return 0
     task_name = user_task.task_name
     avatar_id = user_task.task_name.split("_")[-1]
@@ -541,7 +530,7 @@ async def checking_anketa_task(mpets, user, user_task):
 
 async def checking_online_task(mpets, user, user_task):
     profile = await mpets.view_profile(user.pet_id)
-    if profile["status"] != "ok":
+    if not profile["status"]:
         return 0
     if profile["last_login"] == "online":
         task_name = user_task.task_name
@@ -566,7 +555,7 @@ async def checking_online_task(mpets, user, user_task):
 
 async def checking_inOnline_task(mpets, user, user_task):
     profile = await mpets.view_profile(user.pet_id)
-    if profile["status"] != "ok":
+    if not profile["status"]:
         return 0
     if profile["last_login"] == "online":
         task_name = user_task.task_name
@@ -763,7 +752,7 @@ async def checking_users_tasks():
     for i in range(8):
         mpets = MpetsApi()
         r = await mpets.start()
-        if r['status'] == 'ok':
+        if r['status']:
             mpets_sessions.append(r['cookies'])
     while True:
         try:
@@ -798,7 +787,7 @@ async def checking_users_tasks():
 async def creating_club_tasks():
     logger.debug("start creating_club_tasks")
     mpets_session = {}
-    RUCAPTCHA_KEY = "1d9f5652f8d6db2ecb47729cc3038100"
+    settings = get_settings()
     while True:
         try:
             today = int(datetime.today().strftime("%Y%m%d"))
@@ -807,16 +796,12 @@ async def creating_club_tasks():
                 user = crud.get_user(user_id=user_task.user_id)
                 club = crud.get_club(club_id=user.club_id)
                 if mpets_session.get(club.club_id) is None:
-                    mpets = MpetsApi(club.bot_name, club.bot_password)
-                    await mpets.get_captcha()
-                    user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
-                        captcha_file="./1.jpg")
-                    if not user_answer['error']:
-                        # решение капчи
-                        code = user_answer['captchaSolve']
-                        r = await mpets.login(captcha=code)
-                        if r['status'] == 'ok':
-                            mpets_session[club.club_id] = r['cookies']
+                    mpets = MpetsApi(name=club.bot_name,
+                                     password=club.bot_password,
+                                     rucaptcha_api=settings.api_key)
+                    resp = await mpets.login()
+                    if resp['status']:
+                        mpets_session[club.club_id] = resp['cookies']
                 await functions.creation_club_tasks(user_task, mpets_session[club.club_id])
             await asyncio.sleep(3)
         except Exception as e:
@@ -881,7 +866,7 @@ async def update_charm_rating():
     while True:
         try:
             game_time = await mpets.game_time()
-            if game_time["status"] != "ok":
+            if not game_time["status"]:
                 await asyncio.sleep(5)
                 continue
             if int(game_time["time"].split(":")[1]) % 10 == 0:
@@ -890,21 +875,21 @@ async def update_charm_rating():
             resp = await mpets.best("charm", page)
             # elapsed_time = time.time() - time0
             # logger.info(f"запрос выполнился за | {elapsed_time}")
-            if resp["status"] != "ok":
+            if not resp["status"]:
                 continue
             for pet in resp["pets"]:
                 top = crud.get_charm_place(place=pet["place"])
                 if top is None:
                     crud.create_charm_rating(pet_id=pet["pet_id"],
                                              place=pet["place"],
-                                             score=pet["score"])
+                                             score=pet["beauty"])
                     continue
                 today = int(datetime.today().strftime("%Y%m%d"))
                 user = crud.get_user_pet_id(pet_id=pet["pet_id"])
                 if user is None:
                     crud.update_charm_place(pet_id=pet["pet_id"],
                                             place=pet["place"],
-                                            score=pet["score"])
+                                            score=pet["beauty"])
                     continue
                 user_task = crud.get_user_task_name(user_id=user.user_id,
                                                     task_name="charm",
@@ -912,7 +897,7 @@ async def update_charm_rating():
                 if user_task is None:
                     crud.update_charm_place(pet_id=pet["pet_id"],
                                             place=pet["place"],
-                                            score=pet["score"])
+                                            score=pet["beauty"])
                     continue
                 elif user_task.status == "completed":
                     continue
@@ -943,7 +928,7 @@ async def update_charm_rating():
                                                         task_name="charm")
                     crud.update_charm_place(pet_id=pet["pet_id"],
                                             place=pet["place"],
-                                            score=pet["score"])
+                                            score=pet["beauty"])
             page += 1
             if page >= 668:
                 elapsed_time = int(time.time() - time0)
@@ -964,26 +949,26 @@ async def update_races_rating():
     while True:
         try:
             game_time = await mpets.game_time()
-            if game_time["status"] != "ok":
+            if not game_time["status"]:
                 continue
             if int(game_time["time"].split(":")[1]) % 10 == 0:
                 continue
             resp = await mpets.best("races", page)
-            if resp["status"] != "ok":
+            if not resp["status"]:
                 continue
             for pet in resp["pets"]:
                 top = crud.get_races_place(place=pet["place"])
                 if top is None:
                     crud.create_races_rating(pet_id=pet["pet_id"],
                                              place=pet["place"],
-                                             score=pet["score"])
+                                             score=pet["beauty"])
                     continue
                 today = int(datetime.today().strftime("%Y%m%d"))
                 user = crud.get_user_pet_id(pet_id=pet["pet_id"])
                 if user is None:
                     crud.update_races_place(pet_id=pet["pet_id"],
                                             place=pet["place"],
-                                            score=pet["score"])
+                                            score=pet["beauty"])
                     continue
                 user_task = crud.get_user_task_name(user_id=user.user_id,
                                                     task_name="races",
@@ -1018,7 +1003,7 @@ async def update_races_rating():
                                                         task_name="races")
                     crud.update_charm_place(pet_id=pet["pet_id"],
                                             place=pet["place"],
-                                            score=pet["score"])
+                                            score=pet["beauty"])
             page += 1
             if page >= 668:
                 elapsed_time = int(time.time() - time0)

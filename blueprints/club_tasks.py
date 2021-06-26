@@ -8,7 +8,9 @@ from vkwave.bots import (
     PayloadFilter, TextContainsFilter,
 )
 from loguru import logger
-from mpetsapi import MpetsApi
+
+from config import get_settings
+from mpets import MpetsApi
 from sql import crud
 from keyboards.kb import menu
 from utils.functions import get_limits
@@ -23,8 +25,7 @@ club_router = DefaultRouter()
 async def profile(event: SimpleBotEvent):
     # Список заданий игрока для клуба
     # return "Задания временно недоступны."
-    mpets_session = {}
-    RUCAPTCHA_KEY = "1d9f5652f8d6db2ecb47729cc3038100"
+    settings = get_settings()
     current_user = event["current_user"]
     if current_user.club_id == 0:
         return "Вы не состоите в клубе."
@@ -34,8 +35,8 @@ async def profile(event: SimpleBotEvent):
         account = await mpets.start()
         pet = await mpets.view_profile(current_user.pet_id)
         club = await mpets.club(current_user.club_id)
-        if account["status"] != "ok" \
-                and pet["status"] != "ok" and club["status"] != "ok":
+        if not account["status"] \
+                and not pet["status"] and not club["status"]:
             log = logger.bind(context=f"account {account}")
             log.warning(f"Ошибка при создании клуба. Пользователь:"
                         f" {current_user.user_id}")
@@ -59,33 +60,23 @@ async def profile(event: SimpleBotEvent):
     elif current_user_club.status == "waiting":
         await event.answer(f"Ожидаем принятия игрока "
                            f"{current_user_club.bot_name} в клуб.")
-        mpets = MpetsApi(current_user_club.bot_name,
-                         current_user_club.bot_password)
-        await mpets.get_captcha()
-        user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
-            captcha_file="./1.jpg")
-        if not user_answer['error']:
-            # решение капчи
-            code = user_answer['captchaSolve']
-            r = await mpets.login(captcha=code)
-            if r['status'] == 'error':
-                account = await mpets.start()
-                crud.update_club_bot(club_id=current_user.club_id,
-                                     bot_id=0,
-                                     bot_name=account["name"],
-                                     bot_password=account["password"])
+        mpets = MpetsApi(name=current_user_club.bot_name,
+                         password=current_user_club.bot_password,
+                         rucaptcha_api=settings.api_key)
+        resp = await mpets.login()
+        if resp['status'] is False:
+            account = await mpets.start()
+            crud.update_club_bot(club_id=current_user.club_id,
+                                 bot_id=0,
+                                 bot_name=account["name"],
+                                 bot_password=account["password"])
         await mpets.enter_club(current_user_club.club_id)
     elif current_user_club.status == "excluded":
-        mpets = MpetsApi(current_user_club.bot_name,
-                         current_user_club.bot_password)
-        await mpets.get_captcha()
-        user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
-            captcha_file="./1.jpg")
-        if not user_answer['error']:
-            # решение капчи
-            code = user_answer['captchaSolve']
-            account = await mpets.login(captcha=code)
-        if account['status'] == 'error':
+        mpets = MpetsApi(name=current_user_club.bot_name,
+                         password=current_user_club.bot_password,
+                         rucaptcha_api=settings.api_key)
+        account = await mpets.login()
+        if account['status'] is False:
             account = await mpets.start()
             crud.update_club_bot(club_id=current_user.club_id,
                                  bot_id=0,
@@ -93,8 +84,7 @@ async def profile(event: SimpleBotEvent):
                                  bot_password=account["password"])
         pet = await mpets.view_profile(current_user.pet_id)
         club = await mpets.club(current_user.club_id)
-        if account["status"] != "ok" \
-                and pet["status"] != "ok" and club["status"] != "ok":
+        if not account["status"] and not pet["status"] and not club["status"]:
             log = logger.bind(context=f"account {account}")
             log.warning(f"Ошибка при отправке запроса. Пользователь:"
                         f" {current_user.user_id}")
@@ -136,19 +126,13 @@ async def profile(event: SimpleBotEvent):
             progress = task.progress
             end = task.end
             if task_name in ("exp", "coin", "heart"):
-                mpets = MpetsApi(current_user_club.bot_name,
-                                 current_user_club.bot_password)
-                await mpets.get_captcha()
-                user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=RUCAPTCHA_KEY).captcha_handler(
-                    captcha_file="./1.jpg")
-                if not user_answer['error']:
-                    # решение капчи
-                    code = user_answer['captchaSolve']
-                    await mpets.login(captcha=code)
+                mpets = MpetsApi(name=current_user_club.bot_name,
+                                 password=current_user_club.bot_password,
+                                 rucaptcha_api=settings.api_key)
+                await mpets.login()
                 pet = await mpets.view_profile(current_user.pet_id)
-                limits = await get_limits(pet["level"])
-                progress = abs((task.end - limits[task_name]) -
-                               task.progress)
+                limits = await get_limits(pet["level"]) # TODO check
+                progress = abs((task.end - limits[task_name]) - task.progress)
                 end = limits[task_name]
             elif "send" in task_name:
                 present_id = task_name.split("_")[-1]
@@ -253,9 +237,9 @@ async def club_rating(event: SimpleBotEvent):
         # то пробуем найти еще и по нику.
         if msg.isdigit():
             pet = await mpets.view_profile(pet_id=msg)
-            if pet["status"] != "ok":
+            if not pet["status"]:
                 pet = await mpets.find_pet(name=msg)
-                if pet["status"] == "ok":
+                if pet["status"]:
                     pet_id = pet["pet_id"]
                 else:
                     return "Игрок не найден"
@@ -263,9 +247,9 @@ async def club_rating(event: SimpleBotEvent):
                 pet_id = msg
         else:
             pet = await mpets.find_pet(name=msg)
-            if pet["status"] == "ok":
+            if pet["status"]:
                 pet_id = pet["pet_id"]
-        if pet and pet["status"] != "ok":
+        if pet and not pet["status"] :
             return "Аккаунт не найден. Попробуйте ещё раз!"
     except:
         return "Игрок не найден"
@@ -274,7 +258,7 @@ async def club_rating(event: SimpleBotEvent):
     current_user_tasks = crud.get_user_tasks(user_id=current_user.user_id, today=today)
     current_user_club = crud.get_club(current_user.club_id)
     profile = await mpets.view_profile(current_user.pet_id)
-    if profile["status"] == "error":
+    if not profile["status"]:
         return "Игрок не найден"
     # нельзя использовать return, потому что может быть несколько разных заданий
     for user_task in current_user_tasks:

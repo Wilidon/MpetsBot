@@ -48,7 +48,6 @@ import requests_async as requests
 
 async def get_captcha():
     try:
-
         s = requests.Session()
         r = await s.get('http://mpets.mobi/captcha?r=281')
         cookies = {"PHPSESSID": r.cookies.values()[0]}

@@ -2,7 +2,7 @@ from loguru import logger
 from vkwave.bots import DefaultRouter, SimpleBotEvent, \
     simple_bot_message_handler, PayloadFilter, TextContainsFilter
 
-from mpetsapi import MpetsApi
+from mpets import MpetsApi
 from sql import crud
 from keyboards.kb import CONFIRMATION, menu
 from utils.constants import user_task_log, club_task_log, collections
@@ -71,7 +71,7 @@ async def logs(event: SimpleBotEvent):
         text += f"{club_task_log[task_name]} — {task.tasks} 🌼 и {task.points} 🏅\n"
     text += f"\n🧩 Коллекции: \n"
     for collection in collection_log:
-        collection_icon = collections[collection.collection_id]['required'][collection.part_id-1]['icon']
+        collection_icon = collections[collection.collection_id]['required'][collection.part_id - 1]['icon']
         text += f"{collections[collection.collection_id]['name']} — {collection_icon} \n"
     await event.answer(message=text)
 
@@ -88,15 +88,15 @@ async def main(event: SimpleBotEvent):
         # то пробуем найти еще и по нику.
         if msg.isdigit():
             pet = await mpets.view_profile(pet_id=msg)
-            if pet["status"] != "ok":
+            if not pet["status"]:
                 pet = await mpets.find_pet(name=msg)
-                if pet["status"] == "ok":
+                if pet["status"]:
                     pet = await mpets.view_profile(pet_id=pet["pet_id"])
         else:
             pet = await mpets.find_pet(name=msg)
-            if pet["status"] == "ok":
+            if pet["status"]:
                 pet = await mpets.view_profile(pet_id=pet["pet_id"])
-        if pet and pet["status"] != "ok":
+        if pet and not pet["status"]:
             return "Аккаунт не найден. Попробуйте ещё раз!"
         crud.update_user_status(current_user.user_id, "waiting_confirmation")
         if pet["club_id"] == None:  # noqa

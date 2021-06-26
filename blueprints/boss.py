@@ -9,7 +9,7 @@ from vkwave.bots import DefaultRouter, SimpleBotEvent, \
 
 from config import get_db
 from keyboards.kb import menu, boss_kb
-from mpetsapi import MpetsApi
+from mpets import MpetsApi
 from sql import crud, models
 from utils.collection_handler import create_collection_item
 from utils.constants import holiday_1402, bosses

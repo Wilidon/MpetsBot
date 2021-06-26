@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     bot6: str
 
     bot_password: str
+
+    api_key: str
+
     class Config:
         env_file = ".env"
 

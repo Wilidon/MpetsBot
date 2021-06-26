@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 
 from vkwave.bots import (
@@ -31,6 +30,7 @@ async def user_tasks(event: SimpleBotEvent):
     text = f"✏️ Список заданий для {current_user.name}.\n\n"
     counter = 1
     for task in current_user_tasks:
+        # TODO перепиши это говно пж
         present_id = False
         # ['avatar_14:0', 'anketa_24:2', 'in_online_24:2', 'charm', 'races', '30online_0',
         # 'get_gift', 'get_random_gift', 'send_specific_gift_any_player',
@@ -105,6 +105,7 @@ async def user_tasks(event: SimpleBotEvent):
                             PayloadFilter({"command": "user_rating"}))
 async def user_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
+    # TODO если одинаковое количество рейтинга, то одно место
     current_user, counter, hidden = event["current_user"], 1, False
     top_users_stats = crud.get_users_stats_order_by_points(limit=10)
     text = "🧑‍ Рейтинг игроков \n\n"
@@ -128,7 +129,7 @@ async def user_rating(event: SimpleBotEvent):
                             PayloadFilter({"command": "profile"}))
 async def profile(event: SimpleBotEvent):
     # Профиль пользователя
-
+    # TODO убрать лишнюю проверку
     local_icon = {298712015: "🐒", 485026972: "🐒"}
 
     current_user = event["current_user"]

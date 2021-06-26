@@ -9,7 +9,7 @@ from lxml import html
 from vkwave.bots import SimpleLongPollBot
 
 from config import get_settings
-from mpetsapi import MpetsApi
+from mpets import MpetsApi
 
 
 async def thread_popcorn(thread_id, page, cookies):
