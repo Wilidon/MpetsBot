@@ -1,6 +1,7 @@
 import asyncio
 import random
 import time
+import traceback
 from datetime import datetime
 
 from loguru import logger
@@ -261,7 +262,7 @@ async def checking_upRank_task(mpets, user, user_task):
     progress = user_task.progress
     for his in history["history"]:
         if user.pet_id == int(his["owner_id"]) and \
-                "повысил" in his["action"] and \
+                " повысил " in his["action"] and \
                 today == his["date"].split(" ")[0]:
             progress += 1
     await check_task(user, user_task, progress, user_task.task_name)
@@ -276,7 +277,7 @@ async def checking_downRank_task(mpets, user, user_task):
     progress = user_task.progress
     for his in history["history"]:
         if user.pet_id == int(his["owner_id"]) and \
-                "понизил" in his["action"] and \
+                " понизил " in his["action"] and \
                 today == his["date"].split(" ")[0]:
             progress += 1
     await check_task(user, user_task, progress, user_task.task_name)
@@ -343,8 +344,8 @@ async def start_verify_club(club, cookies):
                               f"пользователь {user.user_id}"
                               f"ошибка {e}")
     except Exception as e:
-        log = logger.bind(context=e)
-        log.error(f"Не удалось проверить клуб({club.club_id})\n")
+        log = logger.bind(context=traceback.format_exc())
+        log.error(f"Не удалось проверить клуб({club.club_id}) \n")
 
 
 async def start_verify_account(club, cookies):
