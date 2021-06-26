@@ -19,6 +19,8 @@ from utils.tasks import checking_sendGift_task, checking_sendGift_utask
 
 club_router = DefaultRouter()
 
+mpets_session = {}
+
 
 @simple_bot_message_handler(club_router,
                             PayloadFilter({"command": "club_tasks"}))
@@ -126,12 +128,17 @@ async def profile(event: SimpleBotEvent):
             progress = task.progress
             end = task.end
             if task_name in ("exp", "coin", "heart"):
-                mpets = MpetsApi(name=current_user_club.bot_name,
-                                 password=current_user_club.bot_password,
-                                 rucaptcha_api=settings.api_key)
-                await mpets.login()
+                if mpets_session.get(current_user_club.club_id) is None:
+                    mpets = MpetsApi(name=current_user_club.bot_name,
+                                     password=current_user_club.bot_password,
+                                     rucaptcha_api=settings.api_key)
+                    resp = await mpets.login()
+                    if resp['status']:
+                        mpets_session[current_user_club.club_id] = resp['cookies']
+                else:
+                    mpets = MpetsApi(cookies=mpets_session[current_user_club.club_id])
                 pet = await mpets.view_profile(current_user.pet_id)
-                limits = await get_limits(pet["level"]) # TODO check
+                limits = await get_limits(pet["level"])  # TODO check
                 progress = abs((task.end - limits[task_name]) - task.progress)
                 end = limits[task_name]
             elif "send" in task_name:
@@ -249,7 +256,7 @@ async def club_rating(event: SimpleBotEvent):
             pet = await mpets.find_pet(name=msg)
             if pet["status"]:
                 pet_id = pet["pet_id"]
-        if pet and not pet["status"] :
+        if pet and not pet["status"]:
             return "Аккаунт не найден. Попробуйте ещё раз!"
     except:
         return "Игрок не найден"
