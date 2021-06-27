@@ -503,7 +503,6 @@ async def checking_avatar_task(mpets, user, user_task):
 
 async def checking_anketa_task(mpets, user, user_task):
     profile = await mpets.view_anketa(user.pet_id)
-    print(profile)
     if not profile["status"]:
         return 0
     task_name = user_task.task_name
@@ -939,6 +938,7 @@ async def update_charm_rating():
                 time0 = time.time()
                 await asyncio.sleep(1)
         except Exception:
+            raise
             pass
 
 
