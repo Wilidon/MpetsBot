@@ -503,7 +503,8 @@ async def checking_avatar_task(mpets, user, user_task):
 
 async def checking_anketa_task(mpets, user, user_task):
     profile = await mpets.view_anketa(user.pet_id)
-    if profile["status"] != "ok":
+    print(profile)
+    if not profile["status"]:
         return 0
     task_name = user_task.task_name
     anketa_about = task_name.split("_", maxsplit=1)[-1]
