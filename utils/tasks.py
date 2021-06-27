@@ -938,7 +938,6 @@ async def update_charm_rating():
                 time0 = time.time()
                 await asyncio.sleep(1)
         except Exception:
-            raise
             pass
 
 
