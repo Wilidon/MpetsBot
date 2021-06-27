@@ -265,9 +265,8 @@ async def club_rating(event: SimpleBotEvent):
     current_user_tasks = crud.get_user_tasks(user_id=current_user.user_id, today=today)
     current_user_club = crud.get_club(current_user.club_id)
     profile = await mpets.view_profile(current_user.pet_id)
-    logger.debug(profile)
     if not profile["status"]:
-        return "Игрок не найден!!!"
+        return "Игрок не найден!"
     # нельзя использовать return, потому что может быть несколько разных заданий
     for user_task in current_user_tasks:
         if user_task.status == 'completed':
