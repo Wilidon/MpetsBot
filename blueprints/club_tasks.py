@@ -137,6 +137,12 @@ async def profile(event: SimpleBotEvent):
                         mpets_session[current_user_club.club_id] = resp['cookies']
                 else:
                     mpets = MpetsApi(cookies=mpets_session[current_user_club.club_id])
+                    resp = await mpets.check_cookies()
+                    if resp.status and resp.cookies is False:
+                        return "Произошла ошибка при авторизации." \
+                               "Повторите попытку еще раз. \n\nВ случае, если ошибка не прекратилась, " \
+                               "то сообщите об " \
+                               "ошибке через команду /report."
                 pet = await mpets.view_profile(current_user.pet_id)
                 limits = await get_limits(pet["level"])  # TODO check
                 progress = abs((task.end - limits[task_name]) - task.progress)
