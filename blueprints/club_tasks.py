@@ -58,6 +58,7 @@ async def profile(event: SimpleBotEvent):
                    "который имеет должность куратора или выше, " \
                    "зарегистрировать клуб в системе. "
     elif current_user_club.status == "waiting":
+        crud.update_club_last_active(club_id=current_user_club.club_id)
         mpets = await get_mpets_api(club=current_user_club, api_key=settings.api_key)
         if mpets is None:
             return "Произошла ошибка. Повторите попытку еще раз. \n" \
@@ -73,6 +74,7 @@ async def profile(event: SimpleBotEvent):
         await event.answer(f"Ожидаем принятия игрока "
                            f"{current_user_club.bot_name} в клуб.")
     elif current_user_club.status == "excluded":
+        crud.update_club_last_active(club_id=current_user_club.club_id)
         mpets = await get_mpets_api(club=current_user_club, api_key=settings.api_key)
         if mpets is None:
             return "Произошла ошибка. Повторите попытку еще раз. \n" \
@@ -102,6 +104,7 @@ async def profile(event: SimpleBotEvent):
                    f"игрока, который имеет должность куратора или выше, " \
                    f"зарегистрировать клуб в системе. "
     else:
+        crud.update_club_last_active(club_id=current_user_club.club_id)
         today = int(datetime.today().strftime("%Y%m%d"))
         tasks = crud.get_club_tasks_with_status(current_user.user_id, today)
         if not tasks:

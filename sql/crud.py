@@ -107,6 +107,14 @@ def update_club_status(club_id: int, status: str):
 
 
 def get_clubs(status: str):
+    if status == 'waiting':
+        time0 = int(time())
+        return db.query(models.Clubs).filter(models.Clubs.status == status,
+                                             models.Clubs.last_active >= time0 - 86400).all()
+    elif status == 'freeze':
+        time0 = int(time())
+        return db.query(models.Clubs).filter(models.Clubs.status == 'waiting',
+                                             models.Clubs.last_active <= time0 - 172800).all()
     return db.query(models.Clubs).filter_by(status=status).all()
 
 
@@ -1028,5 +1036,14 @@ def update_club_cookies(club_id, cookies):
     if club is None:
         return False
     club.cookies = cookies
+    db.commit()
+    return True
+
+
+def update_club_last_active(club_id: int, difference: int = 0):
+    club = db.query(models.Clubs).filter_by(club_id=club_id).first()
+    if club is None:
+        return False
+    club.last_active = int(time()) - difference
     db.commit()
     return True

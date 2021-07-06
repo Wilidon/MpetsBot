@@ -72,6 +72,7 @@ class Clubs(Base):
     cookies = Column(String, default=None)
     score = Column(Integer, default=0)
     status = Column(String, default="waiting")
+    last_active = Column(Integer, default=int(time.time()))
 
 
 class ClubsTasks(Base):

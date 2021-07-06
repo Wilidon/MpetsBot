@@ -355,6 +355,7 @@ async def start_verify_account(club, mpets):
         log.warning("Не удалось получить профиль.")
         return False
     if profile["club"] is not None:
+        crud.update_club_last_active(club_id=club.club_id)
         logger.success(f"Клуб ({club.club_id}) подтвержден.")
         crud.update_club_status(club.club_id, "ok")
 
@@ -366,6 +367,7 @@ async def checking_bots():
         try:
             clubs_with_status_ok = crud.get_clubs(status="ok")
             clubs_with_status_waiting = crud.get_clubs(status="waiting")
+            clubs_with_status_freeze = crud.get_clubs(status="freeze")
             tasks = []
             time0 = time.time()
             for i in range(0, len(clubs_with_status_ok)):
@@ -396,6 +398,23 @@ async def checking_bots():
                     await asyncio.sleep(1)
                     tasks = []
                 elif i + 1 == len(clubs_with_status_waiting):
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(1)
+                    tasks = []
+            for i in range(0, len(clubs_with_status_freeze)):
+                club = clubs_with_status_freeze[i]
+                crud.update_club_last_active(club_id=club.club_id, difference=86400)
+                mpets = await get_mpets_api(club=club, api_key=settings.api_key)
+                if mpets is False:
+                    crud.update_club_status(club_id=club.club_id,
+                                            status="excluded")
+                task = asyncio.create_task(start_verify_account(club, mpets))
+                tasks.append(task)
+                if len(tasks) >= 20:
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(1)
+                    tasks = []
+                elif i + 1 == len(clubs_with_status_freeze):
                     await asyncio.gather(*tasks)
                     await asyncio.sleep(1)
                     tasks = []
