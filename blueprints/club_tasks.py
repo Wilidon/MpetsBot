@@ -13,13 +13,11 @@ from config import get_settings
 from mpets import MpetsApi
 from sql import crud
 from keyboards.kb import menu
-from utils.functions import get_limits
+from utils.functions import get_limits, get_mpets_api
 from utils.constants import club_tasks_list, club_completed_tasks_list, gifts_name
 from utils.tasks import checking_sendGift_task, checking_sendGift_utask
 
 club_router = DefaultRouter()
-
-mpets_session = {}
 
 
 @simple_bot_message_handler(club_router,
@@ -60,39 +58,38 @@ async def profile(event: SimpleBotEvent):
                    "который имеет должность куратора или выше, " \
                    "зарегистрировать клуб в системе. "
     elif current_user_club.status == "waiting":
+        mpets = await get_mpets_api(club=current_user_club, api_key=settings.api_key)
+        if mpets is None:
+            return "Произошла ошибка. Повторите попытку еще раз. \n" \
+                   "В случае безрезультатной попытки, отправьте команду /report.\n" \
+                   "Ошибка: C95"
+        elif mpets is False:
+            account = await mpets.start()
+            current_user_club = crud.update_club_bot(club_id=current_user.club_id,
+                                                     bot_id=0,
+                                                     bot_name=account["name"],
+                                                     bot_password=account["password"])
+        await mpets.enter_club(current_user_club.club_id)
         await event.answer(f"Ожидаем принятия игрока "
                            f"{current_user_club.bot_name} в клуб.")
-        mpets = MpetsApi(name=current_user_club.bot_name,
-                         password=current_user_club.bot_password,
-                         rucaptcha_api=settings.api_key)
-        resp = await mpets.login()
-        if resp['status'] is False:
-            account = await mpets.start()
-            crud.update_club_bot(club_id=current_user.club_id,
-                                 bot_id=0,
-                                 bot_name=account["name"],
-                                 bot_password=account["password"])
-        await mpets.enter_club(current_user_club.club_id)
     elif current_user_club.status == "excluded":
-        mpets = MpetsApi(name=current_user_club.bot_name,
-                         password=current_user_club.bot_password,
-                         rucaptcha_api=settings.api_key)
-        account = await mpets.login()
-        if account['status'] is False:
+        mpets = await get_mpets_api(club=current_user_club, api_key=settings.api_key)
+        if mpets is None:
+            return "Произошла ошибка. Повторите попытку еще раз. \n" \
+                   "В случае безрезультатной попытки, отправьте команду /report.\n" \
+                   "Ошибка: C107"
+        elif mpets is False:
             account = await mpets.start()
-            crud.update_club_bot(club_id=current_user.club_id,
-                                 bot_id=0,
-                                 bot_name=account["name"],
-                                 bot_password=account["password"])
+            current_user_club = crud.update_club_bot(club_id=current_user.club_id,
+                                                     bot_id=0,
+                                                     bot_name=account["name"],
+                                                     bot_password=account["password"])
         pet = await mpets.view_profile(current_user.pet_id)
         club = await mpets.club(current_user.club_id)
-        if not account["status"] and not pet["status"] and not club["status"]:
-            log = logger.bind(context=f"account {account}")
-            log.warning(f"Ошибка при отправке запроса. Пользователь:"
-                        f" {current_user.user_id}")
-            logger.bind(context=f"pet {pet}").warning("Ошибка при создании клуба")
-            logger.bind(context=f"club {club}").warning("Ошибка при создании клуба")
-            return "❗ Ошибка, пожалуйста, попробуйте ещё раз."
+        if not pet["status"] or not club["status"]:
+            return "Произошла ошибка. Повторите попытку еще раз. \n" \
+                   "В случае безрезультатной попытки, отправьте команду /report.\n" \
+                   "Ошибка: C120"
         if pet["rank"] in ['Куратор', 'Зам. Директора', 'Директор']:
             await event.answer(f"Игрок {current_user_club.bot_name} был исключен из вашего "
                                f"клуба. Примите его обратно и задания "
@@ -128,21 +125,12 @@ async def profile(event: SimpleBotEvent):
             progress = task.progress
             end = task.end
             if task_name in ("exp", "coin", "heart"):
-                if mpets_session.get(current_user_club.club_id) is None:
-                    mpets = MpetsApi(name=current_user_club.bot_name,
-                                     password=current_user_club.bot_password,
-                                     rucaptcha_api=settings.api_key)
-                    resp = await mpets.login()
-                    if resp['status']:
-                        mpets_session[current_user_club.club_id] = resp['cookies']
-                else:
-                    mpets = MpetsApi(cookies=mpets_session[current_user_club.club_id])
-                    resp = await mpets.check_cookies()
-                    if resp.status and resp.cookies is False:
-                        return "Произошла ошибка при авторизации." \
-                               "Повторите попытку еще раз. \n\nВ случае, если ошибка не прекратилась, " \
-                               "то сообщите об " \
-                               "ошибке через команду /report."
+                # TODO убрать обращение в уп на этом шаге
+                mpets = await get_mpets_api(club=current_user_club, api_key=settings.api_key)
+                if mpets is None or mpets is False:
+                    return "Произошла ошибка. Повторите попытку еще раз. \n" \
+                           "В случае безрезультатной попытки, отправьте команду /report.\n" \
+                           "Ошибка: C163"
                 pet = await mpets.view_profile(current_user.pet_id)
                 limits = await get_limits(pet["level"])  # TODO check
                 progress = abs((task.end - limits[task_name]) - task.progress)

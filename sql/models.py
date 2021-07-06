@@ -69,6 +69,7 @@ class Clubs(Base):
     bot_id = Column(Integer)
     bot_name = Column(String(32))
     bot_password = Column(String(32))
+    cookies = Column(String, default=None)
     score = Column(Integer, default=0)
     status = Column(String, default="waiting")
 

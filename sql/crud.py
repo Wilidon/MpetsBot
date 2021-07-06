@@ -96,6 +96,8 @@ def update_club_bot(club_id: int, bot_id: int, bot_name: str, bot_password: str)
     club.bot_name = bot_name
     club.bot_password = bot_password
     db.commit()
+    db.refresh(club)
+    return club
 
 
 def update_club_status(club_id: int, status: str):
@@ -1017,5 +1019,14 @@ def add_rewards(user_id: int, points: int = 0, personal_tasks: int = 0,
             if club is None:
                 pass
             club.total_tasks += club_tasks
+    db.commit()
+    return True
+
+
+def update_club_cookies(club_id, cookies):
+    club = db.query(models.Clubs).filter_by(club_id=club_id).first()
+    if club is None:
+        return False
+    club.cookies = cookies
     db.commit()
     return True

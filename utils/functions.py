@@ -45,11 +45,10 @@ def get_next_utc_unix_00_00():
     return next_utc
 
 
-async def coin_task(task, pet_id, club_id, cookies):
+async def coin_task(task, pet_id, club_id, mpets):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
         club = crud.get_club(club_id)
-        mpets = MpetsApi(cookies=cookies)
         pet = await mpets.view_profile(pet_id)
         if not pet["status"]:
             # loggin
@@ -65,10 +64,9 @@ async def coin_task(task, pet_id, club_id, cookies):
         return False
 
 
-async def heart_task(task, pet_id, club_id, cookies):
+async def heart_task(task, pet_id, club_id, mpets):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
-        mpets = MpetsApi(cookies=cookies)
         page, progress, step, counter = 1, 0, True, 0
         while step:
             try:
@@ -95,10 +93,9 @@ async def heart_task(task, pet_id, club_id, cookies):
         return False
 
 
-async def exp_task(task, pet_id, club_id, cookies):
+async def exp_task(task, pet_id, club_id, mpets):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
-        mpets = MpetsApi(cookies=cookies)
         page, progress, step, counter = 1, 0, True, 0
         while step:
             try:
@@ -216,7 +213,7 @@ async def get_task_name(task_name):
         return task_name
 
 
-async def creation_club_tasks(user_task, cookies):
+async def creation_club_tasks(user_task, mpets):
     c = 0
     db = get_db()
     local_tasks = db.lgetall("club_tasks")
@@ -234,15 +231,15 @@ async def creation_club_tasks(user_task, cookies):
         num = random.randint(0, len(local_tasks) - 1)
         if local_tasks[num] == "coin":
             if await coin_task(user_task,
-                               user.pet_id, user.club_id, cookies) is False:
+                               user.pet_id, user.club_id, mpets) is False:
                 continue
         elif local_tasks[num] == "heart":
             if await heart_task(user_task,
-                                user.pet_id, user.club_id, cookies) is False:
+                                user.pet_id, user.club_id, mpets) is False:
                 continue
         elif local_tasks[num] == "exp":
             if await exp_task(user_task,
-                              user.pet_id, user.club_id, cookies) is False:
+                              user.pet_id, user.club_id, mpets) is False:
                 continue
         elif local_tasks[num] == "get_gift":
             if await get_gift_task(user_task) is False:
@@ -698,3 +695,33 @@ async def add_club_points(user_id=None, club_id=None, point=True, task_name=None
             await send_club_notice(club_id, club_stats.total_tasks)
     except Exception as e:
         logger.error(f"add_club_points {e}")
+
+
+async def get_mpets_api(club, api_key, repeat=1):
+    if club.cookies is None:
+        # TODO if the captcha is incorent, send a report
+        mpets = MpetsApi(name=club.bot_name,
+                         password=club.bot_password,
+                         rucaptcha_api=api_key)
+        resp = await mpets.login()
+        if resp['status']:
+            crud.update_club_cookies(club_id=club.club_id,
+                                     cookies=str(resp['cookies']))
+            return mpets
+        elif resp['status'] is False and resp['code'] == 7:
+            # False отправит запрос на создание нового аккаунт.
+            # В остальных случаях не высылать False
+            return False
+        elif resp['status'] is False and resp['code'] == 6:
+            await get_mpets_api(club, api_key, repeat=repeat + 1)
+    else:
+        if repeat > 5:
+            return None
+        mpets = MpetsApi(cookies=eval(club.cookies))
+        resp = await mpets.check_cookies()
+        if resp.status and resp.cookies is False:
+            crud.update_club_cookies(club_id=club.club_id,
+                                     cookies=None)
+            await get_mpets_api(club, api_key, repeat=repeat + 1)
+        elif resp.status and resp.cookies:
+            return mpets

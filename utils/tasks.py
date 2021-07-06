@@ -14,6 +14,7 @@ from utils import functions
 from utils.constants import gifts_name, holiday_1402, holiday_2302, holiday_1402_prizes, holiday_2302_prizes, \
     holiday_308, holiday_308_prizes, holiday_401, holiday_401_prizes, holiday_501, holiday_501_prizes
 from utils.currency import get_currency_core
+from utils.functions import get_mpets_api
 
 
 async def check_task(user, user_task, progress, task_name):
@@ -298,10 +299,9 @@ async def checking_acceptPlayer_task(mpets, user, user_task):
     await check_task(user, user_task, progress, user_task.task_name)
 
 
-async def start_verify_club(club, cookies):
+async def start_verify_club(club, mpets):
     try:
         today = int(datetime.today().strftime("%Y%m%d"))
-        mpets = MpetsApi(cookies=cookies)
         profile = await mpets.profile()
         if profile["club"] is None:
             logger.info(f"{club.bot_name} исключен из клуба ({club.club_id}).")
@@ -348,8 +348,7 @@ async def start_verify_club(club, cookies):
         log.error(f"Не удалось проверить клуб({club.club_id}) \n")
 
 
-async def start_verify_account(club, cookies):
-    mpets = MpetsApi(cookies=cookies)
+async def start_verify_account(club, mpets):
     profile = await mpets.profile()
     if profile and not profile["status"]:
         log = logger.bind(context=profile)
@@ -363,7 +362,6 @@ async def start_verify_account(club, cookies):
 async def checking_bots():
     logger.debug("start checking_bots")
     settings = get_settings()
-    mpets_session = {}
     while True:
         try:
             clubs_with_status_ok = crud.get_clubs(status="ok")
@@ -373,15 +371,9 @@ async def checking_bots():
             for i in range(0, len(clubs_with_status_ok)):
 
                 club = clubs_with_status_ok[i]
-                if mpets_session.get(club.club_id) is None:
-                    mpets = MpetsApi(name=club.bot_name,
-                                     password=club.bot_password,
-                                     rucaptcha_api=settings.api_key)
-                    resp = await mpets.login()
-                    if resp['status']:
-                        mpets_session[club.club_id] = resp['cookies']
+                mpets = await get_mpets_api(club=club, api_key=settings.api_key)
                 task = asyncio.create_task(start_verify_club(club,
-                                                             mpets_session[club.club_id]))
+                                                             mpets))
                 tasks.append(task)
                 if len(tasks) >= 20:
                     await asyncio.gather(*tasks)
@@ -393,20 +385,15 @@ async def checking_bots():
                     tasks = []
             for i in range(0, len(clubs_with_status_waiting)):
                 club = clubs_with_status_waiting[i]
-                if mpets_session.get(club.club_id) is None:
-                    mpets = MpetsApi(name=club.bot_name,
-                                     password=club.bot_password,
-                                     rucaptcha_api=settings.api_key)
-                    resp = await mpets.login()
-                    if resp['status']:
-                        mpets_session[club.club_id] = resp['cookies']
-                    else:
-                        account = await mpets.start()
-                        crud.update_club_bot(club_id=club.club_id,
-                                             bot_id=account["pet_id"],
-                                             bot_name=account["name"],
-                                             bot_password=account["password"])
-                task = asyncio.create_task(start_verify_account(club, mpets_session[club.club_id]))
+                mpets = await get_mpets_api(club=club, api_key=settings.api_key)
+                if mpets is None:
+                    return "Произошла ошибка. Повторите попытку еще раз. \n" \
+                           "В случае безрезультатной попытки, отправьте команду /report.\n" \
+                           "Ошибка: T394"
+                elif mpets is False:
+                    crud.update_club_status(club_id=club.club_id,
+                                            status="excluded")
+                task = asyncio.create_task(start_verify_account(club, mpets))
                 tasks.append(task)
                 if len(tasks) >= 20:
                     await asyncio.gather(*tasks)
@@ -723,7 +710,7 @@ async def start_verify_user(user, cookies):
         mpets = MpetsApi()
         await mpets.start()'''
     mpets = MpetsApi(cookies=cookies)
-    #await mpets.start()
+    # await mpets.start()
     for user_task in user_tasks:
         try:
             if user_task.status == "completed":
@@ -767,7 +754,8 @@ async def checking_users_tasks():
                 if not user_tasks:
                     continue
                 task = asyncio.create_task(start_verify_user(user,
-                                                             mpets_sessions[random.randint(0, len(mpets_sessions)-1)]))
+                                                             mpets_sessions[
+                                                                 random.randint(0, len(mpets_sessions) - 1)]))
                 tasks.append(task)
                 if len(tasks) >= 5:
                     await asyncio.gather(*tasks)
@@ -787,7 +775,6 @@ async def checking_users_tasks():
 
 async def creating_club_tasks():
     logger.debug("start creating_club_tasks")
-    mpets_session = {}
     settings = get_settings()
     while True:
         try:
@@ -796,14 +783,8 @@ async def creating_club_tasks():
             for user_task in user_tasks:
                 user = crud.get_user(user_id=user_task.user_id)
                 club = crud.get_club(club_id=user.club_id)
-                if mpets_session.get(club.club_id) is None:
-                    mpets = MpetsApi(name=club.bot_name,
-                                     password=club.bot_password,
-                                     rucaptcha_api=settings.api_key)
-                    resp = await mpets.login()
-                    if resp['status']:
-                        mpets_session[club.club_id] = resp['cookies']
-                await functions.creation_club_tasks(user_task, mpets_session[club.club_id])
+                mpets = await get_mpets_api(club=club, api_key=settings.api_key)
+                await functions.creation_club_tasks(user_task, mpets)
             await asyncio.sleep(3)
         except Exception as e:
             # raise
@@ -831,7 +812,7 @@ async def checking_thread():
                                              page=page)
                     continue
                 last_msg = crud.get_message(thread_id=thread_id,
-                                            message_id=int(msg['message_id'])-1)
+                                            message_id=int(msg['message_id']) - 1)
                 if last_msg is None:
                     pass
                 else:
@@ -1093,7 +1074,7 @@ async def checking_anketa_htask(mpets, user, user_task):
                 crud.update_user_task_name(user_task.id, task_name)
             else:
                 left_time = time.time() - int(start_time)
-                #logger.debug(f"left_time {left_time}")
+                # logger.debug(f"left_time {left_time}")
                 if left_time >= 86400:
                     crud.update_user_task(user_task.id, user_task.end, "completed")
                     crud.add_rewards(user_id=user.user_id, points=2, personal_tasks=1, club_tasks=1)
