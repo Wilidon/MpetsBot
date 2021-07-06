@@ -386,11 +386,7 @@ async def checking_bots():
             for i in range(0, len(clubs_with_status_waiting)):
                 club = clubs_with_status_waiting[i]
                 mpets = await get_mpets_api(club=club, api_key=settings.api_key)
-                if mpets is None:
-                    return "Произошла ошибка. Повторите попытку еще раз. \n" \
-                           "В случае безрезультатной попытки, отправьте команду /report.\n" \
-                           "Ошибка: T394"
-                elif mpets is False:
+                if mpets is False:
                     crud.update_club_status(club_id=club.club_id,
                                             status="excluded")
                 task = asyncio.create_task(start_verify_account(club, mpets))
