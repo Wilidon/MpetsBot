@@ -110,7 +110,6 @@ def get_next_user(users):
                             PayloadFilter({"command": "user_rating"}))
 async def user_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
-    # TODO если одинаковое количество рейтинга, то одно место
     current_user, counter, hidden = event["current_user"], 1, False
     top_users_stats = crud.get_users_stats_order_by_points(limit=30)
     text = "🧑‍ Рейтинг игроков \n\n"
