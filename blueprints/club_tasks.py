@@ -132,7 +132,7 @@ async def profile(event: SimpleBotEvent):
                            "В случае безрезультатной попытки, отправьте команду /report.\n" \
                            "Ошибка: C163"
                 pet = await mpets.view_profile(current_user.pet_id)
-                limits = await get_limits(pet["level"])  # TODO check
+                limits = await get_limits(pet["level"])
                 progress = abs((task.end - limits[task_name]) - task.progress)
                 end = limits[task_name]
             elif "send" in task_name:

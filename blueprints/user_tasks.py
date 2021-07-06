@@ -101,24 +101,47 @@ async def user_tasks(event: SimpleBotEvent):
     await menu(user=current_user, event=event, message=text)
 
 
+def get_next_user(users):
+    for user in users:
+        yield user
+
+
 @simple_bot_message_handler(user_router,
                             PayloadFilter({"command": "user_rating"}))
 async def user_rating(event: SimpleBotEvent):
     # Рейтинг пользователей
     # TODO если одинаковое количество рейтинга, то одно место
     current_user, counter, hidden = event["current_user"], 1, False
-    top_users_stats = crud.get_users_stats_order_by_points(limit=10)
+    top_users_stats = crud.get_users_stats_order_by_points(limit=30)
     text = "🧑‍ Рейтинг игроков \n\n"
     if not top_users_stats:
         return "Рейтинг пуст"
-    for user_stats in top_users_stats:
+    users = get_next_user(users=top_users_stats)
+    last_points = None
+    while counter <= 10:
+        user_stats = next(users)
         # Если пользователь уже есть в списке, 
         # то его статистика отдельно снизу не пишется
         if current_user.user_id == user_stats.user_id:
             hidden = True
+
         top_user = crud.get_user(user_stats.user_id)
-        text += f"{counter}. {top_user.name} — {user_stats.points} 🏅\n"
-        counter += 1
+        if last_points is None:
+            # Если в рейтинге есть пользователь с 50 очков и более,
+            # то активируется более "продвинутый" рейтинг.
+            if user_stats.points <= 49:
+                last_points = None
+            else:
+                last_points = user_stats.points
+            text += f"{counter}. {top_user.name} — {user_stats.points} 🏅\n"
+            counter += 1
+        elif last_points == user_stats.points:
+            last_points = user_stats.points
+            text += f"  {top_user.name} — {user_stats.points} 🏅\n"
+        else:
+            last_points = user_stats.points
+            text += f"{counter}. {top_user.name} — {user_stats.points} 🏅\n"
+            counter += 1
     if not hidden:
         current_user_stats = crud.get_user_stats(current_user.user_id)
         text += f"\n{current_user.name} — {current_user_stats.points} 🏅\n"
