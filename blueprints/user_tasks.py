@@ -119,7 +119,10 @@ async def user_rating(event: SimpleBotEvent):
     users = get_next_user(users=top_users_stats)
     last_points = None
     while counter <= 10:
-        user_stats = next(users)
+        try:
+            user_stats = next(users)
+        except StopIteration as e:
+            break
         # Если пользователь уже есть в списке, 
         # то его статистика отдельно снизу не пишется
         if current_user.user_id == user_stats.user_id:
@@ -137,7 +140,7 @@ async def user_rating(event: SimpleBotEvent):
             counter += 1
         elif last_points == user_stats.points:
             last_points = user_stats.points
-            text += f"  {top_user.name} — {user_stats.points} 🏅\n"
+            text += f"  {top_user.name} — {user_stats.points} 🏅\n"
         else:
             last_points = user_stats.points
             text += f"{counter}. {top_user.name} — {user_stats.points} 🏅\n"
